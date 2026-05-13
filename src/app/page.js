@@ -1,3 +1,4 @@
+import Navbar from "@/components/Navbar";
 export default function CreatorHubBeta() {
   const features = [
     {
@@ -46,18 +47,8 @@ export default function CreatorHubBeta() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-6">
       <div className="max-w-7xl mx-auto space-y-10">
-        <header className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold">CreatorHub</h1>
-            <p className="text-zinc-400 mt-2">
-              One platform for creators to sell everything.
-            </p>
-          </div>
-
-          <button className="bg-white text-black px-5 py-3 rounded-2xl font-semibold hover:scale-105 transition">
-            Launch Beta
-          </button>
-        </header>
+        <Navbar />
+        
 
         <section className="grid md:grid-cols-2 gap-8 items-center">
           <div className="space-y-6">
