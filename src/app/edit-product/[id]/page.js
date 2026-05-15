@@ -9,6 +9,7 @@ export default function EditProductPage() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
@@ -44,6 +45,23 @@ export default function EditProductPage() {
   async function handleUpdate(e) {
     e.preventDefault();
 
+    if (!title.trim()) {
+      alert("Please enter a product title.");
+      return;
+    }
+
+    if (!price.trim()) {
+      alert("Please enter a price.");
+      return;
+    }
+
+    if (!category) {
+      alert("Please select a category.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
     let imageUrl = currentImageUrl;
 
     if (image) {
@@ -55,6 +73,7 @@ export default function EditProductPage() {
 
       if (uploadError) {
         alert(uploadError.message);
+        setIsSubmitting(false);
         return;
       }
 
@@ -68,16 +87,17 @@ export default function EditProductPage() {
     const { error } = await supabase
       .from("products")
       .update({
-        title,
-        price,
+        title: title.trim(),
+        price: price.trim(),
         category,
-        description,
+        description: description.trim(),
         image_url: imageUrl,
       })
       .eq("id", params.id);
 
     if (error) {
       alert(error.message);
+      setIsSubmitting(false);
     } else {
       alert("Product updated!");
       router.push("/dashboard");
@@ -95,7 +115,11 @@ export default function EditProductPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-6">
       <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-10 w-full max-w-xl">
-        <h1 className="text-4xl font-bold mb-8">Edit Product</h1>
+        <h1 className="text-4xl font-bold mb-3">Edit Product</h1>
+
+        <p className="text-zinc-400 mb-8">
+          Update your product listing details.
+        </p>
 
         <form onSubmit={handleUpdate} className="space-y-6">
           <input
@@ -108,7 +132,7 @@ export default function EditProductPage() {
 
           <input
             type="text"
-            placeholder="Price"
+            placeholder="Price, e.g. $25"
             className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
@@ -154,9 +178,10 @@ export default function EditProductPage() {
 
           <button
             type="submit"
-            className="w-full bg-white text-black py-4 rounded-2xl font-semibold"
+            disabled={isSubmitting}
+            className="w-full bg-white text-black py-4 rounded-2xl font-semibold disabled:opacity-50"
           >
-            Save Changes
+            {isSubmitting ? "Saving Changes..." : "Save Changes"}
           </button>
         </form>
       </div>

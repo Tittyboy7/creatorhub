@@ -1,164 +1,262 @@
-import Navbar from "@/components/Navbar";
-export default function CreatorHubBeta() {
-  const features = [
-    {
-      title: "Unified Storefront",
-      description:
-        "Sell physical products, digital downloads, memberships, and livestream drops from one profile.",
-    },
-    {
-      title: "Creator Dashboard",
-      description:
-        "Track revenue, orders, followers, and engagement across all connected platforms.",
-    },
-    {
-      title: "AI Product Builder",
-      description:
-        "Generate product pages, descriptions, pricing ideas, and creator branding instantly.",
-    },
-    {
-      title: "Livestream Selling",
-      description:
-        "Host live drops and auctions for collectibles, merch, and exclusive content.",
-    },
-  ];
+import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
-  const creators = [
-    {
-      name: "Pokemon Creator",
-      revenue: "$12,430",
-      products: 128,
-      followers: "42K",
-    },
-    {
-      name: "Gaming Streamer",
-      revenue: "$8,920",
-      products: 74,
-      followers: "21K",
-    },
-    {
-      name: "Anime Artist",
-      revenue: "$5,140",
-      products: 43,
-      followers: "13K",
-    },
-  ];
+export default async function HomePage() {
+  const { data: creators } = await supabase
+    .from("creators")
+    .select("*")
+    .limit(3);
+
+  const { data: products } = await supabase
+    .from("products")
+    .select(`
+      *,
+      creators (
+        display_name,
+        username
+      )
+    `)
+    .limit(50);
+
+  const { data: announcements } = await supabase
+    .from("announcements")
+    .select(`
+      *,
+      creators (
+        display_name,
+        username
+      )
+    `)
+    .order("created_at", { ascending: false })
+    .limit(3);
+
+  const sortedProducts = (products || [])
+    .sort(
+      (a, b) =>
+        ((b.views || 0) + (b.favorites_count || 0)) -
+        ((a.views || 0) + (a.favorites_count || 0))
+    )
+    .slice(0, 6);
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-6">
-      <div className="max-w-7xl mx-auto space-y-10">
-        <Navbar />
-        
+    <div className="min-h-screen bg-zinc-950 text-white p-10">
+      <div className="max-w-7xl mx-auto space-y-16">
+        <section className="text-center py-20">
+          <h1 className="text-6xl font-bold mb-6">
+            One hub for creators to sell everything.
+          </h1>
 
-        <section className="grid md:grid-cols-2 gap-8 items-center">
-          <div className="space-y-6">
-            <div className="inline-block bg-zinc-800 px-4 py-2 rounded-full text-sm text-zinc-300">
-              Creator Commerce Platform
-            </div>
+          <p className="text-zinc-400 text-xl max-w-3xl mx-auto mb-10">
+            CreatorHub helps creators centralize products, storefronts,
+            social links, and external checkout pages in one simple profile.
+          </p>
 
-            <h2 className="text-5xl font-bold leading-tight">
-              Centralize your content, store, fans, and revenue.
-            </h2>
+          <div className="flex justify-center gap-4 flex-wrap">
+            <Link
+              href="/store"
+              className="bg-white text-black px-8 py-4 rounded-2xl font-semibold"
+            >
+              Browse Marketplace
+            </Link>
 
-            <p className="text-zinc-400 text-lg leading-relaxed">
-              Replace fragmented creator tools with one streamlined hub.
-              Sell products, memberships, livestream drops, and digital
-              content from one profile.
-            </p>
-
-            <div className="flex gap-4">
-              <button className="bg-white text-black px-6 py-3 rounded-2xl font-semibold hover:scale-105 transition">
-                Start Free
-              </button>
-
-              <button className="border border-zinc-700 px-6 py-3 rounded-2xl hover:bg-zinc-900 transition">
-                Watch Demo
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-2xl font-semibold">Revenue Dashboard</h3>
-                <p className="text-zinc-500 text-sm">
-                  Connected platforms overview
-                </p>
-              </div>
-
-              <div className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">
-                +28% Growth
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="bg-zinc-800 rounded-2xl p-4">
-                <p className="text-zinc-400 text-sm">Monthly Revenue</p>
-                <h4 className="text-3xl font-bold mt-2">$28,940</h4>
-              </div>
-
-              <div className="bg-zinc-800 rounded-2xl p-4">
-                <p className="text-zinc-400 text-sm">Orders</p>
-                <h4 className="text-3xl font-bold mt-2">1,482</h4>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {creators.map((creator, index) => (
-                <div
-                  key={index}
-                  className="bg-zinc-800 rounded-2xl p-4 flex items-center justify-between"
-                >
-                  <div>
-                    <h5 className="font-semibold">{creator.name}</h5>
-                    <p className="text-zinc-500 text-sm">
-                      {creator.followers} followers
-                    </p>
-                  </div>
-
-                  <div className="text-right">
-                    <p className="font-bold">{creator.revenue}</p>
-                    <p className="text-zinc-500 text-sm">
-                      {creator.products} products
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <Link
+              href="/login"
+              className="border border-zinc-700 px-8 py-4 rounded-2xl"
+            >
+              Create Account
+            </Link>
           </div>
         </section>
 
         <section>
-          <h2 className="text-3xl font-bold mb-8">Core Features</h2>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-zinc-600 transition"
-              >
-                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                <p className="text-zinc-400 leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="bg-gradient-to-r from-zinc-900 to-zinc-800 rounded-3xl p-10 text-center">
-          <h2 className="text-4xl font-bold mb-4">
-            Build the operating system for creators.
+          <h2 className="text-3xl font-bold mb-8">
+            Latest Announcements
           </h2>
 
-          <p className="text-zinc-400 max-w-2xl mx-auto text-lg mb-8">
-            Start with a simple creator storefront beta, then expand into
-            memberships, analytics, livestream commerce, and creator tools.
-          </p>
+          {!announcements || announcements.length === 0 ? (
+            <p className="text-zinc-400">No announcements yet.</p>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-6">
+              {announcements.map((announcement) => (
+                <div
+                  key={announcement.id}
+                  className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6"
+                >
+                  {announcement.creators && (
+                    <Link
+                      href={`/creator/${announcement.creators.username}`}
+                      className="text-zinc-400 hover:text-white"
+                    >
+                      {announcement.creators.display_name}
+                    </Link>
+                  )}
 
-          <button className="bg-white text-black px-8 py-4 rounded-2xl font-semibold hover:scale-105 transition">
-            Join the Beta Waitlist
-          </button>
+                  <h3 className="text-2xl font-semibold mt-3">
+                    {announcement.title}
+                  </h3>
+
+                  {announcement.content && (
+                    <p className="text-zinc-400 mt-3">
+                      {announcement.content}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+                <section>
+          <h2 className="text-3xl font-bold mb-8">
+            Featured Creators
+          </h2>
+
+          {!creators || creators.length === 0 ? (
+            <p className="text-zinc-400">No creators yet.</p>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-6">
+              {creators.map((creator) => (
+                <Link
+                  key={creator.id}
+                  href={`/creator/${creator.username}`}
+                  className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden hover:border-zinc-600 transition"
+                >
+                  {creator.banner_url ? (
+                    <img
+                      src={creator.banner_url}
+                      alt={creator.display_name}
+                      className="h-32 w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-32 bg-zinc-800" />
+                  )}
+
+                  <div className="p-6">
+                    {creator.avatar_url ? (
+                      <img
+                        src={creator.avatar_url}
+                        alt={creator.display_name}
+                        className="w-20 h-20 object-cover rounded-full -mt-16 mb-4 border-4 border-zinc-900"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 rounded-full bg-zinc-700 -mt-16 mb-4 border-4 border-zinc-900" />
+                    )}
+
+                    <h3 className="text-2xl font-semibold">
+                      {creator.display_name}
+                    </h3>
+
+                    <p className="text-zinc-400 mt-1">
+                      @{creator.username}
+                    </p>
+
+                    {creator.niche && (
+                      <span className="inline-block mt-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+                        {creator.niche}
+                      </span>
+                    )}
+
+                    {creator.bio && (
+                      <p className="text-zinc-400 mt-4 line-clamp-2">
+                        {creator.bio}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold">
+              Most Popular Products
+            </h2>
+
+            <Link
+              href="/store"
+              className="text-zinc-400 hover:text-white"
+            >
+              View all
+            </Link>
+          </div>
+
+          {sortedProducts.length === 0 ? (
+            <p className="text-zinc-400">No products yet.</p>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-6">
+              {sortedProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6"
+                >
+                  {product.image_url ? (
+                    <img
+                      src={product.image_url}
+                      alt={product.title}
+                      className="h-40 w-full object-cover rounded-2xl mb-4"
+                    />
+                  ) : (
+                    <div className="h-40 bg-zinc-800 rounded-2xl mb-4" />
+                  )}
+
+                  <Link
+                    href={`/product/${product.id}`}
+                    className="block text-2xl font-semibold hover:text-zinc-300"
+                  >
+                    {product.title}
+                  </Link>
+
+                  {product.category && (
+                    <span className="inline-block mt-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+                      {product.category}
+                    </span>
+                  )}
+
+                  <p className="text-2xl font-bold mt-4">
+                    {product.price}
+                  </p>
+
+                  {product.reviews_count > 0 && (
+                    <p className="text-zinc-500 mt-2">
+                      ⭐ {Number(product.average_rating).toFixed(1)} / 5 ·{" "}
+                      {product.reviews_count} review
+                      {product.reviews_count === 1 ? "" : "s"}
+                    </p>
+                  )}
+
+                  <p className="text-zinc-500 mt-2">
+                    {product.views || 0} views •{" "}
+                    {product.favorites_count || 0} favorites
+                  </p>
+
+                  {product.creators && (
+                    <Link
+                      href={`/creator/${product.creators.username}`}
+                      className="block mt-4 text-zinc-400 hover:text-white"
+                    >
+                      Sold by {product.creators.display_name}
+                    </Link>
+                  )}
+
+                  {product.external_url ? (
+                    <a
+                      href={product.external_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block mt-4 w-full text-center bg-white text-black py-3 rounded-2xl font-semibold"
+                    >
+                      Buy Now
+                    </a>
+                  ) : (
+                    <button className="block mt-4 w-full text-center bg-white text-black py-3 rounded-2xl font-semibold">
+                      Buy Now
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </div>

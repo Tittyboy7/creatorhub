@@ -4,12 +4,9 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 export default function CreateProfilePage() {
-  const [displayName, setDisplayName] =
-    useState("");
-
-  const [username, setUsername] =
-    useState("");
-
+  const [displayName, setDisplayName] = useState("");
+  const [username, setUsername] = useState("");
+  const [niche, setNiche] = useState("");
   const [bio, setBio] = useState("");
 
   async function handleSubmit(e) {
@@ -30,6 +27,7 @@ export default function CreateProfilePage() {
         user_id: user.id,
         display_name: displayName,
         username: username.toLowerCase(),
+        niche,
         bio,
       });
 
@@ -47,18 +45,13 @@ export default function CreateProfilePage() {
           Create Creator Profile
         </h1>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-6"
-        >
+        <form onSubmit={handleSubmit} className="space-y-6">
           <input
             type="text"
             placeholder="Display Name"
             className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
             value={displayName}
-            onChange={(e) =>
-              setDisplayName(e.target.value)
-            }
+            onChange={(e) => setDisplayName(e.target.value)}
           />
 
           <input
@@ -66,18 +59,22 @@ export default function CreateProfilePage() {
             placeholder="Username"
             className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
             value={username}
-            onChange={(e) =>
-              setUsername(e.target.value)
-            }
+            onChange={(e) => setUsername(e.target.value)}
+          />
+
+          <input
+            type="text"
+            placeholder="Niche (e.g. Gaming, Art, Fitness)"
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
+            value={niche}
+            onChange={(e) => setNiche(e.target.value)}
           />
 
           <textarea
             placeholder="Bio"
             className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 h-40"
             value={bio}
-            onChange={(e) =>
-              setBio(e.target.value)
-            }
+            onChange={(e) => setBio(e.target.value)}
           />
 
           <button
