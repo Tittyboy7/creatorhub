@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { formatDate } from "@/lib/formatDate";
 
 export default function FeedPage() {
   const router = useRouter();
@@ -43,9 +44,14 @@ export default function FeedPage() {
             display_name,
             username,
             avatar_url
+          ),
+          products (
+            id,
+            title
           )
         `)
-        .in("creator_id", creatorIds);
+        .in("creator_id", creatorIds)
+        .eq("is_active", true);
 
       const { data: products } = await supabase
         .from("products")
@@ -57,7 +63,8 @@ export default function FeedPage() {
             avatar_url
           )
         `)
-        .in("creator_id", creatorIds);
+        .in("creator_id", creatorIds)
+        .eq("is_active", true);
 
       const announcementItems = (announcements || []).map((announcement) => ({
         type: "announcement",
@@ -135,7 +142,7 @@ export default function FeedPage() {
                         </p>
                         <p className="text-zinc-500 text-sm">
                           @{creator.username}
-                        </p>
+                        </p>                        
                       </div>
                     </Link>
                   )}
@@ -150,10 +157,34 @@ export default function FeedPage() {
                         {data.title}
                       </h2>
 
+                      {creator && (
+                        <Link
+                          href={`/creator/${creator.username}`}
+                          className="block mt-2 text-zinc-400 hover:text-white"
+                        >
+                          View {creator.display_name}'s storefront
+                        </Link>
+                      )}
+
                       {data.content && (
                         <p className="text-zinc-400 mt-3">
                           {data.content}
                         </p>
+                      )}
+
+                      {data.products && (
+                        <>
+                          <span className="inline-block mt-4 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+                            Linked Product
+                          </span>
+
+                          <Link
+                            href={`/product/${data.products.id}`}
+                            className="inline-block mt-4 bg-white text-black px-5 py-3 rounded-2xl font-semibold"
+                          >
+                            View Product: {data.products.title}
+                          </Link>
+                        </>
                       )}
                     </>
                   ) : (
@@ -161,6 +192,10 @@ export default function FeedPage() {
                       <span className="inline-block mb-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
                         New Product
                       </span>
+
+                        <p className="text-zinc-500 text-sm mb-3">
+                          {formatDate(data.created_at)}
+                        </p>
 
                       {data.image_url && (
                         <img
@@ -176,6 +211,15 @@ export default function FeedPage() {
                       >
                         {data.title}
                       </Link>
+
+                      {creator && (
+                        <Link
+                          href={`/creator/${creator.username}`}
+                          className="block mt-2 text-zinc-400 hover:text-white"
+                        >
+                          View {creator.display_name}'s storefront
+                        </Link>
+                      )}
 
                       {data.category && (
                         <span className="inline-block mt-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">

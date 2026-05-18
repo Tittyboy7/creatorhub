@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
@@ -9,7 +9,42 @@ export default function AddAnnouncementPage() {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [products, setProducts] = useState([]);
+  const [selectedProductId, setSelectedProductId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    async function loadProducts() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
+      const { data: creator } = await supabase
+        .from("creators")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!creator) {
+        return;
+      }
+
+      const { data: productData } = await supabase
+        .from("products")
+        .select("id, title")
+        .eq("creator_id", creator.id)
+        .eq("is_active", true);
+
+      setProducts(productData || []);
+    }
+
+    loadProducts();
+  }, [router]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -47,6 +82,7 @@ export default function AddAnnouncementPage() {
       creator_id: creator.id,
       title: title.trim(),
       content: content.trim(),
+      product_id: selectedProductId || null,
     });
 
     if (error) {
@@ -84,6 +120,19 @@ export default function AddAnnouncementPage() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
+
+          <select
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
+            value={selectedProductId}
+            onChange={(e) => setSelectedProductId(e.target.value)}
+          >
+            <option value="">Optional: Link a product</option>
+            {products.map((product) => (
+              <option key={product.id} value={product.id}>
+                {product.title}
+              </option>
+            ))}
+          </select>
 
           <button
             type="submit"

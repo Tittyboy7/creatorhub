@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import FavoriteButton from "@/components/FavoriteButton";
+import BuyNowButton from "@/components/BuyNowButton";
 
 export default function FavoritesPage() {
   const router = useRouter();
@@ -33,7 +35,12 @@ export default function FavoritesPage() {
             description,
             category,
             image_url,
-            external_url
+            external_url,
+            is_active,
+            creators (
+              display_name,
+              username
+            )
           )
         `)
         .eq("user_id", user.id);
@@ -41,7 +48,9 @@ export default function FavoritesPage() {
       if (error) {
         alert(error.message);
       } else {
-        setFavorites(data || []);
+        setFavorites(
+          (data || []).filter((favorite) => favorite.products?.is_active)
+        );
       }
 
       setLoading(false);
@@ -68,7 +77,7 @@ export default function FavoritesPage() {
         </p>
 
         {favorites.length === 0 ? (
-          <p className="text-zinc-400">No saved products yet.</p>
+          <p className="text-zinc-400">No saved products yet, or saved products may no longer be available.</p>
         ) : (
           <div className="grid md:grid-cols-3 gap-6">
             {favorites.map((favorite) => {
@@ -93,9 +102,21 @@ export default function FavoritesPage() {
                     </div>
                   )}
 
-                  <h2 className="text-2xl font-semibold">
+                  <Link
+                    href={`/product/${product.id}`}
+                    className="block text-2xl font-semibold hover:text-zinc-300"
+                  >
                     {product.title}
-                  </h2>
+                  </Link>
+
+                  {product.creators && (
+                    <Link
+                      href={`/creator/${product.creators.username}`}
+                      className="block mt-2 text-zinc-400 hover:text-white"
+                    >
+                      Sold by {product.creators.display_name}
+                    </Link>
+                  )}
 
                   {product.category && (
                     <span className="inline-block mt-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
@@ -113,16 +134,12 @@ export default function FavoritesPage() {
                     {product.price}
                   </p>
 
-                  {product.external_url && (
-                    <a
-                      href={product.external_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block mt-4 text-center bg-white text-black py-3 rounded-2xl font-semibold"
-                    >
-                      Buy Now
-                    </a>
-                  )}
+                  <div className="mt-4">
+                    <BuyNowButton
+                      productId={product.id}
+                      externalUrl={product.external_url}
+                    />
+                  </div>
 
                   <FavoriteButton productId={product.id} />
                 </div>

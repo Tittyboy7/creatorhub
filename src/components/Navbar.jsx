@@ -25,13 +25,22 @@ useEffect(() => {
       return;
     }
 
-    const { count } = await supabase
+    const { data: activeCartItems } = await supabase
       .from("cart_items")
-      .select("*", { count: "exact", head: true })
+      .select(`
+        id,
+        products (
+          is_active
+        )
+      `)
       .eq("user_id", user.id);
 
-    setCartCount(count || 0);
-  }
+    const activeCount = (activeCartItems || []).filter(
+      (item) => item.products?.is_active
+    ).length;
+
+    setCartCount(activeCount);
+  }  
 
   loadUserAndCart();
 
@@ -53,7 +62,13 @@ useEffect(() => {
 }, []);
 
   async function handleLogout() {
-    await supabase.auth.signOut();
+    const confirmed = confirm("Are you sure you want to log out?");
+
+    if (!confirmed) {
+      return;
+    }
+
+   await supabase.auth.signOut();
     setMenuOpen(false);
     router.push("/");
     router.refresh();

@@ -1,5 +1,9 @@
+import { formatDate } from "@/lib/formatDate";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import BuyNowButton from "@/components/BuyNowButton";
+
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const { data: creators } = await supabase
@@ -12,10 +16,11 @@ export default async function HomePage() {
     .select(`
       *,
       creators (
-        display_name,
+       display_name,
         username
       )
     `)
+    .eq("is_active", true)
     .limit(50);
 
   const { data: announcements } = await supabase
@@ -25,8 +30,13 @@ export default async function HomePage() {
       creators (
         display_name,
         username
+    ),
+    products (
+      id,
+      title
       )
     `)
+    .eq("is_active", true)
     .order("created_at", { ascending: false })
     .limit(3);
 
@@ -95,10 +105,29 @@ export default async function HomePage() {
                     {announcement.title}
                   </h3>
 
+                  <p className="text-zinc-500 text-sm mt-1">
+                    {formatDate(announcement.created_at)}
+                  </p>
+
                   {announcement.content && (
                     <p className="text-zinc-400 mt-3">
                       {announcement.content}
                     </p>
+                  )}
+
+                  {announcement.products && (
+                    <>
+                      <span className="inline-block mt-4 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+                        Linked Product
+                      </span>
+
+                      <Link
+                        href={`/product/${announcement.products.id}`}
+                        className="inline-block mt-4 bg-white text-black px-5 py-3 rounded-2xl font-semibold"
+                      >
+                        View Product: {announcement.products.title}
+                      </Link>
+                    </>
                   )}
                 </div>
               ))}
@@ -239,20 +268,10 @@ export default async function HomePage() {
                     </Link>
                   )}
 
-                  {product.external_url ? (
-                    <a
-                      href={product.external_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block mt-4 w-full text-center bg-white text-black py-3 rounded-2xl font-semibold"
-                    >
-                      Buy Now
-                    </a>
-                  ) : (
-                    <button className="block mt-4 w-full text-center bg-white text-black py-3 rounded-2xl font-semibold">
-                      Buy Now
-                    </button>
-                  )}
+                  <BuyNowButton
+                    productId={product.id}
+                    externalUrl={product.external_url}
+                  />
                 </div>
               ))}
             </div>

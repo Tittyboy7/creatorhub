@@ -12,10 +12,21 @@ export default function EditAnnouncementPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [products, setProducts] = useState([]);
+  const [selectedProductId, setSelectedProductId] = useState("");
 
   useEffect(() => {
     async function loadAnnouncement() {
-      const { data, error } = await supabase
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
+      const { data: announcement, error } = await supabase
         .from("announcements")
         .select("*")
         .eq("id", params.id)
@@ -27,8 +38,26 @@ export default function EditAnnouncementPage() {
         return;
       }
 
-      setTitle(data.title || "");
-      setContent(data.content || "");
+      setTitle(announcement.title || "");
+      setContent(announcement.content || "");
+      setSelectedProductId(announcement.product_id || "");
+
+      const { data: creator } = await supabase
+        .from("creators")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (creator) {
+        const { data: productData } = await supabase
+          .from("products")
+          .select("id, title")
+          .eq("creator_id", creator.id)
+          .eq("is_active", true);
+
+        setProducts(productData || []);
+      }
+
       setLoading(false);
     }
 
@@ -50,6 +79,7 @@ export default function EditAnnouncementPage() {
       .update({
         title: title.trim(),
         content: content.trim(),
+        product_id: selectedProductId || null,
       })
       .eq("id", params.id);
 
@@ -94,6 +124,19 @@ export default function EditAnnouncementPage() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
+
+          <select
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
+            value={selectedProductId}
+            onChange={(e) => setSelectedProductId(e.target.value)}
+          >
+            <option value="">No linked product</option>
+            {products.map((product) => (
+              <option key={product.id} value={product.id}>
+                {product.title}
+              </option>
+            ))}
+          </select>
 
           <button
             type="submit"

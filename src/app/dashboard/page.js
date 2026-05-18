@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDate } from "@/lib/formatDate";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -47,7 +48,13 @@ export default function DashboardPage() {
 
         const { data: announcementData } = await supabase
           .from("announcements")
-          .select("*")
+          .select(`
+            *,
+            products (
+              id,
+              title
+            )
+          `)
           .eq("creator_id", creatorData.id)
           .order("created_at", { ascending: false });
 
@@ -79,6 +86,14 @@ export default function DashboardPage() {
   }, [router]);
 
   async function handleDeleteProduct(productId) {
+    const confirmed = confirm(
+      "Are you sure you want to permanently delete this product?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
     const { error } = await supabase
       .from("products")
       .delete()
@@ -93,7 +108,61 @@ export default function DashboardPage() {
     }
   }
 
+  async function handleToggleAnnouncementActive(announcement) {
+    const { error } = await supabase
+      .from("announcements")
+      .update({
+        is_active: !announcement.is_active,
+      })
+      .eq("id", announcement.id);
+
+    if (error) {
+      alert(error.message);
+    } else {
+      setAnnouncements((currentAnnouncements) =>
+        currentAnnouncements.map((currentAnnouncement) =>
+          currentAnnouncement.id === announcement.id
+            ? {
+                ...currentAnnouncement,
+                is_active: !announcement.is_active,
+              }
+            : currentAnnouncement
+        )
+      );
+    }
+  }
+
+  async function handleToggleProductActive(product) {
+    const { error } = await supabase
+      .from("products")
+      .update({
+        is_active: !product.is_active,
+      })
+      .eq("id", product.id);
+
+    if (error) {
+      alert(error.message);
+    } else {
+      setProducts((currentProducts) =>
+        currentProducts.map((currentProduct) =>
+          currentProduct.id === product.id
+            ? { ...currentProduct, is_active: !product.is_active }
+            : currentProduct
+        )
+      );
+      window.dispatchEvent(new Event("cartUpdated"));
+    }
+  }
+
   async function handleDeleteAnnouncement(announcementId) {
+    const confirmed = confirm(
+      "Are you sure you want to permanently delete this announcement?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
     const { error } = await supabase
       .from("announcements")
       .delete()
@@ -316,16 +385,45 @@ export default function DashboardPage() {
       {announcements.map((announcement) => (
         <div
           key={announcement.id}
-          className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6"
+          className={`bg-zinc-900 border rounded-3xl p-6 ${
+            announcement.is_active
+              ? "border-zinc-800"
+              : "border-red-900 opacity-70"
+          }`}
         >
           <h3 className="text-2xl font-semibold">
             {announcement.title}
           </h3>
 
+          <p className="text-zinc-500 text-sm mt-1">
+            {formatDate(announcement.created_at)}
+          </p>
+
+          {announcement.products && (
+            <span className="inline-block mt-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+              Linked Product
+            </span>
+          )}
+
+          {!announcement.is_active && (
+            <span className="inline-block mt-3 bg-red-950 text-red-400 px-3 py-1 rounded-full text-sm">
+              Hidden
+            </span>
+          )}
+
           {announcement.content && (
             <p className="text-zinc-400 mt-3">
               {announcement.content}
             </p>
+          )}
+
+          {announcement.products && (
+            <Link
+              href={`/product/${announcement.products.id}`}
+              className="inline-block mt-4 text-zinc-400 hover:text-white"
+            >
+              Linked product: {announcement.products.title}
+            </Link>
           )}
 
             <Link
@@ -334,6 +432,17 @@ export default function DashboardPage() {
             >
               Edit Announcement
             </Link>
+
+          <button
+            onClick={() =>
+              handleToggleAnnouncementActive(announcement)
+            }
+            className="mt-4 mr-3 border border-zinc-700 text-zinc-300 px-5 py-3 rounded-2xl hover:bg-zinc-800"
+          >
+            {announcement.is_active
+              ? "Hide Announcement"
+              : "Unhide Announcement"}
+          </button>
 
           <button
             onClick={() =>
@@ -379,6 +488,12 @@ export default function DashboardPage() {
 
                       <h3 className="text-xl font-semibold">{product.title}</h3>
 
+                      {!product.is_active && (
+                        <span className="inline-block mt-3 bg-red-950 text-red-400 px-3 py-1 rounded-full text-sm">
+                          Hidden
+                        </span>
+                      )}
+
                       {product.category && (
                         <span className="inline-block mt-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
                           {product.category}
@@ -412,6 +527,13 @@ export default function DashboardPage() {
                         >
                           Edit Product
                         </Link>
+
+                        <button
+                          onClick={() => handleToggleProductActive(product)}
+                          className="w-full border border-zinc-700 text-zinc-300 py-3 rounded-2xl hover:bg-zinc-800 flex items-center justify-center"
+                        >
+                          {product.is_active ? "Hide Product" : "Unhide Product"}
+                        </button>
 
                         <button
                           onClick={() => handleDeleteProduct(product.id)}

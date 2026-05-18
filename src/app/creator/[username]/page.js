@@ -1,6 +1,10 @@
+import { formatDate } from "@/lib/formatDate";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import FollowButton from "@/components/FollowButton";
+import BuyNowButton from "@/components/BuyNowButton";
+
+export const dynamic = "force-dynamic";
 
 export default async function CreatorProfilePage({ params }) {
   const { username } = await params;
@@ -22,12 +26,20 @@ export default async function CreatorProfilePage({ params }) {
   const { data: creatorProducts } = await supabase
     .from("products")
     .select("*")
-    .eq("creator_id", creator.id);
+    .eq("creator_id", creator.id)
+    .eq("is_active", true);
 
   const { data: announcements } = await supabase
     .from("announcements")
-    .select("*")
+    .select(`
+      *,
+      products (
+        id,
+        title
+      )
+    `)
     .eq("creator_id", creator.id)
+    .eq("is_active", true)
     .order("created_at", { ascending: false });
 
   return (
@@ -93,10 +105,28 @@ export default async function CreatorProfilePage({ params }) {
                     {announcement.title}
                   </h3>
 
+                  <p className="text-zinc-500 text-sm mt-1">
+                    {formatDate(announcement.created_at)}
+                  </p>
+
                   {announcement.content && (
                     <p className="text-zinc-400 mt-2">
                       {announcement.content}
                     </p>
+                  )}
+                  {announcement.products && (
+                    <>
+                      <span className="inline-block mt-4 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+                        Linked Product
+                      </span>
+
+                      <Link
+                        href={`/product/${announcement.products.id}`}
+                        className="block mt-3 bg-white text-black px-5 py-3 rounded-2xl font-semibold text-center"
+                      >
+                        View Product: {announcement.products.title}
+                      </Link>
+                    </>
                   )}
                 </div>
               ))}
@@ -226,22 +256,10 @@ export default async function CreatorProfilePage({ params }) {
                   </p>
                 )}
 
-                {product.external_url ? (
-                  <a
-                    href={product.external_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-4 w-full bg-white text-black py-3 rounded-2xl font-semibold flex items-center justify-center"
-                  >
-                    Buy Now
-                  </a>
-                ) : (
-                  <button
-                    className="mt-4 w-full bg-white text-black py-3 rounded-2xl font-semibold flex items-center justify-center"
-                  >
-                    Buy Now
-                  </button>
-                )}
+                <BuyNowButton
+                  productId={product.id}
+                  externalUrl={product.external_url}
+                />
               </div>
             ))}
           </div>

@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import BuyNowButton from "@/components/BuyNowButton";
 
 export default function CartPage() {
   const router = useRouter();
@@ -31,14 +33,22 @@ export default function CartPage() {
             price,
             description,
             image_url,
-            external_url
+            external_url,
+            is_active,
+            creators (
+              display_name,
+              username
+            )
           )
-        `);
+        `)
+        .eq("user_id", user.id);
 
       if (error) {
         alert(error.message);
       } else {
-        setCartItems(data || []);
+        setCartItems(
+          (data || []).filter((item) => item.products?.is_active)
+        );
       }
 
       setLoading(false);
@@ -57,7 +67,7 @@ export default function CartPage() {
       alert(error.message);
     } else {
       setCartItems((items) =>
-        items.filter((item) => item.id !== cartItemId)      
+        items.filter((item) => item.id !== cartItemId)
       );
       window.dispatchEvent(new Event("cartUpdated"));
     }
@@ -89,7 +99,7 @@ export default function CartPage() {
         </p>
 
         {cartItems.length === 0 ? (
-          <p className="text-zinc-400">Your cart is empty.</p>
+          <p className="text-zinc-400">Your cart is empty, or items may no longer be available.</p>
         ) : (
           <div className="space-y-6">
             {cartItems.map((item) => {
@@ -115,9 +125,21 @@ export default function CartPage() {
                   )}
 
                   <div className="flex-1">
-                    <h2 className="text-2xl font-semibold">
+                    <Link
+                      href={`/product/${product.id}`}
+                      className="block text-2xl font-semibold hover:text-zinc-300"
+                    >
                       {product.title}
-                    </h2>
+                    </Link>
+
+                    {product.creators && (
+                      <Link
+                        href={`/creator/${product.creators.username}`}
+                        className="block mt-2 text-zinc-400 hover:text-white"
+                      >
+                        Sold by {product.creators.display_name}
+                      </Link>
+                    )}
 
                     {product.description && (
                       <p className="text-zinc-400 mt-2">
@@ -130,16 +152,12 @@ export default function CartPage() {
                     </p>
 
                     <div className="flex flex-wrap gap-3 mt-6">
-                      {product.external_url && (
-                        <a
-                          href={product.external_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
-                        >
-                          Buy Now
-                        </a>
-                      )}
+                      <div className="w-full md:w-auto">
+                        <BuyNowButton
+                          productId={product.id}
+                          externalUrl={product.external_url}
+                        />
+                      </div>
 
                       <button
                         onClick={() => removeFromCart(item.id)}
@@ -165,7 +183,8 @@ export default function CartPage() {
               </p>
 
               <p className="text-zinc-500 mt-2 text-sm">
-                Click the Buy Now button on each cart item to complete your purchase.
+                Click the Buy Now button on each cart item to complete your
+                purchase.
               </p>
             </div>
           </div>

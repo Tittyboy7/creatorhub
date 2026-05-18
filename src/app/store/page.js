@@ -23,7 +23,8 @@ export default function StorePage() {
             display_name,
             username
           )
-        `);
+        `)
+        .eq("is_active", true);
 
       if (error) {
         console.log(error);
