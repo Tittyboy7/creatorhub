@@ -76,8 +76,24 @@ export default function FavoritesPage() {
           Products you saved.
         </p>
 
+        <p className="text-zinc-400 mb-6">
+          Showing {favorites.length} saved product
+          {favorites.length === 1 ? "" : "s"}
+        </p>
+
         {favorites.length === 0 ? (
-          <p className="text-zinc-400">No saved products yet, or saved products may no longer be available.</p>
+          <div>
+            <p className="text-zinc-400">
+              No saved products yet, or saved products may no longer be available.
+            </p>
+
+            <Link
+              href="/store"
+              className="inline-block mt-6 bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+            >
+              Browse Marketplace
+            </Link>
+          </div>
         ) : (
           <div className="grid md:grid-cols-3 gap-6">
             {favorites.map((favorite) => {

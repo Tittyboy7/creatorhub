@@ -99,7 +99,18 @@ export default function CartPage() {
         </p>
 
         {cartItems.length === 0 ? (
-          <p className="text-zinc-400">Your cart is empty, or items may no longer be available.</p>
+          <div>
+            <p className="text-zinc-400">
+              Your cart is empty, or items may no longer be available.
+            </p>
+
+            <Link
+              href="/store"
+              className="inline-block mt-6 bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+            >
+              Browse Marketplace
+            </Link>
+          </div>
         ) : (
           <div className="space-y-6">
             {cartItems.map((item) => {

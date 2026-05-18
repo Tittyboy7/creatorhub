@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -120,6 +121,13 @@ export default function EditProductPage() {
         <p className="text-zinc-400 mb-8">
           Update your product listing details.
         </p>
+
+        <Link
+          href="/dashboard"
+          className="inline-block mb-8 border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
+        >
+          Back to Dashboard
+        </Link>
 
         <form onSubmit={handleUpdate} className="space-y-6">
           <input

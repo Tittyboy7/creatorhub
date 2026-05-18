@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -146,6 +147,13 @@ export default function EditProfilePage() {
     <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-6">
       <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-10 w-full max-w-xl">
         <h1 className="text-4xl font-bold mb-8">Edit Creator Profile</h1>
+
+        <Link
+          href="/dashboard"
+          className="inline-block mb-8 border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
+        >
+          Back to Dashboard
+        </Link>
 
         <form onSubmit={handleUpdate} className="space-y-6">
           <input

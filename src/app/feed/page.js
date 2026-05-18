@@ -96,20 +96,33 @@ export default function FeedPage() {
       </div>
     );
   }
-
-  return (
+    return (
     <div className="min-h-screen bg-zinc-950 text-white p-10">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-5xl font-bold mb-4">Feed</h1>
 
-        <p className="text-zinc-400 text-lg mb-10">
+        <p className="text-zinc-400 text-lg mb-4">
           Announcements and new products from creators you follow.
         </p>
 
+        <p className="text-zinc-400 mb-10">
+          Showing {feedItems.length} update
+          {feedItems.length === 1 ? "" : "s"}
+        </p>
+
         {feedItems.length === 0 ? (
-          <p className="text-zinc-400">
-            No updates from followed creators yet.
-          </p>
+          <div>
+            <p className="text-zinc-400">
+              No updates from followed creators yet.
+            </p>
+
+            <Link
+              href="/creators"
+              className="inline-block mt-6 bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+            >
+              Discover Creators
+            </Link>
+          </div>
         ) : (
           <div className="space-y-6">
             {feedItems.map((item, index) => {
@@ -140,9 +153,14 @@ export default function FeedPage() {
                         <p className="font-semibold">
                           {creator.display_name}
                         </p>
+
                         <p className="text-zinc-500 text-sm">
                           @{creator.username}
-                        </p>                        
+                        </p>
+
+                        <p className="text-zinc-600 text-xs">
+                          {formatDate(data.created_at)}
+                        </p>
                       </div>
                     </Link>
                   )}
@@ -180,7 +198,7 @@ export default function FeedPage() {
 
                           <Link
                             href={`/product/${data.products.id}`}
-                            className="inline-block mt-4 bg-white text-black px-5 py-3 rounded-2xl font-semibold"
+                            className="block mt-3 bg-white text-black px-5 py-3 rounded-2xl font-semibold text-center"
                           >
                             View Product: {data.products.title}
                           </Link>
@@ -192,10 +210,6 @@ export default function FeedPage() {
                       <span className="inline-block mb-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
                         New Product
                       </span>
-
-                        <p className="text-zinc-500 text-sm mb-3">
-                          {formatDate(data.created_at)}
-                        </p>
 
                       {data.image_url && (
                         <img

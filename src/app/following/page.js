@@ -66,8 +66,24 @@ export default function FollowingPage() {
           Creators you follow.
         </p>
 
+        <p className="text-zinc-400 mb-6">
+          Showing {following.length} creator
+          {following.length === 1 ? "" : "s"}
+        </p>
+
         {following.length === 0 ? (
-          <p className="text-zinc-400">You are not following any creators yet.</p>
+          <div>
+            <p className="text-zinc-400">
+              You are not following any creators yet.
+            </p>
+
+            <Link
+              href="/creators"
+              className="inline-block mt-6 bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+            >
+              Discover Creators
+            </Link>
+          </div>
         ) : (
           <div className="grid md:grid-cols-3 gap-6">
             {following.map((item) => {

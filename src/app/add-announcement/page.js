@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -104,6 +105,13 @@ export default function AddAnnouncementPage() {
         <p className="text-zinc-400 mb-8">
           Share an update with your storefront visitors.
         </p>
+
+        <Link
+          href="/dashboard"
+          className="inline-block mb-8 border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
+        >
+          Back to Dashboard
+        </Link>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <input

@@ -139,11 +139,24 @@ export default function StorePage() {
             </button>
           ))}
         </div>
+        <p className="text-zinc-400 mb-6">
+          Showing {sortedProducts.length} product
+          {sortedProducts.length === 1 ? "" : "s"}
+        </p>
 
         {sortedProducts.length === 0 ? (
-          <p className="text-zinc-400">
-            No products found.
-          </p>
+          <div>
+            <p className="text-zinc-400">
+              No products found.
+            </p>
+
+            <Link
+              href="/creators"
+              className="inline-block mt-6 bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+            >
+              Discover Creators
+            </Link>
+          </div>
         ) : (
           <div className="grid md:grid-cols-3 gap-6">
             {sortedProducts.map((product) => (
