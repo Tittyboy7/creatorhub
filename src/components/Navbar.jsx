@@ -11,6 +11,7 @@ export default function Navbar() {
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
 
 useEffect(() => {
   async function loadUserAndCart() {
@@ -22,8 +23,17 @@ useEffect(() => {
 
     if (!user) {
       setCartCount(0);
+      setIsAdmin(false);
       return;
     }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", user.id)
+      .single();
+
+    setIsAdmin(profile?.is_admin || false);
 
     const { data: activeCartItems } = await supabase
       .from("cart_items")
@@ -40,7 +50,7 @@ useEffect(() => {
     ).length;
 
     setCartCount(activeCount);
-  }  
+  }
 
   loadUserAndCart();
 
@@ -54,10 +64,7 @@ useEffect(() => {
 
   return () => {
     subscription.unsubscribe();
-    window.removeEventListener(
-      "cartUpdated",
-      loadUserAndCart
-    );
+    window.removeEventListener("cartUpdated", loadUserAndCart);
   };
 }, []);
 
@@ -111,11 +118,21 @@ useEffect(() => {
             Marketplace
           </Link>
 
+          <Link href="/roadmap" className="hover:text-white transition">
+            Roadmap
+          </Link>
+
           {user ? (
             <>
               <Link href="/dashboard" className="hover:text-white transition">
                 Dashboard
               </Link>
+
+              {isAdmin && (
+                <Link href="/admin" className="hover:text-white transition">
+                  Admin
+                </Link>
+              )}
 
               <Link href="/favorites" className="hover:text-white transition">
                 Favorites
@@ -177,6 +194,14 @@ useEffect(() => {
             Marketplace
           </Link>
 
+          <Link
+            href="/roadmap"
+            onClick={closeMenu}
+            className="block border border-zinc-800 rounded-2xl p-4"
+          >
+            Roadmap
+          </Link>
+
           {user ? (
             <>
               <Link
@@ -186,6 +211,16 @@ useEffect(() => {
               >
                 Dashboard
               </Link>
+
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  onClick={closeMenu}
+                  className="block border border-zinc-800 rounded-2xl p-4"
+                >
+                  Admin
+                </Link>
+              )}
 
               <Link
                 href="/favorites"
