@@ -128,6 +128,10 @@ useEffect(() => {
                 Dashboard
               </Link>
 
+              <Link href="/revenue" className="hover:text-white transition">
+                Revenue
+              </Link>
+
               {isAdmin && (
                 <Link href="/admin" className="hover:text-white transition">
                   Admin
@@ -210,6 +214,14 @@ useEffect(() => {
                 className="block border border-zinc-800 rounded-2xl p-4"
               >
                 Dashboard
+              </Link>
+
+              <Link
+                href="/revenue"
+                onClick={closeMenu}
+                className="block border border-zinc-800 rounded-2xl p-4"
+              >
+                Revenue
               </Link>
 
               {isAdmin && (

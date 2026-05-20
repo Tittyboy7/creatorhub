@@ -16,6 +16,8 @@ export default function DashboardPage() {
   const [announcements, setAnnouncements] = useState([]);
   const [totalFavorites, setTotalFavorites] = useState(0);
   const [totalFollowers, setTotalFollowers] = useState(0);
+  const [revenueEntries, setRevenueEntries] = useState([]);
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
   useEffect(() => {
     async function loadDashboard() {
@@ -78,6 +80,21 @@ export default function DashboardPage() {
 
         setTotalFollowers(followerCount || 0);
       }
+
+      const { data: revenueData } = await supabase
+        .from("revenue_entries")
+        .select("*")
+        .eq("creator_id", creatorData.id)
+        .order("entry_month", { ascending: false });
+
+      setRevenueEntries(revenueData || []);
+
+      const revenueTotal = (revenueData || []).reduce(
+        (sum, entry) => sum + Number(entry.amount || 0),
+        0
+      );
+
+      setTotalRevenue(revenueTotal);
 
       setLoading(false);
     }
@@ -244,7 +261,7 @@ export default function DashboardPage() {
         </div>
 
         {creator && (
-          <div className="grid md:grid-cols-5 gap-6">
+          <div className="grid md:grid-cols-7 gap-6">
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
               <p className="text-zinc-400">Products</p>
               <p className="text-4xl font-bold mt-2">{products.length}</p>
@@ -269,6 +286,20 @@ export default function DashboardPage() {
               <p className="text-zinc-400">Checkout Clicks</p>
               <p className="text-4xl font-bold mt-2">
                 {totalCheckoutClicks}
+              </p>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+              <p className="text-zinc-400">Total Revenue</p>
+              <p className="text-4xl font-bold mt-2">
+                ${totalRevenue.toFixed(2)}
+              </p>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+              <p className="text-zinc-400">Revenue Entries</p>
+              <p className="text-4xl font-bold mt-2">
+                {revenueEntries.length}
               </p>
             </div>
           </div>
@@ -368,8 +399,49 @@ export default function DashboardPage() {
                 >
                   View Storefront
                 </Link>
+
+                <Link
+                  href="/add-revenue"
+                  className="bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+                >
+                  Add Revenue
+                </Link>
+
+                <Link
+                  href="/revenue"
+                  className="border border-zinc-700 px-6 py-3 rounded-2xl"
+                >
+                  View Revenue
+                </Link>
+              </div>
             </div>
-</div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <h2 className="text-3xl font-bold mb-3">
+                Revenue Tracking
+              </h2>
+
+              <p className="text-zinc-400 mb-6">
+                Track income from Twitch, Kick, YouTube, products,
+                sponsorships, and more.
+              </p>
+
+              <div className="flex gap-4 flex-wrap">
+                <Link
+                  href="/revenue"
+                  className="bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+                >
+                  View Revenue
+                </Link>
+
+                <Link
+                  href="/add-revenue"
+                  className="border border-zinc-700 px-6 py-3 rounded-2xl"
+                >
+                  Add Revenue
+                </Link>
+              </div>
+            </div>
 
 <div>
   <h2 className="text-3xl font-bold mb-6">
