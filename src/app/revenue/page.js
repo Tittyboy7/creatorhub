@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { formatMonth } from "@/lib/formatMonth";
 import {
   BarChart,
   Bar,
@@ -84,17 +85,21 @@ export default function RevenuePage() {
     ...new Set(entries.map((entry) => entry.revenue_type)),
   ];
 
-  const filteredEntries = entries.filter((entry) => {
-    const platformMatches =
-      selectedPlatform === "All" ||
-      entry.platform === selectedPlatform;
+  const filteredEntries = entries
+    .filter((entry) => {
+      const platformMatches =
+        selectedPlatform === "All" ||
+        entry.platform === selectedPlatform;
 
-    const typeMatches =
-      selectedRevenueType === "All" ||
-      entry.revenue_type === selectedRevenueType;
+      const typeMatches =
+        selectedRevenueType === "All" ||
+        entry.revenue_type === selectedRevenueType;
 
-    return platformMatches && typeMatches;
-  });
+      return platformMatches && typeMatches;
+    })
+    .sort((a, b) =>
+      b.entry_month.localeCompare(a.entry_month)
+    );
 
   const totalRevenue = filteredEntries.reduce(
     (sum, entry) => sum + Number(entry.amount || 0),
@@ -177,15 +182,36 @@ export default function RevenuePage() {
           ))}
         </select>
 
-        <button
-          onClick={() => {
-            setSelectedPlatform("All");
-            setSelectedRevenueType("All");
-          }}
-          className="mb-10 border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
-        >
-          Reset Filters
-        </button>
+        <div className="flex gap-4 flex-wrap mb-10">
+          <button
+            onClick={() => {
+              setSelectedPlatform("All");
+              setSelectedRevenueType("All");
+            }}
+            className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
+          >
+            Reset Filters
+          </button>
+
+          <Link
+            href="/add-revenue"
+            className="bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+          >
+            Add Revenue
+          </Link>
+
+          <Link
+            href="/import-revenue"
+            className="bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+          >
+            Import Revenue CSV
+          </Link>
+        </div>
+
+        <p className="text-zinc-400 mb-10">
+          Showing {filteredEntries.length} revenue entr
+          {filteredEntries.length === 1 ? "y" : "ies"}
+        </p>
 
         <div className="grid md:grid-cols-2 gap-6 mb-10">
           <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
@@ -262,7 +288,9 @@ export default function RevenuePage() {
                   key={month}
                   className="flex items-center justify-between border border-zinc-800 rounded-2xl p-4"
                 >
-                  <span className="font-semibold">{month}</span>
+                  <span className="font-semibold">
+                    {formatMonth(month)}
+                  </span>
                   <span className="text-zinc-300">
                     ${amount.toFixed(2)}
                   </span>
@@ -330,7 +358,7 @@ export default function RevenuePage() {
                       </h3>
 
                       <p className="text-zinc-400 mt-1">
-                        {entry.revenue_type} · {entry.entry_month}
+                        {entry.revenue_type} · {formatMonth(entry.entry_month)}
                       </p>
                     </div>
 

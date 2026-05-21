@@ -24,6 +24,9 @@ export default function RoadmapPage() {
               <li>✅ Cart</li>
               <li>✅ Announcements</li>
               <li>✅ Creator analytics</li>
+              <li>✅ Manual revenue tracking</li>
+              <li>✅ Revenue CSV import</li>
+              <li>✅ Revenue charts and filters</li>
             </ul>
           </div>
 
@@ -36,6 +39,9 @@ export default function RoadmapPage() {
               <li>⬜ Creator notifications</li>
               <li>⬜ Advanced analytics</li>
               <li>⬜ Featured creator spots</li>
+              <li>⬜ Advanced revenue graphs</li>
+              <li>⬜ Platform API integrations</li>
+              <li>⬜ Twitch, Kick, and YouTube analytics sync</li>
             </ul>
           </div>
         </div>

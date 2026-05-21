@@ -346,7 +346,7 @@ export default function ImportRevenuePage() {
             </table>
 
             <p className="text-zinc-500 mt-4 text-sm">
-              Showing first 10 rows. Valid rows can now be imported.
+              Showing first 10 rows. Duplicate entries will be skipped automatically during import.
             </p>
           </div>
         )}
