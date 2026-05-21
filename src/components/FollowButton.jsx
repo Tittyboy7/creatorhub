@@ -40,6 +40,25 @@ export default function FollowButton({ creatorId }) {
     loadFollowData();
   }, [creatorId]);
 
+  async function createFollowNotification() {
+    const { data: creator } = await supabase
+      .from("creators")
+      .select("id, user_id")
+      .eq("id", creatorId)
+      .single();
+
+    if (!creator?.user_id || creator.user_id === user.id) {
+      return;
+    }
+
+    await supabase.from("notifications").insert({
+      user_id: creator.user_id,
+      creator_id: creator.id,
+      title: "New Follower",
+      message: "Someone followed your creator profile.",
+    });
+  }
+
   async function toggleFollow() {
     if (!user) {
       alert("Please log in to follow creators.");
@@ -73,6 +92,8 @@ export default function FollowButton({ creatorId }) {
         alert(error.message);
         return;
       }
+
+      await createFollowNotification();
 
       setFollowId(data.id);
       setFollowerCount((count) => count + 1);

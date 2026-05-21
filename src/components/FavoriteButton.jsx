@@ -32,6 +32,34 @@ export default function FavoriteButton({ productId }) {
     loadFavorite();
   }, [productId]);
 
+  async function createFavoriteNotification() {
+    const { data: product } = await supabase
+      .from("products")
+      .select(`
+        id,
+        creator_id,
+        creators (
+          id,
+          user_id
+        )
+      `)
+      .eq("id", productId)
+      .single();
+
+    const creatorUserId = product?.creators?.user_id;
+
+    if (!creatorUserId || creatorUserId === user.id) {
+      return;
+    }
+
+    await supabase.from("notifications").insert({
+      user_id: creatorUserId,
+      creator_id: product.creator_id,
+      title: "Product Favorited",
+      message: "Someone saved one of your products.",
+    });
+  }
+
   async function toggleFavorite() {
     if (!user) {
       alert("Please log in to save favorites.");
@@ -58,7 +86,10 @@ export default function FavoriteButton({ productId }) {
       await supabase
         .from("products")
         .update({
-          favorites_count: Math.max((product?.favorites_count || 0) - 1, 0),
+          favorites_count: Math.max(
+            (product?.favorites_count || 0) - 1,
+            0
+          ),
         })
         .eq("id", productId);
 
@@ -81,9 +112,12 @@ export default function FavoriteButton({ productId }) {
       await supabase
         .from("products")
         .update({
-          favorites_count: (product?.favorites_count || 0) + 1,
+          favorites_count:
+            (product?.favorites_count || 0) + 1,
         })
         .eq("id", productId);
+
+      await createFavoriteNotification();
 
       setFavoriteId(data.id);
     }

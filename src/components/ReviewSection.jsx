@@ -20,7 +20,6 @@ export default function ReviewSection({ productId }) {
       .eq("product_id", productId);
 
     const reviewList = data || [];
-
     const reviewsCount = reviewList.length;
 
     const averageRating =
@@ -54,6 +53,35 @@ export default function ReviewSection({ productId }) {
     setReviews(data || []);
   }
 
+  async function createReviewNotification() {
+    const { data: product } = await supabase
+      .from("products")
+      .select(`
+        id,
+        title,
+        creator_id,
+        creators (
+          id,
+          user_id
+        )
+      `)
+      .eq("id", productId)
+      .single();
+
+    const creatorUserId = product?.creators?.user_id;
+
+    if (!creatorUserId || creatorUserId === user.id) {
+      return;
+    }
+
+    await supabase.from("notifications").insert({
+      user_id: creatorUserId,
+      creator_id: product.creator_id,
+      title: "New Product Review",
+      message: `Someone reviewed your product: ${product.title}`,
+    });
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
 
@@ -72,6 +100,8 @@ export default function ReviewSection({ productId }) {
     if (error) {
       alert(error.message);
     } else {
+      await createReviewNotification();
+
       setComment("");
       setRating("5");
       await updateProductRating();

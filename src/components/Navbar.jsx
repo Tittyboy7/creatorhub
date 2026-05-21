@@ -12,6 +12,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
 
 useEffect(() => {
   async function loadUserAndCart() {
@@ -34,6 +35,16 @@ useEffect(() => {
       .single();
 
     setIsAdmin(profile?.is_admin || false);
+
+    const { data: unreadNotifications } = await supabase
+      .from("notifications")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("is_read", false);
+
+    setNotificationCount(
+      (unreadNotifications || []).length
+    );
 
     const { data: activeCartItems } = await supabase
       .from("cart_items")
@@ -65,6 +76,16 @@ useEffect(() => {
   return () => {
     subscription.unsubscribe();
     window.removeEventListener("cartUpdated", loadUserAndCart);
+
+    window.removeEventListener(
+      "notificationsUpdated",
+      loadUserAndCart
+    );
+
+    window.addEventListener(
+      "notificationsUpdated",
+      loadUserAndCart
+    );
   };
 }, []);
 
@@ -87,6 +108,11 @@ useEffect(() => {
 
   const cartLabel =
     cartCount > 0 ? `Cart (${cartCount})` : "Cart";
+
+    const notificationLabel =
+      notificationCount > 0
+        ? `Notifications (${notificationCount})`
+        : "Notifications";
 
   return (
     <header className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur border-b border-zinc-800">
@@ -126,6 +152,10 @@ useEffect(() => {
             <>
               <Link href="/dashboard" className="hover:text-white transition">
                 Dashboard
+              </Link>
+
+              <Link href="/notifications" className="hover:text-white transition">
+                {notificationLabel}
               </Link>
 
               <Link href="/revenue" className="hover:text-white transition">
@@ -214,6 +244,14 @@ useEffect(() => {
                 className="block border border-zinc-800 rounded-2xl p-4"
               >
                 Dashboard
+              </Link>
+
+              <Link
+                href="/notifications"
+                onClick={closeMenu}
+                className="block border border-zinc-800 rounded-2xl p-4"
+              >
+                {notificationLabel}
               </Link>
 
               <Link

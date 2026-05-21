@@ -32,6 +32,35 @@ export default function AddToCartButton({ productId }) {
     loadCartStatus();
   }, [productId]);
 
+  async function createCartNotification() {
+    const { data: product } = await supabase
+      .from("products")
+      .select(`
+        id,
+        title,
+        creator_id,
+        creators (
+          id,
+          user_id
+        )
+      `)
+      .eq("id", productId)
+      .single();
+
+    const creatorUserId = product?.creators?.user_id;
+
+    if (!creatorUserId || creatorUserId === user.id) {
+      return;
+    }
+
+    await supabase.from("notifications").insert({
+      user_id: creatorUserId,
+      creator_id: product.creator_id,
+      title: "Product Added to Cart",
+      message: `Someone added your product to their cart: ${product.title}`,
+    });
+  }
+
   async function handleAddToCart() {
     if (!user) {
       alert("Please log in to add items to cart.");
@@ -55,8 +84,10 @@ export default function AddToCartButton({ productId }) {
     if (error) {
       alert(error.message);
     } else {
+      await createCartNotification();
+
       setCartItemId(data.id);
-        window.dispatchEvent(new Event("cartUpdated"));
+      window.dispatchEvent(new Event("cartUpdated"));
     }
   }
 
