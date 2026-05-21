@@ -261,7 +261,7 @@ export default function DashboardPage() {
         </div>
 
         {creator && (
-          <div className="grid md:grid-cols-7 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
               <p className="text-zinc-400">Products</p>
               <p className="text-4xl font-bold mt-2">{products.length}</p>
@@ -291,7 +291,7 @@ export default function DashboardPage() {
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
               <p className="text-zinc-400">Total Revenue</p>
-              <p className="text-2xl sm:text-3xl xl:text-4xl font-bold mt-2">
+              <p className="text-2xl font-bold mt-2 break-words">
                 ${totalRevenue.toFixed(2)}
               </p>
             </div>

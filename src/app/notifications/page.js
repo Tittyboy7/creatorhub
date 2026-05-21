@@ -59,7 +59,7 @@ export default function NotificationsPage() {
           : notification
       )
     );
-    
+
     window.dispatchEvent(
       new Event("notificationsUpdated")
     );
@@ -71,6 +71,79 @@ export default function NotificationsPage() {
         Loading...
       </div>
     );
+  }
+
+  async function markAllAsRead() {
+    const unreadIds = notifications
+      .filter((notification) => !notification.is_read)
+      .map((notification) => notification.id);
+
+    if (unreadIds.length === 0) return;
+
+    const { error } = await supabase
+      .from("notifications")
+      .update({ is_read: true })
+      .in("id", unreadIds);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    setNotifications((currentNotifications) =>
+      currentNotifications.map((notification) => ({
+        ...notification,
+        is_read: true,
+      }))
+    );
+
+    window.dispatchEvent(new Event("notificationsUpdated"));
+  }
+
+  async function deleteNotification(notificationId) {
+    const { error } = await supabase
+      .from("notifications")
+      .delete()
+      .eq("id", notificationId);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    setNotifications((currentNotifications) =>
+      currentNotifications.filter(
+        (notification) => notification.id !== notificationId
+      )
+    );
+
+    window.dispatchEvent(new Event("notificationsUpdated"));
+  }
+
+  async function clearReadNotifications() {
+    const readIds = notifications
+      .filter((notification) => notification.is_read)
+      .map((notification) => notification.id);
+
+    if (readIds.length === 0) return;
+
+    const { error } = await supabase
+      .from("notifications")
+      .delete()
+      .in("id", readIds);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    setNotifications((currentNotifications) =>
+      currentNotifications.filter(
+        (notification) => !notification.is_read
+      )
+    );
+
+    window.dispatchEvent(new Event("notificationsUpdated"));
   }
 
   const unreadCount = notifications.filter(
@@ -89,13 +162,42 @@ export default function NotificationsPage() {
 
         <h1 className="text-5xl font-bold mb-4">Notifications</h1>
 
-        <p className="text-zinc-400 text-lg mb-10">
-          You have {unreadCount} unread notification
-          {unreadCount === 1 ? "" : "s"}.
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-10">
+          <p className="text-zinc-400 text-lg">
+            You have {unreadCount} unread notification
+            {unreadCount === 1 ? "" : "s"}.
+          </p>
+
+          <div className="flex gap-4 flex-wrap">
+            {unreadCount > 0 && (
+              <button
+                onClick={markAllAsRead}
+                className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
+              >
+                Mark All Read
+              </button>
+            )}
+
+            <button
+              onClick={clearReadNotifications}
+              className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
+            >
+              Clear Read
+            </button>
+          </div>
+        </div>
 
         {notifications.length === 0 ? (
-          <p className="text-zinc-400">No notifications yet.</p>
+          <div>
+            <p className="text-zinc-400">No notifications yet.</p>
+
+            <Link
+              href="/dashboard"
+              className="inline-block mt-6 bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+            >
+              Back to Dashboard
+            </Link>
+          </div>
         ) : (
           <div className="space-y-4">
             {notifications.map((notification) => (
@@ -124,14 +226,25 @@ export default function NotificationsPage() {
                     )}
                   </div>
 
-                  {!notification.is_read && (
+                  <div className="flex gap-3 flex-wrap">
+                    {!notification.is_read && (
+                      <button
+                        onClick={() => markAsRead(notification.id)}
+                        className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
+                      >
+                        Mark Read
+                      </button>
+                    )}
+
                     <button
-                      onClick={() => markAsRead(notification.id)}
-                      className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
+                      onClick={() =>
+                        deleteNotification(notification.id)
+                      }
+                      className="border border-red-900 text-red-400 px-5 py-3 rounded-2xl hover:bg-red-950"
                     >
-                      Mark Read
+                      Delete
                     </button>
-                  )}
+                  </div>
                 </div>
               </div>
             ))}
