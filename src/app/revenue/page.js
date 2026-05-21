@@ -297,12 +297,21 @@ export default function RevenuePage() {
           <div className="flex items-center justify-between gap-4 mb-6">
             <h2 className="text-3xl font-bold">Revenue Entries</h2>
 
-            <Link
-              href="/add-revenue"
-              className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
-            >
-              Add Revenue
-            </Link>
+            <div className="flex gap-3 flex-wrap">
+              <Link
+                href="/add-revenue"
+                className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
+              >
+                Add Revenue
+              </Link>
+
+              <Link
+                href="/import-revenue"
+                className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
+              >
+                Import CSV
+              </Link>
+            </div>
           </div>
 
           {filteredEntries.length === 0 ? (

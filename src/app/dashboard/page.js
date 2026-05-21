@@ -291,7 +291,7 @@ export default function DashboardPage() {
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
               <p className="text-zinc-400">Total Revenue</p>
-              <p className="text-4xl font-bold mt-2">
+              <p className="text-2xl sm:text-3xl xl:text-4xl font-bold mt-2">
                 ${totalRevenue.toFixed(2)}
               </p>
             </div>
@@ -399,20 +399,6 @@ export default function DashboardPage() {
                 >
                   View Storefront
                 </Link>
-
-                <Link
-                  href="/add-revenue"
-                  className="bg-white text-black px-6 py-3 rounded-2xl font-semibold"
-                >
-                  Add Revenue
-                </Link>
-
-                <Link
-                  href="/revenue"
-                  className="border border-zinc-700 px-6 py-3 rounded-2xl"
-                >
-                  View Revenue
-                </Link>
               </div>
             </div>
 
@@ -439,6 +425,13 @@ export default function DashboardPage() {
                   className="border border-zinc-700 px-6 py-3 rounded-2xl"
                 >
                   Add Revenue
+                </Link>
+
+                <Link
+                  href="/import-revenue"
+                  className="border border-zinc-700 px-6 py-3 rounded-2xl"
+                >
+                  Import CSV
                 </Link>
               </div>
             </div>
