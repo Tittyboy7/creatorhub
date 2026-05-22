@@ -18,6 +18,7 @@ export default function DashboardPage() {
   const [totalFollowers, setTotalFollowers] = useState(0);
   const [revenueEntries, setRevenueEntries] = useState([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     async function loadDashboard() {
@@ -95,6 +96,15 @@ export default function DashboardPage() {
       );
 
       setTotalRevenue(revenueTotal);
+
+      const { data: notificationData } = await supabase
+        .from("notifications")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      setNotifications(notificationData || []);
 
       setLoading(false);
     }
@@ -400,6 +410,48 @@ export default function DashboardPage() {
                   View Storefront
                 </Link>
               </div>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <h2 className="text-3xl font-bold mb-3">
+                Notifications
+              </h2>
+
+              <p className="text-zinc-400 mb-6">
+                View follows, favorites, reviews, cart activity, and revenue import alerts.
+              </p>
+
+              <Link
+                href="/notifications"
+                className="bg-white text-black px-6 py-3 rounded-2xl font-semibold inline-block"
+              >
+                View Notifications
+              </Link>
+
+              {notifications.length > 0 && (
+                <div className="mt-6 space-y-3">
+                  {notifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      className={`border rounded-2xl p-4 ${
+                        notification.is_read
+                          ? "border-zinc-800 opacity-70"
+                          : "border-white"
+                      }`}
+                    >
+                      <p className="font-semibold">
+                        {notification.title}
+                      </p>
+
+                      {notification.message && (
+                        <p className="text-zinc-400 text-sm mt-1">
+                          {notification.message}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
