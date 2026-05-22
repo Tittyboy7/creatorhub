@@ -11,6 +11,8 @@ export default function NotificationsPage() {
 
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
+  const [filter, setFilter] = useState("All");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     async function loadNotifications() {
@@ -146,6 +148,29 @@ export default function NotificationsPage() {
     window.dispatchEvent(new Event("notificationsUpdated"));
   }
 
+  const filteredNotifications = notifications.filter(
+    (notification) => {
+      const statusMatches =
+        filter === "All" ||
+        (filter === "Unread" &&
+          !notification.is_read) ||
+        (filter === "Read" &&
+          notification.is_read);
+
+      const searchText = search.toLowerCase();
+
+      const searchMatches =
+        notification.title
+          ?.toLowerCase()
+          .includes(searchText) ||
+        notification.message
+          ?.toLowerCase()
+          .includes(searchText);
+
+      return statusMatches && searchMatches;
+    }
+  );
+
   const unreadCount = notifications.filter(
     (notification) => !notification.is_read
   ).length;
@@ -187,7 +212,32 @@ export default function NotificationsPage() {
           </div>
         </div>
 
-        {notifications.length === 0 ? (
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search notifications..."
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 mb-4"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+
+          <select
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 mb-4"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          >
+            <option value="All">All</option>
+            <option value="Unread">Unread</option>
+            <option value="Read">Read</option>
+          </select>
+
+          <p className="text-zinc-400">
+            Showing {filteredNotifications.length} notification
+            {filteredNotifications.length === 1 ? "" : "s"}
+          </p>
+        </div>
+
+        {filteredNotifications.length === 0 ? (
           <div>
             <p className="text-zinc-400">No notifications yet.</p>
 
@@ -200,7 +250,7 @@ export default function NotificationsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {notifications.map((notification) => (
+            {filteredNotifications.map((notification) => (
               <div
                 key={notification.id}
                 className={`border rounded-3xl p-6 ${
