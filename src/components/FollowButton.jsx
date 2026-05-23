@@ -61,6 +61,7 @@ export default function FollowButton({ creatorId }) {
       await supabase.from("notifications").insert({
         user_id: creator.user_id,
         creator_id: creator.id,
+        type: "follow",
         title: "New Follower",
         message: "Someone followed your creator profile.",
       });

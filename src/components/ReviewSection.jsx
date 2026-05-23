@@ -84,6 +84,7 @@ export default function ReviewSection({ productId }) {
       await supabase.from("notifications").insert({
         user_id: creatorUserId,
         creator_id: product.creator_id,
+        type: "review",
         title: "New Product Review",
         message: `Someone reviewed your product: ${product.title}`,
       });

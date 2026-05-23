@@ -63,6 +63,7 @@ export default function AddToCartButton({ productId }) {
       await supabase.from("notifications").insert({
         user_id: creatorUserId,
         creator_id: product.creator_id,
+        type: "cart",
         title: "Product Added to Cart",
         message: `Someone added your product to their cart: ${product.title}`,
       });

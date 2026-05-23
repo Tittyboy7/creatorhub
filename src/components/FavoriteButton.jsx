@@ -62,6 +62,7 @@ export default function FavoriteButton({ productId }) {
       await supabase.from("notifications").insert({
         user_id: creatorUserId,
         creator_id: product.creator_id,
+        type: "favorite",
         title: "Product Favorited",
         message: "Someone saved one of your products.",
       });

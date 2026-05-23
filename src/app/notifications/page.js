@@ -13,6 +13,7 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState("All");
   const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("All");
 
   useEffect(() => {
     async function loadNotifications() {
@@ -157,6 +158,10 @@ export default function NotificationsPage() {
         (filter === "Read" &&
           notification.is_read);
 
+      const typeMatches =
+        typeFilter === "All" ||
+        notification.type === typeFilter;
+
       const searchText = search.toLowerCase();
 
       const searchMatches =
@@ -167,7 +172,11 @@ export default function NotificationsPage() {
           ?.toLowerCase()
           .includes(searchText);
 
-      return statusMatches && searchMatches;
+      return (
+        statusMatches &&
+        typeMatches &&
+        searchMatches
+      );
     }
   );
 
@@ -209,6 +218,13 @@ export default function NotificationsPage() {
             >
               Clear Read
             </button>
+
+            <Link
+              href="/notification-preferences"
+              className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
+            >
+              Preferences
+            </Link>
           </div>
         </div>
 
@@ -229,6 +245,19 @@ export default function NotificationsPage() {
             <option value="All">All</option>
             <option value="Unread">Unread</option>
             <option value="Read">Read</option>
+          </select>
+
+          <select
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 mb-4"
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+          >
+            <option value="All">All Types</option>
+            <option value="follow">Follow</option>
+            <option value="favorite">Favorite</option>
+            <option value="review">Review</option>
+            <option value="cart">Cart</option>
+            <option value="revenue">Revenue</option>
           </select>
 
           <p className="text-zinc-400">
@@ -264,6 +293,12 @@ export default function NotificationsPage() {
                     <h2 className="text-2xl font-semibold">
                       {notification.title}
                     </h2>
+
+                    <div className="mt-3">
+                      <span className="inline-block bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+                        {notification.type || "general"}
+                      </span>
+                    </div>
 
                     <p className="text-zinc-500 text-sm mt-1">
                       {formatDate(notification.created_at)}

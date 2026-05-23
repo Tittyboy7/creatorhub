@@ -436,7 +436,7 @@ export default function DashboardPage() {
                   Preferences
                 </Link>
               </div>
-              
+
               {notifications.length > 0 && (
                 <div className="mt-6 space-y-3">
                   {notifications.map((notification) => (
@@ -451,6 +451,10 @@ export default function DashboardPage() {
                       <p className="font-semibold">
                         {notification.title}
                       </p>
+
+                      <span className="inline-block mt-2 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-xs">
+                        {notification.type || "general"}
+                      </span>
 
                       {notification.message && (
                         <p className="text-zinc-400 text-sm mt-1">

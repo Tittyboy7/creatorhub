@@ -256,6 +256,7 @@ export default function ImportRevenuePage() {
       await supabase.from("notifications").insert({
         user_id: user.id,
         creator_id: creator.id,
+        type: "revenue",
         title: "Revenue Import Completed",
         message:
           `Imported ${newEntries.length} new entries. ` +
