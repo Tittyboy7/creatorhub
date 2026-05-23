@@ -51,12 +51,20 @@ export default function FollowButton({ creatorId }) {
       return;
     }
 
-    await supabase.from("notifications").insert({
-      user_id: creator.user_id,
-      creator_id: creator.id,
-      title: "New Follower",
-      message: "Someone followed your creator profile.",
-    });
+    const { data: preferences } = await supabase
+      .from("notification_preferences")
+      .select("follows")
+      .eq("user_id", creator.user_id)
+      .maybeSingle();
+
+    if (preferences?.follows !== false) {
+      await supabase.from("notifications").insert({
+        user_id: creator.user_id,
+        creator_id: creator.id,
+        title: "New Follower",
+        message: "Someone followed your creator profile.",
+      });
+    }
   }
 
   async function toggleFollow() {

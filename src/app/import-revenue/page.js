@@ -246,14 +246,22 @@ export default function ImportRevenuePage() {
       return;
     }
 
-    await supabase.from("notifications").insert({
-      user_id: user.id,
-      creator_id: creator.id,
-      title: "Revenue Import Completed",
-      message:
-        `Imported ${newEntries.length} new entries. ` +
-        `Skipped ${duplicateCount} duplicate entries.`,
-    });
+    const { data: preferences } = await supabase
+      .from("notification_preferences")
+      .select("revenue_imports")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (preferences?.revenue_imports !== false) {
+      await supabase.from("notifications").insert({
+        user_id: user.id,
+        creator_id: creator.id,
+        title: "Revenue Import Completed",
+        message:
+          `Imported ${newEntries.length} new entries. ` +
+          `Skipped ${duplicateCount} duplicate entries.`,
+      });
+    }
 
     alert(
       `Imported ${newEntries.length} new entries. ` +

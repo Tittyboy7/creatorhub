@@ -53,12 +53,20 @@ export default function AddToCartButton({ productId }) {
       return;
     }
 
-    await supabase.from("notifications").insert({
-      user_id: creatorUserId,
-      creator_id: product.creator_id,
-      title: "Product Added to Cart",
-      message: `Someone added your product to their cart: ${product.title}`,
-    });
+    const { data: preferences } = await supabase
+      .from("notification_preferences")
+      .select("cart_activity")
+      .eq("user_id", creatorUserId)
+      .maybeSingle();
+
+    if (preferences?.cart_activity !== false) {
+      await supabase.from("notifications").insert({
+        user_id: creatorUserId,
+        creator_id: product.creator_id,
+        title: "Product Added to Cart",
+        message: `Someone added your product to their cart: ${product.title}`,
+      });
+    }
   }
 
   async function handleAddToCart() {

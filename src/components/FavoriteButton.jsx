@@ -52,12 +52,20 @@ export default function FavoriteButton({ productId }) {
       return;
     }
 
-    await supabase.from("notifications").insert({
-      user_id: creatorUserId,
-      creator_id: product.creator_id,
-      title: "Product Favorited",
-      message: "Someone saved one of your products.",
-    });
+    const { data: preferences } = await supabase
+      .from("notification_preferences")
+      .select("favorites")
+      .eq("user_id", creatorUserId)
+      .maybeSingle();
+
+    if (preferences?.favorites !== false) {
+      await supabase.from("notifications").insert({
+        user_id: creatorUserId,
+        creator_id: product.creator_id,
+        title: "Product Favorited",
+        message: "Someone saved one of your products.",
+      });
+    }
   }
 
   async function toggleFavorite() {

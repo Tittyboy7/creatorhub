@@ -421,13 +421,22 @@ export default function DashboardPage() {
                 View follows, favorites, reviews, cart activity, and revenue import alerts.
               </p>
 
-              <Link
-                href="/notifications"
-                className="bg-white text-black px-6 py-3 rounded-2xl font-semibold inline-block"
-              >
-                View Notifications
-              </Link>
+              <div className="flex gap-4 flex-wrap">
+                <Link
+                  href="/notifications"
+                  className="bg-white text-black px-6 py-3 rounded-2xl font-semibold inline-block"
+                >
+                  View Notifications
+                </Link>
 
+                <Link
+                  href="/notification-preferences"
+                  className="border border-zinc-700 px-6 py-3 rounded-2xl"
+                >
+                  Preferences
+                </Link>
+              </div>
+              
               {notifications.length > 0 && (
                 <div className="mt-6 space-y-3">
                   {notifications.map((notification) => (

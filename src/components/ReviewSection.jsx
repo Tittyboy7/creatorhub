@@ -74,12 +74,20 @@ export default function ReviewSection({ productId }) {
       return;
     }
 
-    await supabase.from("notifications").insert({
-      user_id: creatorUserId,
-      creator_id: product.creator_id,
-      title: "New Product Review",
-      message: `Someone reviewed your product: ${product.title}`,
-    });
+    const { data: preferences } = await supabase
+      .from("notification_preferences")
+      .select("reviews")
+      .eq("user_id", creatorUserId)
+      .maybeSingle();
+
+    if (preferences?.reviews !== false) {
+      await supabase.from("notifications").insert({
+        user_id: creatorUserId,
+        creator_id: product.creator_id,
+        title: "New Product Review",
+        message: `Someone reviewed your product: ${product.title}`,
+      });
+    }
   }
 
   async function handleSubmit(e) {
