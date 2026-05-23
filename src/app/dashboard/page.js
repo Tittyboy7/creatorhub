@@ -80,22 +80,22 @@ export default function DashboardPage() {
           .eq("creator_id", creatorData.id);
 
         setTotalFollowers(followerCount || 0);
+
+        const { data: revenueData } = await supabase
+          .from("revenue_entries")
+          .select("*")
+          .eq("creator_id", creatorData.id)
+          .order("entry_month", { ascending: false });
+
+        setRevenueEntries(revenueData || []);
+
+        const revenueTotal = (revenueData || []).reduce(
+          (sum, entry) => sum + Number(entry.amount || 0),
+          0
+        );
+
+        setTotalRevenue(revenueTotal);
       }
-
-      const { data: revenueData } = await supabase
-        .from("revenue_entries")
-        .select("*")
-        .eq("creator_id", creatorData.id)
-        .order("entry_month", { ascending: false });
-
-      setRevenueEntries(revenueData || []);
-
-      const revenueTotal = (revenueData || []).reduce(
-        (sum, entry) => sum + Number(entry.amount || 0),
-        0
-      );
-
-      setTotalRevenue(revenueTotal);
 
       const { data: notificationData } = await supabase
         .from("notifications")
