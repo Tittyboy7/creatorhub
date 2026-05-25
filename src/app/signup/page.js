@@ -5,48 +5,58 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export default function SignupPage() {
   const router = useRouter();
 
-  async function handleLogin(e) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  async function handleSignup(e) {
     e.preventDefault();
+
     setErrorMessage("");
-    setIsSubmitting(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      if (
-        error.message.toLowerCase().includes("email") ||
-        error.message.toLowerCase().includes("confirm")
-      ) {
-        setErrorMessage(
-          "Please confirm your email before logging in. Check your inbox or spam folder."
-        );
-      } else {
-        setErrorMessage(error.message);
-      }
-      setIsSubmitting(false);
-
+    if (!email || !password) {
+      setErrorMessage("Please enter an email and password.");
       return;
     }
 
-    router.push("/dashboard");
+    if (password.length < 6) {
+      setErrorMessage("Password must be at least 6 characters.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+
+    if (error) {
+      setErrorMessage(error.message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    router.push("/check-email");
   }
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-6">
       <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-10 w-full max-w-md">
-        <h1 className="text-4xl font-bold mb-8 text-center">
-          CreatorHub Login
-        </h1>
+        <h1 className="text-4xl font-bold mb-3">Create Account</h1>
+
+        <p className="text-zinc-400 mb-6">
+          Create your CreatorHub account. You’ll receive a confirmation email
+          before your account is fully activated. If you do not see it, check your
+          spam or junk folder.
+        </p>
 
         {errorMessage && (
           <div className="bg-red-500/10 border border-red-500 text-red-400 rounded-2xl p-4 mb-6">
@@ -54,7 +64,7 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-6">
+        <form onSubmit={handleSignup} className="space-y-6">
           <input
             type="email"
             placeholder="Email"
@@ -76,23 +86,16 @@ export default function LoginPage() {
             disabled={isSubmitting}
             className="w-full bg-white text-black py-4 rounded-2xl font-semibold disabled:opacity-50"
           >
-            {isSubmitting ? "Logging in..." : "Login"}
+            {isSubmitting ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
         <p className="text-zinc-400 mt-6">
-          Need an account?{" "}
-          <Link href="/signup" className="text-white underline">
-            Create one
+          Already have an account?{" "}
+          <Link href="/login" className="text-white underline">
+            Log in
           </Link>
         </p>
-
-        <Link
-          href="/signup"
-          className="block w-full mt-4 border border-zinc-700 py-4 rounded-2xl text-center hover:bg-zinc-800"
-        >
-          Create Account
-        </Link>
       </div>
     </div>
   );

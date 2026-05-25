@@ -192,12 +192,18 @@ useEffect(() => {
               </button>
             </>
           ) : (
-            <Link
-              href="/login"
-              className="bg-white text-black px-4 py-2 rounded-xl font-semibold"
-            >
-              Login
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link href="/signup" className="hover:text-white transition">
+                Create Account
+              </Link>
+
+              <Link
+                href="/login"
+                className="bg-white text-black px-4 py-2 rounded-xl font-semibold"
+              >
+                Login
+              </Link>
+            </div>
           )}
         </nav>
       </div>
@@ -312,13 +318,23 @@ useEffect(() => {
               </button>
             </>
           ) : (
-            <Link
-              href="/login"
-              onClick={closeMenu}
-              className="block bg-white text-black rounded-2xl p-4 font-semibold"
-            >
-              Login
-            </Link>
+            <>
+              <Link
+                href="/signup"
+                onClick={closeMenu}
+                className="block border border-zinc-800 rounded-2xl p-4"
+              >
+                Create Account
+              </Link>
+
+              <Link
+                href="/login"
+                onClick={closeMenu}
+                className="block bg-white text-black rounded-2xl p-4 font-semibold"
+              >
+                Login
+              </Link>
+            </>
           )}
         </nav>
       )}

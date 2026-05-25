@@ -70,7 +70,7 @@ export default async function HomePage() {
             </Link>
 
             <Link
-              href="/login"
+              href="/signup"
               className="border border-zinc-700 px-8 py-4 rounded-2xl"
             >
               Create Account

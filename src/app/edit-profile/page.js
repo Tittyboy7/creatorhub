@@ -68,6 +68,17 @@ export default function EditProfilePage() {
   async function handleUpdate(e) {
     e.preventDefault();
 
+    const cleanUsername = username
+      .trim()
+      .toLowerCase();
+
+    if (!/^[a-z0-9_-]+$/.test(cleanUsername)) {
+      alert(
+        "Username can only contain lowercase letters, numbers, underscores, and hyphens. No spaces."
+      );
+      return;
+    }
+
     let avatarUrl = currentAvatarUrl;
     let bannerUrl = currentBannerUrl;
 
@@ -113,7 +124,7 @@ export default function EditProfilePage() {
       .from("creators")
       .update({
         display_name: displayName,
-        username: username.trim().toLowerCase(),
+        username: cleanUsername,
         niche,
         bio,
         avatar_url: avatarUrl,

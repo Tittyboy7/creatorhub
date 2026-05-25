@@ -12,6 +12,17 @@ export default function CreateProfilePage() {
   async function handleSubmit(e) {
     e.preventDefault();
 
+    const cleanUsername = username
+      .trim()
+      .toLowerCase();
+
+    if (!/^[a-z0-9_-]+$/.test(cleanUsername)) {
+      alert(
+        "Username can only contain lowercase letters, numbers, underscores, and hyphens. No spaces."
+      );
+      return;
+    }
+
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -26,7 +37,7 @@ export default function CreateProfilePage() {
       .insert({
         user_id: user.id,
         display_name: displayName,
-        username: username.toLowerCase(),
+        username: cleanUsername,
         niche,
         bio,
       });
