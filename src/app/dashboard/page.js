@@ -225,28 +225,36 @@ export default function DashboardPage() {
 
   const checklistItems = [
     {
-      label: "Profile image added",
+      label: "Create your creator profile",
+      complete: !!creator,
+    },
+    {
+      label: "Add a profile image",
       complete: !!creator?.avatar_url,
     },
     {
-      label: "Banner image added",
+      label: "Add a banner image",
       complete: !!creator?.banner_url,
     },
     {
-      label: "Bio added",
+      label: "Write a bio",
       complete: !!creator?.bio,
     },
     {
-      label: "Niche added",
+      label: "Choose your niche",
       complete: !!creator?.niche,
     },
     {
-      label: "At least 1 product added",
+      label: "Add your first product",
       complete: products.length > 0,
     },
     {
-      label: "At least 1 social link added",
+      label: "Add at least one social link",
       complete: hasSocialLinks,
+    },
+    {
+      label: "Publish your first announcement",
+      complete: announcements.length > 0,
     },
   ];
 
@@ -310,6 +318,22 @@ export default function DashboardPage() {
             </div>
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+              <p className="text-zinc-400">Average Rating</p>
+
+              <p className="text-4xl font-bold mt-2">
+                {products.length === 0
+                  ? "0.0"
+                  : (
+                      products.reduce(
+                        (sum, product) =>
+                          sum + Number(product.average_rating || 0),
+                        0
+                      ) / products.length
+                    ).toFixed(1)}
+              </p>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
               <p className="text-zinc-400">Followers</p>
               <p className="text-4xl font-bold mt-2">{totalFollowers}</p>
             </div>
@@ -358,7 +382,7 @@ export default function DashboardPage() {
           <>
           <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
             <h2 className="text-3xl font-bold mb-2">
-              Profile Completion
+              Getting Started
             </h2>
 
             <p className="text-zinc-400 mb-6">
@@ -386,6 +410,29 @@ export default function DashboardPage() {
                   </span>
                 </div>
               ))}
+            </div>
+
+            <div className="flex gap-4 flex-wrap mt-8">
+              <Link
+                href="/edit-profile"
+                className="bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+              >
+                Edit Profile
+              </Link>
+
+              <Link
+                href="/add-product"
+                className="border border-zinc-700 px-6 py-3 rounded-2xl"
+              >
+                Add Product
+              </Link>
+
+              <Link
+                href="/add-announcement"
+                className="border border-zinc-700 px-6 py-3 rounded-2xl"
+              >
+                Add Announcement
+              </Link>
             </div>
           </div>
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
@@ -432,6 +479,196 @@ export default function DashboardPage() {
                   View Storefront
                 </Link>
               </div>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-3xl font-bold">
+                  Recent Products
+                </h2>
+
+                <Link
+                  href="/add-product"
+                  className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
+                >
+                  Add Product
+                </Link>
+              </div>
+
+              {products.length === 0 ? (
+                <p className="text-zinc-400">
+                  You have not added any products yet.
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {products.slice(0, 3).map((product) => (
+                    <div
+                      key={product.id}
+                      className="border border-zinc-800 rounded-2xl p-5"
+                    >
+                      <div className="flex items-center justify-between gap-4 flex-wrap">
+                        <div>
+                          <h3 className="text-xl font-semibold">
+                            {product.title}
+                          </h3>
+
+                          <p className="text-zinc-400 mt-1">
+                            {product.views || 0} views ·{" "}
+                            {product.favorites_count || 0} favorites
+                          </p>
+                        </div>
+
+                        <div className="flex gap-3 flex-wrap">
+                          <Link
+                            href={`/product/${product.id}`}
+                            className="border border-zinc-700 px-4 py-2 rounded-xl"
+                          >
+                            View Product
+                          </Link>
+
+                          <button
+                            onClick={async () => {
+                              const newFeaturedProductId =
+                                creator.featured_product_id === product.id
+                                  ? null
+                                  : product.id;
+
+                              const { error } = await supabase
+                                .from("creators")
+                                .update({
+                                  featured_product_id: newFeaturedProductId,
+                                })
+                                .eq("id", creator.id);
+
+                              if (!error) {
+                                setCreator({
+                                  ...creator,
+                                  featured_product_id: newFeaturedProductId,
+                                });
+                              }
+                            }}
+                            className={
+                              creator.featured_product_id === product.id
+                                ? "bg-white text-black px-4 py-2 rounded-xl font-semibold"
+                                : "border border-zinc-700 px-4 py-2 rounded-xl"
+                            }
+                          >
+                            {creator.featured_product_id === product.id
+                              ? "Featured Product"
+                              : "Set Featured"}
+                          </button>
+
+                          <Link
+                            href={`/creator/${creator.username}`}
+                            className="border border-zinc-700 px-4 py-2 rounded-xl"
+                          >
+                            Storefront
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-3xl font-bold">
+                  Recent Announcements
+                </h2>
+
+                <Link
+                  href="/add-announcement"
+                  className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
+                >
+                  Add Announcement
+                </Link>
+              </div>
+
+              {announcements.length === 0 ? (
+                <p className="text-zinc-400">
+                  You have not posted any announcements yet.
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {announcements.slice(0, 3).map((announcement) => (
+                    <div
+                      key={announcement.id}
+                      className="border border-zinc-800 rounded-2xl p-5"
+                    >
+                      <h3 className="text-xl font-semibold">
+                        {announcement.title}
+                      </h3>
+
+                      <p className="text-zinc-500 text-sm mt-1">
+                        {formatDate(announcement.created_at)}
+                      </p>
+
+                      {announcement.content && (
+                        <p className="text-zinc-400 mt-2">
+                          {announcement.content}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+                <h2 className="text-3xl font-bold">
+                  Recent Revenue
+                </h2>
+
+                <div className="flex gap-3 flex-wrap">
+                  <Link
+                    href="/add-revenue"
+                    className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
+                  >
+                    Add Revenue
+                  </Link>
+
+                  <Link
+                    href="/revenue"
+                    className="border border-zinc-700 px-5 py-3 rounded-2xl"
+                  >
+                    View Revenue
+                  </Link>
+                </div>
+              </div>
+
+              {revenueEntries.length === 0 ? (
+                <p className="text-zinc-400">
+                  You have not added any revenue entries yet.
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {revenueEntries.slice(0, 3).map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="border border-zinc-800 rounded-2xl p-5"
+                    >
+                      <div className="flex items-center justify-between gap-4 flex-wrap">
+                        <div>
+                          <h3 className="text-xl font-semibold">
+                            {entry.platform}
+                          </h3>
+
+                          <p className="text-zinc-400 mt-1">
+                            {entry.revenue_type} · {entry.entry_month}
+                          </p>
+                        </div>
+
+                        <p className="text-2xl font-bold">
+                          ${Number(entry.amount || 0).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">

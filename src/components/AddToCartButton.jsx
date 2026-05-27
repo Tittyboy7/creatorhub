@@ -103,7 +103,7 @@ export default function AddToCartButton({ productId }) {
   return (
     <button
       onClick={handleAddToCart}
-      className="mt-4 w-full border border-zinc-700 py-3 rounded-2xl"
+      className="relative z-10 mt-4 w-full border border-zinc-700 py-3 rounded-2xl cursor-pointer hover:bg-zinc-800"
     >
       {cartItemId ? "In Cart" : "Add to Cart"}
     </button>

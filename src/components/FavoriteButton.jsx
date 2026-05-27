@@ -135,7 +135,7 @@ export default function FavoriteButton({ productId }) {
   return (
     <button
       onClick={toggleFavorite}
-      className="mt-4 w-full border border-zinc-700 py-3 rounded-2xl"
+      className="relative z-10 mt-4 w-full border border-zinc-700 py-3 rounded-2xl cursor-pointer hover:bg-zinc-800"
     >
       {favoriteId ? "Saved ♥" : "Save ♡"}
     </button>

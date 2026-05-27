@@ -8,6 +8,10 @@ import { formatMonth } from "@/lib/formatMonth";
 import {
   BarChart,
   Bar,
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   Tooltip,
@@ -21,6 +25,7 @@ export default function RevenuePage() {
   const [selectedRevenueType, setSelectedRevenueType] = useState("All");
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
+  const [chartType, setChartType] = useState("bar");
 
   useEffect(() => {
     async function loadRevenue() {
@@ -254,21 +259,98 @@ export default function RevenuePage() {
         </div>
 
         <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 mb-10">
-          <h2 className="text-3xl font-bold mb-6">
-            Monthly Revenue Chart
-          </h2>
+          <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
+            <h2 className="text-3xl font-bold">
+              Monthly Revenue Chart
+            </h2>
+
+            <select
+              value={chartType}
+              onChange={(e) => setChartType(e.target.value)}
+              className="bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3"
+            >
+              <option value="bar">Bar Chart</option>
+              <option value="line">Line Chart</option>
+              <option value="area">Area Chart</option>
+            </select>
+          </div>
 
           {monthlyChartData.length === 0 ? (
             <p className="text-zinc-400">No chart data yet.</p>
           ) : (
             <div className="h-80">
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={monthlyChartData}>
-                  <XAxis dataKey="month" stroke="#a1a1aa" />
-                  <YAxis stroke="#a1a1aa" />
-                  <Tooltip />
-                  <Bar dataKey="revenue" fill="#ffffff" radius={[8, 8, 0, 0]} />
-                </BarChart>
+                {chartType === "bar" && (
+                  <BarChart data={monthlyChartData}>
+                    <XAxis
+                      dataKey="month"
+                      stroke="#a1a1aa"
+                      tickFormatter={(month) => formatMonth(month)}
+                    />
+                    <YAxis stroke="#a1a1aa" />
+                    <Tooltip
+                      formatter={(value) => [`$${Number(value).toFixed(2)}`, "Revenue"]}
+                      contentStyle={{
+                        backgroundColor: "#18181b",
+                        border: "1px solid #3f3f46",
+                        borderRadius: "16px",
+                        color: "#ffffff",
+                      }}
+                      labelStyle={{
+                        color: "#ffffff",
+                      }}
+                    />
+                    <Bar dataKey="revenue" fill="#ffffff" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                )}
+
+                {chartType === "line" && (
+                  <LineChart data={monthlyChartData}>
+                    <XAxis
+                      dataKey="month"
+                      stroke="#a1a1aa"
+                      tickFormatter={(month) => formatMonth(month)}
+                    />
+                    <YAxis stroke="#a1a1aa" />
+                    <Tooltip
+                      formatter={(value) => [`$${Number(value).toFixed(2)}`, "Revenue"]}
+                      contentStyle={{
+                        backgroundColor: "#18181b",
+                        border: "1px solid #3f3f46",
+                        borderRadius: "16px",
+                        color: "#ffffff",
+                      }}
+                      labelStyle={{
+                        color: "#ffffff",
+                      }}
+                    />
+                    <Line type="monotone" dataKey="revenue" stroke="#ffffff" strokeWidth={3} />
+                  </LineChart>
+                )}
+
+                {chartType === "area" && (
+                  <AreaChart data={monthlyChartData}>
+                    <XAxis
+                      dataKey="month"
+                      stroke="#a1a1aa"
+                      tickFormatter={(month) => formatMonth(month)}
+                    />
+                    <YAxis stroke="#a1a1aa" />
+                    <Tooltip
+                      formatter={(value) => [`$${Number(value).toFixed(2)}`, "Revenue"]}                    
+                      contentStyle={{
+                        backgroundColor: "#18181b",
+                        border: "1px solid #3f3f46",
+                        borderRadius: "16px",
+                        color: "#ffffff",
+                      }}
+                      labelStyle={{
+                        color: "#ffffff",
+                      }}
+                    />
+                    <Area type="monotone" dataKey="revenue" stroke="#ffffff" fill="#ffffff" />
+                  </AreaChart>
+                )}
               </ResponsiveContainer>
             </div>
           )}
@@ -313,7 +395,18 @@ export default function RevenuePage() {
                 <BarChart data={platformChartData}>
                   <XAxis dataKey="platform" stroke="#a1a1aa" />
                   <YAxis stroke="#a1a1aa" />
-                  <Tooltip />
+                  <Tooltip
+                    formatter={(value) => [`$${Number(value).toFixed(2)}`, "Revenue"]}
+                    contentStyle={{
+                      backgroundColor: "#18181b",
+                      border: "1px solid #3f3f46",
+                      borderRadius: "16px",
+                      color: "#ffffff",
+                    }}
+                    labelStyle={{
+                      color: "#ffffff",
+                    }}
+                  />
                   <Bar dataKey="revenue" fill="#ffffff" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>

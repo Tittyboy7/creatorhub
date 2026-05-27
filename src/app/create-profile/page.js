@@ -2,33 +2,53 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 export default function CreateProfilePage() {
+  const router = useRouter();
+
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
   const [niche, setNiche] = useState("");
   const [bio, setBio] = useState("");
 
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   async function handleSubmit(e) {
     e.preventDefault();
+
+    setErrorMessage("");
 
     const cleanUsername = username
       .trim()
       .toLowerCase();
 
-    if (!/^[a-z0-9_-]+$/.test(cleanUsername)) {
-      alert(
-        "Username can only contain lowercase letters, numbers, underscores, and hyphens. No spaces."
+    if (!displayName || !username) {
+      setErrorMessage(
+        "Display name and username are required."
       );
+
       return;
     }
+
+    if (!/^[a-z0-9_-]+$/.test(cleanUsername)) {
+      setErrorMessage(
+        "Username can only contain lowercase letters, numbers, underscores, and hyphens. No spaces."
+      );
+
+      return;
+    }
+
+    setIsSubmitting(true);
 
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) {
-      alert("You must be logged in.");
+      setErrorMessage("You must be logged in.");
+      setIsSubmitting(false);
       return;
     }
 
@@ -43,10 +63,12 @@ export default function CreateProfilePage() {
       });
 
     if (error) {
-      alert(error.message);
-    } else {
-      alert("Profile created!");
+      setErrorMessage(error.message);
+      setIsSubmitting(false);
+      return;
     }
+
+    router.push("/dashboard");
   }
 
   return (
@@ -55,6 +77,12 @@ export default function CreateProfilePage() {
         <h1 className="text-4xl font-bold mb-8">
           Create Creator Profile
         </h1>
+
+        {errorMessage && (
+          <div className="bg-red-500/10 border border-red-500 text-red-400 rounded-2xl p-4 mb-6">
+            {errorMessage}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <input
@@ -90,9 +118,12 @@ export default function CreateProfilePage() {
 
           <button
             type="submit"
-            className="w-full bg-white text-black py-4 rounded-2xl font-semibold"
+            disabled={isSubmitting}
+            className="w-full bg-white text-black py-4 rounded-2xl font-semibold disabled:opacity-50"
           >
-            Create Profile
+            {isSubmitting
+              ? "Creating Profile..."
+              : "Create Profile"}
           </button>
         </form>
       </div>

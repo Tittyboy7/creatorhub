@@ -29,6 +29,14 @@ export default async function CreatorProfilePage({ params }) {
     .eq("creator_id", creator.id)
     .eq("is_active", true);
 
+    const featuredProduct = (creatorProducts || []).find(
+      (product) => product.id === creator.featured_product_id
+    );
+
+    const regularProducts = (creatorProducts || []).filter(
+      (product) => product.id !== creator.featured_product_id
+    );
+
   const { data: announcements } = await supabase
     .from("announcements")
     .select(`
@@ -202,13 +210,56 @@ export default async function CreatorProfilePage({ params }) {
             </div>
           )}
         </div>
-                <div>
+
+        {featuredProduct && (
+          <div className="bg-zinc-900 border border-white rounded-3xl p-6 mb-10">
+            <span className="inline-block mb-4 bg-white text-black px-4 py-2 rounded-full text-sm font-semibold">
+              Featured Product
+            </span>
+
+            {featuredProduct.image_url ? (
+              <img
+                src={featuredProduct.image_url}
+                alt={featuredProduct.title}
+                className="h-56 w-full object-cover rounded-2xl mb-4"
+              />
+            ) : (
+              <div className="h-56 bg-zinc-800 rounded-2xl mb-4 flex items-center justify-center text-zinc-500">
+                Product Image
+              </div>
+            )}
+
+            <Link
+              href={`/product/${featuredProduct.id}`}
+              className="block text-3xl font-bold hover:text-zinc-300"
+            >
+              {featuredProduct.title}
+            </Link>
+
+            {featuredProduct.description && (
+              <p className="text-zinc-400 mt-3">
+                {featuredProduct.description}
+              </p>
+            )}
+
+            <p className="text-2xl font-bold mt-4">
+              {featuredProduct.price}
+            </p>
+
+            <BuyNowButton
+              productId={featuredProduct.id}
+              externalUrl={featuredProduct.external_url}
+            />
+          </div>
+        )}
+
+        <div>
           <h2 className="text-3xl font-bold mb-6">
             Products
           </h2>
 
           <div className="grid md:grid-cols-2 gap-6">
-            {(creatorProducts || []).map((product) => (
+            {regularProducts.map((product) => (
               <div
                 key={product.id}
                 className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6"

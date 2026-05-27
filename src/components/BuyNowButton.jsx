@@ -15,8 +15,9 @@ export default function BuyNowButton({ productId, externalUrl }) {
 
   return (
     <button
+      type="button"
       onClick={handleClick}
-      className="block w-full text-center bg-white text-black py-3 rounded-2xl font-semibold"
+      className="relative z-10 block w-full text-center bg-white text-black py-3 rounded-2xl font-semibold cursor-pointer hover:bg-zinc-200"
     >
       Buy Now
     </button>
