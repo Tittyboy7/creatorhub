@@ -485,44 +485,15 @@ export default function DashboardPage() {
             </div>
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-3xl font-bold">
-                  Recent Products
-                </h2>
+              <div className="flex items-start justify-between gap-4 flex-wrap mb-6">
+                <div>
+                  <h2 className="text-3xl font-bold">
+                    Featured Product Controls
+                  </h2>
 
-                <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 mb-6">
-                  <label className="block text-zinc-400 mb-2">
-                    Featured product message
-                  </label>
-
-                  <input
-                    type="text"
-                    placeholder="Example: My newest launch, Best seller, Start here..."
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 mb-4"
-                    value={featuredMessage}
-                    onChange={(e) => setFeaturedMessage(e.target.value)}
-                  />
-
-                  <button
-                    onClick={async () => {
-                      const { error } = await supabase
-                        .from("creators")
-                        .update({
-                          featured_product_message: featuredMessage,
-                        })
-                        .eq("id", creator.id);
-
-                      if (!error) {
-                        setCreator({
-                          ...creator,
-                          featured_product_message: featuredMessage,
-                      });
-                     }
-                    }}
-                    className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
-                  >
-                    Save Featured Message
-                  </button>
+                  <p className="text-zinc-400 mt-2">
+                    Choose one product to highlight at the top of your public storefront.
+                  </p>
                 </div>
 
                 <Link
@@ -533,13 +504,57 @@ export default function DashboardPage() {
                 </Link>
               </div>
 
+              <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 mb-6">
+                <label className="block text-zinc-400 mb-2">
+                  Featured product message
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Example: My newest launch, Best seller, Start here..."
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 mb-4"
+                  value={featuredMessage}
+                  onChange={(e) => setFeaturedMessage(e.target.value)}
+                />
+
+                <button
+                  onClick={async () => {
+                    const { error } = await supabase
+                      .from("creators")
+                      .update({
+                        featured_product_message: featuredMessage,
+                      })
+                      .eq("id", creator.id);
+
+                    if (!error) {
+                      setCreator({
+                        ...creator,
+                        featured_product_message: featuredMessage,
+                      });
+                    }
+                  }}
+                  className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
+                >
+                  Save Featured Message
+                </button>
+              </div>
+
               {products.length === 0 ? (
                 <p className="text-zinc-400">
                   You have not added any products yet.
                 </p>
               ) : (
                 <div className="space-y-4">
-                  {products.slice(0, 3).map((product) => (
+                  {[
+                    ...products.filter(
+                      (product) => product.id === creator.featured_product_id
+                    ),
+                    ...products.filter(
+                      (product) => product.id !== creator.featured_product_id
+                   ),
+                  ]
+                    .slice(0, 3)
+                    .map((product) => (
                     <div
                       key={product.id}
                       className="border border-zinc-800 rounded-2xl p-5"
