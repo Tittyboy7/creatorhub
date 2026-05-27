@@ -212,16 +212,22 @@ export default async function CreatorProfilePage({ params }) {
         </div>
 
         {featuredProduct && (
-          <div className="bg-zinc-900 border border-white rounded-3xl p-6 mb-10">
+          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-white rounded-3xl p-8 mb-10 shadow-2xl">
             <span className="inline-block mb-4 bg-white text-black px-4 py-2 rounded-full text-sm font-semibold">
               Featured Product
             </span>
+
+            {creator.featured_product_message && (
+              <p className="text-zinc-300 mb-4 text-lg">
+                {creator.featured_product_message}
+              </p>
+            )}
 
             {featuredProduct.image_url ? (
               <img
                 src={featuredProduct.image_url}
                 alt={featuredProduct.title}
-                className="h-56 w-full object-cover rounded-2xl mb-4"
+                className="h-72 w-full object-cover rounded-2xl mb-6"
               />
             ) : (
               <div className="h-56 bg-zinc-800 rounded-2xl mb-4 flex items-center justify-center text-zinc-500">

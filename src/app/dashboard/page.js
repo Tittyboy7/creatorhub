@@ -19,6 +19,7 @@ export default function DashboardPage() {
   const [revenueEntries, setRevenueEntries] = useState([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [notifications, setNotifications] = useState([]);
+  const [featuredMessage, setFeaturedMessage] = useState("");
 
   useEffect(() => {
     async function loadDashboard() {
@@ -40,6 +41,8 @@ export default function DashboardPage() {
         .single();
 
       setCreator(creatorData);
+
+      setFeaturedMessage(creatorData?.featured_product_message || "");
 
       if (creatorData) {
         const { data: productData } = await supabase
@@ -487,6 +490,41 @@ export default function DashboardPage() {
                   Recent Products
                 </h2>
 
+                <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 mb-6">
+                  <label className="block text-zinc-400 mb-2">
+                    Featured product message
+                  </label>
+
+                  <input
+                    type="text"
+                    placeholder="Example: My newest launch, Best seller, Start here..."
+                    className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 mb-4"
+                    value={featuredMessage}
+                    onChange={(e) => setFeaturedMessage(e.target.value)}
+                  />
+
+                  <button
+                    onClick={async () => {
+                      const { error } = await supabase
+                        .from("creators")
+                        .update({
+                          featured_product_message: featuredMessage,
+                        })
+                        .eq("id", creator.id);
+
+                      if (!error) {
+                        setCreator({
+                          ...creator,
+                          featured_product_message: featuredMessage,
+                      });
+                     }
+                    }}
+                    className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
+                  >
+                    Save Featured Message
+                  </button>
+                </div>
+
                 <Link
                   href="/add-product"
                   className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
@@ -511,6 +549,19 @@ export default function DashboardPage() {
                           <h3 className="text-xl font-semibold">
                             {product.title}
                           </h3>
+
+                          {creator.featured_product_id === product.id && (
+                            <span className="inline-block mt-2 bg-white text-black px-3 py-1 rounded-full text-xs font-semibold">
+                              Featured
+                            </span>
+                          )}
+
+                          {creator.featured_product_id === product.id &&
+                            creator.featured_product_message && (
+                              <p className="text-zinc-400 mt-2 text-sm">
+                                {creator.featured_product_message}
+                              </p>
+                            )}
 
                           <p className="text-zinc-400 mt-1">
                             {product.views || 0} views ·{" "}
