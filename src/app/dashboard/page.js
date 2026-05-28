@@ -445,6 +445,10 @@ export default function DashboardPage() {
 
               <p className="text-zinc-400 mb-2">@{creator.username}</p>
 
+              <span className="inline-block mb-4 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+                Accent: {creator.accent_color || "white"}
+              </span>
+
               {creator.niche && (
                 <span className="inline-block mb-4 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
                   {creator.niche}
