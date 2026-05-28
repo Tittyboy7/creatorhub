@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { getAccentBadgeClass } from "@/lib/accentColors";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -225,21 +226,9 @@ export default function EditProfilePage() {
             <p className="text-zinc-400 mb-3">Theme Preview</p>
 
             <span
-              className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${
-                accentColor === "blue"
-                  ? "bg-blue-500 text-white"
-                  : accentColor === "purple"
-                  ? "bg-purple-500 text-white"
-                  : accentColor === "green"
-                  ? "bg-green-500 text-white"
-                  : accentColor === "pink"
-                  ? "bg-pink-500 text-white"
-                  : accentColor === "orange"
-                  ? "bg-orange-500 text-white"
-                  : accentColor === "red"
-                  ? "bg-red-500 text-white"
-                  : "bg-white text-black"
-              }`}
+              className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${getAccentBadgeClass(
+                accentColor
+              )}`}
             >
               Featured Product
             </span>
