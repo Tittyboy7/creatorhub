@@ -107,7 +107,17 @@ export default function ReviewSection({ productId }) {
     });
 
     if (error) {
-      alert(error.message);
+      if (
+        error.message.includes(
+          "reviews_user_id_product_id_key"
+        )
+      ) {
+        alert(
+          "You have already reviewed this product."
+        );
+      } else {
+        alert(error.message);
+      }
     } else {
       await createReviewNotification();
 
@@ -137,6 +147,10 @@ export default function ReviewSection({ productId }) {
       ? 0
       : reviews.reduce((sum, review) => sum + review.rating, 0) /
         reviews.length;
+
+  const userReview = user
+    ? reviews.find((review) => review.user_id === user.id)
+    : null;      
 
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
@@ -168,6 +182,13 @@ export default function ReviewSection({ productId }) {
         )}
       </div>
 
+    {userReview ? (
+      <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 mb-10">
+        <p className="text-zinc-300 font-semibold">
+          You already reviewed this product.
+        </p>
+      </div>
+    ) : (
       <form
         onSubmit={handleSubmit}
         className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 space-y-4 mb-10"
@@ -202,6 +223,7 @@ export default function ReviewSection({ productId }) {
           Submit Review
         </button>
       </form>
+    )}
 
       {reviews.length === 0 ? (
         <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-10 text-center">
@@ -221,9 +243,15 @@ export default function ReviewSection({ productId }) {
               className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6"
             >
               <div className="flex items-center justify-between gap-4 flex-wrap">
-                <p className="text-xl font-semibold">
-                  ⭐ {review.rating} / 5
-                </p>
+                <div>
+                  <p className="text-xl font-semibold">
+                    ⭐ {review.rating} / 5
+                  </p>
+
+                  <p className="text-zinc-500 text-sm mt-1">
+                    {new Date(review.created_at).toLocaleDateString()}
+                  </p>
+                </div>
 
                 {user?.id === review.user_id && (
                   <button
