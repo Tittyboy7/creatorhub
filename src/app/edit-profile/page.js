@@ -221,6 +221,30 @@ export default function EditProfilePage() {
             </select>
           </div>
 
+          <div className="mt-4 rounded-2xl border border-zinc-700 p-4">
+            <p className="text-zinc-400 mb-3">Theme Preview</p>
+
+            <span
+              className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${
+                accentColor === "blue"
+                  ? "bg-blue-500 text-white"
+                  : accentColor === "purple"
+                  ? "bg-purple-500 text-white"
+                  : accentColor === "green"
+                  ? "bg-green-500 text-white"
+                  : accentColor === "pink"
+                  ? "bg-pink-500 text-white"
+                  : accentColor === "orange"
+                  ? "bg-orange-500 text-white"
+                  : accentColor === "red"
+                  ? "bg-red-500 text-white"
+                  : "bg-white text-black"
+              }`}
+            >
+              Featured Product
+            </span>
+          </div>
+
           {currentAvatarUrl && (
             <img
               src={currentAvatarUrl}
