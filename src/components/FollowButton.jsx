@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-export default function FollowButton({
-  creatorId,
-  accentColor = "white",
-}) {
+export default function FollowButton({ creatorId }) {
   const [user, setUser] = useState(null);
   const [followId, setFollowId] = useState(null);
   const [followerCount, setFollowerCount] = useState(0);
@@ -48,28 +45,7 @@ export default function FollowButton({
       return "border border-zinc-700 text-zinc-300 px-5 py-3 rounded-2xl font-semibold hover:bg-zinc-800";
     }
 
-    switch (accentColor) {
-      case "blue":
-        return "bg-blue-500 text-white px-5 py-3 rounded-2xl font-semibold hover:bg-blue-600";
-
-      case "purple":
-        return "bg-purple-500 text-white px-5 py-3 rounded-2xl font-semibold hover:bg-purple-600";
-
-      case "green":
-        return "bg-green-500 text-white px-5 py-3 rounded-2xl font-semibold hover:bg-green-600";
-
-      case "pink":
-        return "bg-pink-500 text-white px-5 py-3 rounded-2xl font-semibold hover:bg-pink-600";
-
-      case "orange":
-        return "bg-orange-500 text-white px-5 py-3 rounded-2xl font-semibold hover:bg-orange-600";
-
-      case "red":
-        return "bg-red-500 text-white px-5 py-3 rounded-2xl font-semibold hover:bg-red-600";
-
-      default:
-        return "bg-white text-black px-5 py-3 rounded-2xl font-semibold hover:bg-zinc-200";
-    }
+    return "bg-blue-500 text-white px-5 py-3 rounded-2xl font-semibold hover:bg-blue-600";
   }
 
   async function createFollowNotification() {

@@ -3,6 +3,10 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import FollowButton from "@/components/FollowButton";
 import BuyNowButton from "@/components/BuyNowButton";
+import {
+  getAccentBadgeClass,
+  getAccentBorderClass,
+} from "@/lib/accentColors";
 
 export const dynamic = "force-dynamic";
 
@@ -93,10 +97,7 @@ export default async function CreatorProfilePage({ params }) {
               </span>
             )}
 
-            <FollowButton
-              creatorId={creator.id}
-              accentColor={creator.accent_color}
-            />
+            <FollowButton creatorId={creator.id} />
           </div>
         </div>
 
@@ -216,38 +217,14 @@ export default async function CreatorProfilePage({ params }) {
 
         {featuredProduct && (
           <div 
-            className={`bg-gradient-to-br from-zinc-900 to-zinc-950 border rounded-3xl p-8 mb-10 shadow-2xl ${
-              creator.accent_color === "blue"
-              ? "border-blue-500"
-              : creator.accent_color === "purple"
-              ? "border-purple-500"
-              : creator.accent_color === "green"
-              ? "border-green-500"
-              : creator.accent_color === "pink"
-              ? "border-pink-500"
-              : creator.accent_color === "orange"
-              ? "border-orange-500"
-              : creator.accent_color === "red"
-              ? "border-red-500"
-              : "border-white"
-          }`}
+            className={`bg-gradient-to-br from-zinc-900 to-zinc-950 border rounded-3xl p-8 mb-10 shadow-2xl ${getAccentBorderClass(
+              creator.accent_color
+            )}`}
          >
           <span
-            className={`inline-block mb-4 px-4 py-2 rounded-full text-sm font-semibold ${
-              creator.accent_color === "blue"
-                ? "bg-blue-500 text-white"
-                : creator.accent_color === "purple"
-                ? "bg-purple-500 text-white"
-                : creator.accent_color === "green"
-                ? "bg-green-500 text-white"
-                : creator.accent_color === "pink"
-                ? "bg-pink-500 text-white"
-                : creator.accent_color === "orange"
-                ? "bg-orange-500 text-white"
-                : creator.accent_color === "red"
-                ? "bg-red-500 text-white"
-                : "bg-white text-black"
-            }`}
+            className={`inline-block mb-4 px-4 py-2 rounded-full text-sm font-semibold ${getAccentBadgeClass(
+              creator.accent_color
+            )}`}
           >
             Featured Product
           </span>
