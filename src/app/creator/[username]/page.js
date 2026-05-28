@@ -58,49 +58,90 @@ export default async function CreatorProfilePage({ params }) {
     <div className="min-h-screen bg-zinc-950 text-white p-10">
       <div className="max-w-4xl mx-auto">
         {creator.banner_url ? (
-          <img
-            src={creator.banner_url}
-            alt={`${creator.display_name} banner`}
-            className="h-64 w-full object-cover rounded-3xl mb-8"
-          />
+          <div className="relative mb-8">
+            <img
+              src={creator.banner_url}
+              alt={`${creator.display_name} banner`}
+              className="h-80 w-full object-cover rounded-3xl border border-zinc-800 shadow-2xl"
+            />
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent rounded-3xl" />
+
+            <div className="absolute bottom-8 left-8 z-10">
+              <div className="flex items-center gap-6">
+                {creator.avatar_url ? (
+                  <img
+                    src={creator.avatar_url}
+                    alt={`${creator.display_name} avatar`}
+                    className="w-32 h-32 object-cover rounded-full border-4 border-zinc-950"
+                  />
+                ) : (
+                  <div className="w-32 h-32 bg-zinc-700 rounded-full flex items-center justify-center text-zinc-400 border-4 border-zinc-950">
+                    Avatar
+                  </div>
+                )}
+
+                <div>
+                  <h1 className="text-5xl font-bold">
+                    {creator.display_name}
+                  </h1>
+
+                  <p className="text-zinc-300 mt-2">
+                    @{creator.username}
+                  </p>
+
+                  {creator.niche && (
+                    <span className="inline-block mt-3 bg-zinc-900/80 text-zinc-200 px-3 py-1 rounded-full text-sm">
+                      {creator.niche}
+                    </span>
+                  )}
+
+                  <FollowButton creatorId={creator.id} />
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
-          <div className="h-64 bg-zinc-800 rounded-3xl mb-8 flex items-center justify-center text-zinc-500">
-            Banner Image
+          <div className="relative h-80 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-3xl mb-8 border border-zinc-800 shadow-2xl">
+            <div className="absolute inset-0 flex items-center justify-center text-zinc-600">
+              Banner Image
+            </div>
+
+            <div className="absolute bottom-8 left-8 z-10">
+              <div className="flex items-center gap-6">
+                {creator.avatar_url ? (
+                  <img
+                    src={creator.avatar_url}
+                    alt={`${creator.display_name} avatar`}
+                    className="w-32 h-32 object-cover rounded-full border-4 border-zinc-950"
+                  />
+                ) : (
+                  <div className="w-32 h-32 bg-zinc-700 rounded-full flex items-center justify-center text-zinc-400 border-4 border-zinc-950">
+                    Avatar
+                  </div>
+                )}
+
+                <div>
+                  <h1 className="text-5xl font-bold">
+                    {creator.display_name}
+                  </h1>
+
+                  <p className="text-zinc-300 mt-2">
+                    @{creator.username}
+                  </p>
+
+                  {creator.niche && (
+                    <span className="inline-block mt-3 bg-zinc-900/80 text-zinc-200 px-3 py-1 rounded-full text-sm">
+                      {creator.niche}
+                    </span>
+                  )}
+
+                  <FollowButton creatorId={creator.id} />
+                </div>
+              </div>
+            </div>
           </div>
         )}
-
-        <div className="flex items-center gap-6 mb-8">
-          {creator.avatar_url ? (
-            <img
-              src={creator.avatar_url}
-              alt={`${creator.display_name} avatar`}
-              className="w-32 h-32 object-cover rounded-full"
-            />
-          ) : (
-            <div className="w-32 h-32 bg-zinc-700 rounded-full flex items-center justify-center text-zinc-400">
-              Avatar
-            </div>
-          )}
-
-          <div>
-            <h1 className="text-5xl font-bold">
-              {creator.display_name}
-            </h1>
-
-            <p className="text-zinc-400 mt-2">
-              @{creator.username}
-            </p>
-
-            {creator.niche && (
-              <span className="inline-block mt-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
-                {creator.niche}
-              </span>
-            )}
-
-            <FollowButton creatorId={creator.id} />
-          </div>
-        </div>
-
         {announcements && announcements.length > 0 && (
           <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 mb-10">
             <h2 className="text-2xl font-semibold mb-4">

@@ -55,7 +55,7 @@ export default function RoadmapPage() {
           </Link>
 
           <a
-            href="mailto:hello@creatorhub.com?subject=Feature%20Suggestion"
+            href="mailto:tylerrgarvin7@gmail.com?subject=Feature%20Suggestion"
             className="bg-white text-black px-6 py-3 rounded-2xl font-semibold"
           >
             Suggest a Feature
