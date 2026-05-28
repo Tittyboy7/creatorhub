@@ -93,7 +93,10 @@ export default async function CreatorProfilePage({ params }) {
               </span>
             )}
 
-            <FollowButton creatorId={creator.id} />
+            <FollowButton
+              creatorId={creator.id}
+              accentColor={creator.accent_color}
+            />
           </div>
         </div>
 
@@ -212,10 +215,42 @@ export default async function CreatorProfilePage({ params }) {
         </div>
 
         {featuredProduct && (
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-white rounded-3xl p-8 mb-10 shadow-2xl">
-            <span className="inline-block mb-4 bg-white text-black px-4 py-2 rounded-full text-sm font-semibold">
-              Featured Product
-            </span>
+          <div 
+            className={`bg-gradient-to-br from-zinc-900 to-zinc-950 border rounded-3xl p-8 mb-10 shadow-2xl ${
+              creator.accent_color === "blue"
+              ? "border-blue-500"
+              : creator.accent_color === "purple"
+              ? "border-purple-500"
+              : creator.accent_color === "green"
+              ? "border-green-500"
+              : creator.accent_color === "pink"
+              ? "border-pink-500"
+              : creator.accent_color === "orange"
+              ? "border-orange-500"
+              : creator.accent_color === "red"
+              ? "border-red-500"
+              : "border-white"
+          }`}
+         >
+          <span
+            className={`inline-block mb-4 px-4 py-2 rounded-full text-sm font-semibold ${
+              creator.accent_color === "blue"
+                ? "bg-blue-500 text-white"
+                : creator.accent_color === "purple"
+                ? "bg-purple-500 text-white"
+                : creator.accent_color === "green"
+                ? "bg-green-500 text-white"
+                : creator.accent_color === "pink"
+                ? "bg-pink-500 text-white"
+                : creator.accent_color === "orange"
+                ? "bg-orange-500 text-white"
+                : creator.accent_color === "red"
+                ? "bg-red-500 text-white"
+                : "bg-white text-black"
+            }`}
+          >
+            Featured Product
+          </span>
 
             {creator.featured_product_message && (
               <p className="text-zinc-300 mb-4 text-lg">
@@ -255,6 +290,7 @@ export default async function CreatorProfilePage({ params }) {
             <BuyNowButton
               productId={featuredProduct.id}
               externalUrl={featuredProduct.external_url}
+              accentColor={creator.accent_color}
             />
           </div>
         )}

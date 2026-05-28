@@ -23,6 +23,7 @@ export default function EditProfilePage() {
   const [instagram, setInstagram] = useState("");
   const [shopify, setShopify] = useState("");
   const [patreon, setPatreon] = useState("");
+  const [accentColor, setAccentColor] = useState("white");
 
   useEffect(() => {
     async function loadProfile() {
@@ -59,6 +60,7 @@ export default function EditProfilePage() {
       setInstagram(creator.social_links?.instagram || "");
       setShopify(creator.social_links?.shopify || "");
       setPatreon(creator.social_links?.patreon || "");
+      setAccentColor(creator.accent_color || "white");
       setLoading(false);
     }
 
@@ -136,6 +138,7 @@ export default function EditProfilePage() {
           shopify,
           patreon,
         },
+        accent_color: accentColor,
       })
       .eq("id", creatorId);
 
@@ -197,6 +200,26 @@ export default function EditProfilePage() {
             value={bio}
             onChange={(e) => setBio(e.target.value)}
           />
+
+          <div>
+            <label className="block text-zinc-400 mb-2">
+              Storefront Accent Color
+            </label>
+
+            <select
+              className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
+              value={accentColor}
+              onChange={(e) => setAccentColor(e.target.value)}
+            >
+              <option value="white">White</option>
+              <option value="blue">Blue</option>
+              <option value="purple">Purple</option>
+              <option value="green">Green</option>
+              <option value="pink">Pink</option>
+              <option value="orange">Orange</option>
+              <option value="red">Red</option>
+            </select>
+          </div>
 
           {currentAvatarUrl && (
             <img

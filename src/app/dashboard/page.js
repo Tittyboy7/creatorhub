@@ -832,7 +832,7 @@ export default function DashboardPage() {
 
 <div>
   <h2 className="text-3xl font-bold mb-6">
-    Your Announcements
+    All Announcements
   </h2>
 
   {announcements.length === 0 ? (
@@ -921,7 +921,7 @@ export default function DashboardPage() {
 
 <div>
   <h2 className="text-3xl font-bold mb-6">
-    Your Products
+    All Products
   </h2>
 
               {products.length === 0 ? (
