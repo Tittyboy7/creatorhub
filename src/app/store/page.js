@@ -162,13 +162,13 @@ export default function StorePage() {
             {sortedProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6"
+                className="group bg-zinc-900 border border-zinc-800 rounded-3xl p-6 transition duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:shadow-2xl"
               >
                 {product.image_url ? (
                   <img
                     src={product.image_url}
                     alt={product.title}
-                    className="h-40 w-full object-cover rounded-2xl mb-4"
+                    className="h-48 w-full object-cover rounded-2xl mb-4 transition duration-300 group-hover:scale-[1.02]"
                   />
                 ) : (
                   <div className="h-40 bg-zinc-800 rounded-2xl mb-4 flex items-center justify-center text-zinc-500">
@@ -178,7 +178,7 @@ export default function StorePage() {
 
                 <Link
                   href={`/product/${product.id}`}
-                  className="block text-2xl font-semibold hover:text-zinc-300"
+                  className="block text-2xl font-semibold hover:text-zinc-300 underline-offset-4 hover:underline"
                 >
                   {product.title}
                 </Link>
@@ -221,17 +221,20 @@ export default function StorePage() {
                   </Link>
                 )}
 
-                <div className="mt-4">
+                <div className="mt-5 space-y-3">
                   <BuyNowButton
                     productId={product.id}
                     externalUrl={product.external_url}
                   />
-                </div>
 
-                <FavoriteButton
-                  productId={product.id}
-                />
-                <AddToCartButton productId={product.id} />
+                  <FavoriteButton
+                    productId={product.id}
+                  />
+
+                  <AddToCartButton
+                    productId={product.id}
+                  />
+                </div>
               </div>            
             ))}
           </div>
