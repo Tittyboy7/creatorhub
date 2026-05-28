@@ -139,20 +139,45 @@ export default function ReviewSection({ productId }) {
         reviews.length;
 
   return (
-    <div className="mt-12 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-      <h2 className="text-3xl font-bold mb-2">Reviews</h2>
+    <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+      <div className="flex items-center justify-between gap-4 flex-wrap mb-8">
+        <div>
+          <h2 className="text-3xl font-bold">
+            Reviews
+          </h2>
 
-      <p className="text-zinc-400 mb-6">
-        {reviews.length === 0
-          ? "No reviews yet."
-          : `${averageRating.toFixed(1)} / 5 from ${reviews.length} review${
-              reviews.length === 1 ? "" : "s"
-            }`}
-      </p>
+          <p className="text-zinc-400 mt-2">
+            {reviews.length === 0
+              ? "No reviews yet."
+              : `${averageRating.toFixed(1)} / 5 from ${
+                  reviews.length
+                } review${reviews.length === 1 ? "" : "s"}`}
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4 mb-8">
+        {reviews.length > 0 && (
+          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl px-6 py-4 text-center">
+            <p className="text-3xl font-bold">
+              ⭐ {averageRating.toFixed(1)}
+            </p>
+
+            <p className="text-zinc-500 text-sm mt-1">
+              Average Rating
+            </p>
+          </div>
+        )}
+      </div>
+
+      <form
+        onSubmit={handleSubmit}
+        className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 space-y-4 mb-10"
+      >
+        <h3 className="text-2xl font-semibold">
+          Leave a Review
+        </h3>
+
         <select
-          className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
+          className="w-full bg-zinc-900 border border-zinc-700 rounded-2xl p-4"
           value={rating}
           onChange={(e) => setRating(e.target.value)}
         >
@@ -164,43 +189,61 @@ export default function ReviewSection({ productId }) {
         </select>
 
         <textarea
-          placeholder="Write a review..."
-          className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 h-32"
+          placeholder="Share your thoughts about this product..."
+          className="w-full bg-zinc-900 border border-zinc-700 rounded-2xl p-4 h-36 resize-none"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
         />
 
         <button
           type="submit"
-          className="bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+          className="bg-white text-black px-6 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
         >
           Submit Review
         </button>
       </form>
 
-      <div className="space-y-4">
-        {reviews.map((review) => (
-          <div
-            key={review.id}
-            className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4"
-          >
-            <p className="font-semibold">{review.rating} / 5 Stars</p>
+      {reviews.length === 0 ? (
+        <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-10 text-center">
+          <p className="text-zinc-400 text-lg">
+            No reviews yet.
+          </p>
 
-            {review.comment && (
-              <p className="text-zinc-400 mt-2">{review.comment}</p>
-            )}
+          <p className="text-zinc-500 mt-2">
+            Be the first person to review this product.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-5">
+          {reviews.map((review) => (
+            <div
+              key={review.id}
+              className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6"
+            >
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <p className="text-xl font-semibold">
+                  ⭐ {review.rating} / 5
+                </p>
 
-            {user?.id === review.user_id && (
-              <button
-                onClick={() => handleDelete(review.id)}
-                className="mt-4 text-red-400"
-              >
-                Delete Review
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
+                {user?.id === review.user_id && (
+                  <button
+                    onClick={() => handleDelete(review.id)}
+                    className="text-red-400 hover:text-red-300 transition"
+                  >
+                    Delete Review
+                  </button>
+                )}
+              </div>
+
+              {review.comment && (
+                <p className="text-zinc-400 mt-4 leading-relaxed">
+                  {review.comment}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
