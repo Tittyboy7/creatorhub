@@ -26,21 +26,24 @@ export default async function ProductPage({ params }) {
     .single();
 
   if (!product) {
-  return (
-    <div className="min-h-screen bg-zinc-950 text-white p-10">
-      <h1 className="text-4xl font-bold">
-        This product is no longer available.
-      </h1>
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white p-10">
+        <div className="max-w-4xl mx-auto bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+          <h1 className="text-4xl font-bold">
+            This product is no longer available.
+          </h1>
 
-      <Link
-        href="/store"
-        className="inline-block mt-6 bg-white text-black px-6 py-3 rounded-2xl font-semibold"
-      >
-        Back to Marketplace
-      </Link>
-    </div>
-  );
-}
+          <Link
+            href="/store"
+            className="inline-block mt-6 bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+          >
+            Back to Marketplace
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   await supabase
     .from("products")
     .update({
@@ -50,96 +53,132 @@ export default async function ProductPage({ params }) {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-10">
-      <div className="max-w-4xl mx-auto">
-        {product.image_url && (
-          <img
-            src={product.image_url}
-            alt={product.title}
-            className="h-96 w-full object-cover rounded-3xl mb-8"
-          />
-        )}
+      <div className="max-w-6xl mx-auto space-y-10">
+        <Link
+          href="/store"
+          className="inline-block border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
+        >
+          Back to Marketplace
+        </Link>
 
-        <h1 className="text-5xl font-bold mb-3">{product.title}</h1>
-
-        <p className="text-zinc-500 mb-4">
-          Listed {formatDate(product.created_at)}
-        </p>
-
-        {product.category && (
-          <span className="inline-block bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm mb-6">
-            {product.category}
-          </span>
-        )}
-
-        {product.creators && (
-          <Link
-            href={`/creator/${product.creators.username}`}
-            className="flex items-center gap-3 mb-6 text-zinc-400 hover:text-white"
-          >
-            {product.creators.avatar_url ? (
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-8 items-start">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            {product.image_url ? (
               <img
-                src={product.creators.avatar_url}
-                alt={product.creators.display_name}
-                className="w-10 h-10 rounded-full object-cover"
+                src={product.image_url}
+                alt={product.title}
+                className="h-[460px] w-full object-cover rounded-2xl"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-zinc-700" />
+              <div className="h-[460px] w-full bg-zinc-800 rounded-2xl flex items-center justify-center text-zinc-500">
+                Product Image
+              </div>
+            )}
+          </div>
+
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+            {product.category && (
+              <span className="inline-block bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm mb-5">
+                {product.category}
+              </span>
             )}
 
-            <span>
-              Sold by {product.creators.display_name}
-            </span>
-          </Link>
-        )}
+            <h1 className="text-5xl font-bold mb-3">
+              {product.title}
+            </h1>
 
-        <p className="text-3xl font-bold mb-6">{product.price}</p>
+            <p className="text-zinc-500 mb-6">
+              Listed {formatDate(product.created_at)}
+            </p>
 
-        {product.reviews_count > 0 && (
-          <p className="text-zinc-500 mb-4">
-            ⭐ {Number(product.average_rating).toFixed(1)} / 5 ·{" "}
-            {product.reviews_count} review
-            {product.reviews_count === 1 ? "" : "s"}
-          </p>
-        )}
+            {product.creators && (
+              <Link
+                href={`/creator/${product.creators.username}`}
+                className="flex items-center gap-3 mb-6 bg-zinc-950 border border-zinc-800 rounded-2xl p-4 hover:border-zinc-700 transition"
+              >
+                {product.creators.avatar_url ? (
+                  <img
+                    src={product.creators.avatar_url}
+                    alt={product.creators.display_name}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-zinc-700" />
+                )}
 
-        {product.description && (
-          <p className="text-zinc-400 text-lg leading-relaxed mb-8">
-            {product.description}
-          </p>
-        )}
+                <div>
+                  <p className="text-zinc-500 text-sm">
+                    Sold by
+                  </p>
 
-        <div className="text-zinc-500 mb-8 space-y-1">
-          <p>{product.views || 0} views</p>
-          <p>{product.favorites_count || 0} favorites</p>
-          <p>{product.checkout_clicks || 0} checkout clicks</p>
-        </div>
+                  <p className="font-semibold">
+                    {product.creators.display_name}
+                  </p>
+                </div>
+              </Link>
+            )}
 
-        <div className="grid md:grid-cols-3 gap-4">
-          <BuyNowButton
-            productId={product.id}
-            externalUrl={product.external_url}
-          />
+            <p className="text-4xl font-bold mb-5">
+              {product.price}
+            </p>
 
-          {product.creators && (
-            <Link
-              href={`/creator/${product.creators.username}`}
-              className="w-full border border-zinc-700 py-3 rounded-2xl flex items-center justify-center"
-            >
-              Back to Creator
-            </Link>
-          )}
+            {product.reviews_count > 0 && (
+              <p className="text-zinc-400 mb-5">
+                ⭐ {Number(product.average_rating).toFixed(1)} / 5 ·{" "}
+                {product.reviews_count} review
+                {product.reviews_count === 1 ? "" : "s"}
+              </p>
+            )}
 
-          <Link
-            href="/store"
-            className="w-full border border-zinc-700 py-3 rounded-2xl flex items-center justify-center"
-          >
-            Back to Marketplace
-          </Link>
-        </div>
+            {product.description && (
+              <p className="text-zinc-400 text-lg leading-relaxed mb-6">
+                {product.description}
+              </p>
+            )}
 
-        <div className="grid md:grid-cols-2 gap-4 mt-4">
-          <FavoriteButton productId={product.id} />
-          <AddToCartButton productId={product.id} />
+            <div className="grid grid-cols-3 gap-3 text-center mb-8">
+              <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4">
+                <p className="text-2xl font-bold">
+                  {product.views || 0}
+                </p>
+                <p className="text-zinc-500 text-sm">Views</p>
+              </div>
+
+              <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4">
+                <p className="text-2xl font-bold">
+                  {product.favorites_count || 0}
+                </p>
+                <p className="text-zinc-500 text-sm">Favorites</p>
+              </div>
+
+              <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4">
+                <p className="text-2xl font-bold">
+                  {product.checkout_clicks || 0}
+                </p>
+                <p className="text-zinc-500 text-sm">Checkouts</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <BuyNowButton
+                productId={product.id}
+                externalUrl={product.external_url}
+              />
+
+              <FavoriteButton productId={product.id} />
+
+              <AddToCartButton productId={product.id} />
+            </div>
+
+            {product.creators && (
+              <Link
+                href={`/creator/${product.creators.username}`}
+                className="block mt-5 w-full border border-zinc-700 py-3 rounded-2xl text-center hover:bg-zinc-800"
+              >
+                View Creator Storefront
+              </Link>
+            )}
+          </div>
         </div>
 
         <ReviewSection productId={product.id} />
