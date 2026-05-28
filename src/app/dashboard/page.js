@@ -445,10 +445,25 @@ export default function DashboardPage() {
 
               <p className="text-zinc-400 mb-2">@{creator.username}</p>
 
-              <span className="inline-block mb-4 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+              <span
+                className={`inline-block mb-4 px-3 py-1 rounded-full text-sm font-semibold ${
+                  creator.accent_color === "blue"
+                    ? "bg-blue-500 text-white"
+                    : creator.accent_color === "purple"
+                    ? "bg-purple-500 text-white"
+                    : creator.accent_color === "green"
+                    ? "bg-green-500 text-white"
+                    : creator.accent_color === "pink"
+                    ? "bg-pink-500 text-white"
+                    : creator.accent_color === "orange"
+                    ? "bg-orange-500 text-white"
+                    : creator.accent_color === "red"
+                    ? "bg-red-500 text-white"
+                    : "bg-white text-black"
+                }`}
+              >
                 Accent: {creator.accent_color || "white"}
               </span>
-
               {creator.niche && (
                 <span className="inline-block mb-4 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
                   {creator.niche}
