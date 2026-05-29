@@ -92,27 +92,47 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-10">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-5xl font-bold mb-4">Cart</h1>
+        <h1 className="text-5xl font-bold mb-4">Purchase List</h1>
 
-        <p className="text-zinc-400 text-lg mb-10">
-          Products you added to your cart.
+        <p className="text-zinc-400 text-lg mb-6">
+          Products you’re considering purchasing from creator storefronts.
         </p>
 
+        <div className="flex flex-wrap gap-3 mb-10">
+          <Link
+            href="/store"
+            className="bg-white text-black px-5 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
+          >
+            Browse Marketplace
+          </Link>
+
+          <Link
+            href="/favorites"
+            className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800 transition"
+          >
+            View Favorites
+          </Link>
+        </div>
+
         {cartItems.length === 0 ? (
-          <div>
-            <p className="text-zinc-400">
-              Your cart is empty, or items may no longer be available.
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-10 text-center">
+            <h2 className="text-3xl font-bold mb-4">
+              Your Purchase List is Empty
+            </h2>
+
+            <p className="text-zinc-400 text-lg">
+              Save products here before purchasing them from creators.
             </p>
 
             <Link
               href="/store"
-              className="inline-block mt-6 bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+              className="inline-block mt-8 bg-white text-black px-6 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
             >
               Browse Marketplace
             </Link>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-8">
             {cartItems.map((item) => {
               const product = item.products;
 
@@ -121,82 +141,96 @@ export default function CartPage() {
               return (
                 <div
                   key={item.id}
-                  className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 flex flex-col md:flex-row gap-6"
+                  className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 flex flex-col lg:flex-row gap-6 hover:border-zinc-700 transition"
                 >
                   {product.image_url ? (
                     <img
                       src={product.image_url}
                       alt={product.title}
-                      className="w-full md:w-48 h-40 object-cover rounded-2xl"
+                      className="w-full lg:w-56 h-48 object-cover rounded-2xl"
                     />
                   ) : (
-                    <div className="w-full md:w-48 h-40 bg-zinc-800 rounded-2xl flex items-center justify-center text-zinc-500">
+                    <div className="w-full lg:w-56 h-48 bg-zinc-800 rounded-2xl flex items-center justify-center text-zinc-500">
                       Product Image
                     </div>
                   )}
 
-                  <div className="flex-1">
-                    <Link
-                      href={`/product/${product.id}`}
-                      className="block text-2xl font-semibold hover:text-zinc-300"
-                    >
-                      {product.title}
-                    </Link>
-
-                    {product.creators && (
+                  <div className="flex-1 flex flex-col justify-between">
+                    <div>
                       <Link
-                        href={`/creator/${product.creators.username}`}
-                        className="block mt-2 text-zinc-400 hover:text-white"
+                        href={`/product/${product.id}`}
+                        className="block text-3xl font-bold hover:text-zinc-300 transition"
                       >
-                        Sold by {product.creators.display_name}
+                        {product.title}
                       </Link>
-                    )}
 
-                    {product.description && (
-                      <p className="text-zinc-400 mt-2">
-                        {product.description}
+                      {product.creators && (
+                        <Link
+                          href={`/creator/${product.creators.username}`}
+                          className="inline-block mt-3 text-zinc-400 hover:text-white"
+                        >
+                          Sold by {product.creators.display_name}
+                        </Link>
+                      )}
+
+                      {product.description && (
+                        <p className="text-zinc-400 mt-4 leading-relaxed">
+                          {product.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="mt-6">
+                      <p className="text-3xl font-bold mb-5">
+                        {product.price}
                       </p>
-                    )}
 
-                    <p className="text-2xl font-bold mt-4">
-                      {product.price}
-                    </p>
+                      <div className="flex flex-wrap gap-3">
+                        <div className="w-full md:w-auto">
+                          <BuyNowButton
+                            productId={product.id}
+                            externalUrl={product.external_url}
+                          />
+                        </div>
 
-                    <div className="flex flex-wrap gap-3 mt-6">
-                      <div className="w-full md:w-auto">
-                        <BuyNowButton
-                          productId={product.id}
-                          externalUrl={product.external_url}
-                        />
+                        <button
+                          onClick={() => removeFromCart(item.id)}
+                          className="border border-red-900 text-red-400 px-5 py-3 rounded-2xl hover:bg-red-950 transition"
+                        >
+                          Remove
+                        </button>
                       </div>
-
-                      <button
-                        onClick={() => removeFromCart(item.id)}
-                        className="border border-red-900 text-red-400 px-5 py-3 rounded-2xl hover:bg-red-950"
-                      >
-                        Remove
-                      </button>
                     </div>
                   </div>
                 </div>
               );
             })}
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
-              <p className="text-zinc-400">Estimated Total</p>
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <div className="flex items-center justify-between gap-6 flex-wrap">
+                <div>
+                  <p className="text-zinc-400 text-lg">
+                    Estimated Total
+                  </p>
 
-              <p className="text-4xl font-bold mt-2">
-                ${total.toFixed(2)}
-              </p>
+                  <p className="text-5xl font-bold mt-2">
+                    ${total.toFixed(2)}
+                  </p>
+                </div>
 
-              <p className="text-zinc-400 mt-4">
-                Checkout is handled through each creator’s external store.
-              </p>
+                <div className="max-w-md">
+                  <p className="text-zinc-300 leading-relaxed">
+                    CreatorHub does not process checkout directly.
+                    Purchases are completed through each creator’s
+                    external storefront.
+                  </p>
 
-              <p className="text-zinc-500 mt-2 text-sm">
-                Click the Buy Now button on each cart item to complete your
-                purchase.
-              </p>
+                  <p className="text-zinc-500 text-sm mt-3">
+                    Use your purchase list to organize products you
+                    plan to buy.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         )}

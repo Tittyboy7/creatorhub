@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import FavoriteButton from "@/components/FavoriteButton";
 import BuyNowButton from "@/components/BuyNowButton";
+import AddToCartButton from "@/components/AddToCartButton";
 
 export default function FavoritesPage() {
   const router = useRouter();
@@ -72,9 +73,25 @@ export default function FavoritesPage() {
       <div className="max-w-6xl mx-auto">
         <h1 className="text-5xl font-bold mb-4">Favorites</h1>
 
-        <p className="text-zinc-400 text-lg mb-10">
-          Products you saved.
+        <p className="text-zinc-400 text-lg mb-6">
+          Products you saved for later.
         </p>
+
+        <div className="flex flex-wrap gap-3 mb-10">
+          <Link
+            href="/store"
+            className="bg-white text-black px-5 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
+          >
+            Browse Marketplace
+          </Link>
+
+          <Link
+            href="/cart"
+            className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800 transition"
+          >
+            View Purchase List
+          </Link>
+        </div>
 
         <p className="text-zinc-400 mb-6">
           Showing {favorites.length} saved product
@@ -82,14 +99,18 @@ export default function FavoritesPage() {
         </p>
 
         {favorites.length === 0 ? (
-          <div>
-            <p className="text-zinc-400">
-              No saved products yet, or saved products may no longer be available.
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-10 text-center">
+            <h2 className="text-3xl font-bold mb-4">
+              No Favorites Yet
+            </h2>
+
+            <p className="text-zinc-400 text-lg">
+              Save products you want to revisit later.
             </p>
 
             <Link
               href="/store"
-              className="inline-block mt-6 bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+              className="inline-block mt-8 bg-white text-black px-6 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
             >
               Browse Marketplace
             </Link>
@@ -104,23 +125,23 @@ export default function FavoritesPage() {
               return (
                 <div
                   key={favorite.id}
-                  className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6"
+                  className="group bg-zinc-900 border border-zinc-800 rounded-3xl p-6 transition duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:shadow-2xl"
                 >
                   {product.image_url ? (
                     <img
                       src={product.image_url}
                       alt={product.title}
-                      className="h-40 w-full object-cover rounded-2xl mb-4"
+                      className="h-48 w-full object-cover rounded-2xl mb-4 transition duration-300 group-hover:scale-[1.02]"
                     />
                   ) : (
-                    <div className="h-40 bg-zinc-800 rounded-2xl mb-4 flex items-center justify-center text-zinc-500">
+                    <div className="h-48 bg-zinc-800 rounded-2xl mb-4 flex items-center justify-center text-zinc-500">
                       Product Image
                     </div>
                   )}
 
                   <Link
                     href={`/product/${product.id}`}
-                    className="block text-2xl font-semibold hover:text-zinc-300"
+                    className="block text-2xl font-semibold hover:text-zinc-300 underline-offset-4 hover:underline"
                   >
                     {product.title}
                   </Link>
@@ -150,14 +171,16 @@ export default function FavoritesPage() {
                     {product.price}
                   </p>
 
-                  <div className="mt-4">
+                  <div className="mt-5 space-y-3">
                     <BuyNowButton
                       productId={product.id}
                       externalUrl={product.external_url}
                     />
-                  </div>
 
-                  <FavoriteButton productId={product.id} />
+                    <AddToCartButton productId={product.id} />
+
+                    <FavoriteButton productId={product.id} />
+                  </div>
                 </div>
               );
             })}
