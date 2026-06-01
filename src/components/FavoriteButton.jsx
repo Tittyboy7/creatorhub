@@ -63,15 +63,15 @@ export default function FavoriteButton({ productId }) {
         user_id: creatorUserId,
         creator_id: product.creator_id,
         type: "favorite",
-        title: "Product Favorited",
-        message: "Someone saved one of your products.",
+        title: "Product Saved",
+        message: "Someone saved one of your products for later.",
       });
     }
   }
 
   async function toggleFavorite() {
     if (!user) {
-      alert("Please log in to save favorites.");
+      alert("Please log in to save products for later.");
       return;
     }
 
@@ -137,7 +137,7 @@ export default function FavoriteButton({ productId }) {
       onClick={toggleFavorite}
       className="relative z-10 mt-4 w-full border border-zinc-700 py-3 rounded-2xl cursor-pointer hover:bg-zinc-800"
     >
-      {favoriteId ? "Saved ♥" : "Save ♡"}
+      {favoriteId ? "Saved for Later" : "Save for Later"}
     </button>
   );
 }

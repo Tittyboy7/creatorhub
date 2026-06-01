@@ -65,19 +65,19 @@ export default function AddToCartButton({ productId }) {
         creator_id: product.creator_id,
         type: "cart",
         title: "Product Added to Cart",
-        message: `Someone added your product to their cart: ${product.title}`,
+        message: `Someone added your product to their purchase list: ${product.title}`,
       });
     }
   }
 
   async function handleAddToCart() {
     if (!user) {
-      alert("Please log in to add items to cart.");
+      alert("Please log in to add items to your purchase list.");
       return;
     }
 
     if (cartItemId) {
-      alert("This product is already in your cart.");
+      alert("This product is already in your purchase list.");
       return;
     }
 
@@ -105,7 +105,7 @@ export default function AddToCartButton({ productId }) {
       onClick={handleAddToCart}
       className="relative z-10 mt-4 w-full border border-zinc-700 py-3 rounded-2xl cursor-pointer hover:bg-zinc-800"
     >
-      {cartItemId ? "In Cart" : "Add to Cart"}
+      {cartItemId ? "In Purchase List" : "Add to Purchase List"}
     </button>
   );
 }
