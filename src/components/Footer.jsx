@@ -22,6 +22,10 @@ export default function Footer() {
             </h4>
 
             <div className="flex flex-col gap-2 text-zinc-400">
+              <Link href="/about">
+                About
+              </Link>
+
               <Link href="/creators">
                 Creators
               </Link>
