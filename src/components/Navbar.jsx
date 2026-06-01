@@ -139,7 +139,7 @@ export default function Navbar() {
           onClick={() => setMenuOpen(!menuOpen)}
           className="md:hidden border border-zinc-700 px-4 py-2 rounded-xl"
         >
-          {menuOpen ? "Close" : "Menu"}
+          {menuOpen ? "Close ✕" : "Menu ☰"}
         </button>
 
         <nav className="hidden md:flex items-center gap-6 text-zinc-300">
