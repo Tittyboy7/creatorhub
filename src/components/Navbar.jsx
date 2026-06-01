@@ -177,7 +177,7 @@ export default function Navbar() {
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="bg-white text-black px-4 py-2 rounded-xl font-semibold"
                 >
-                  Profile
+                  {user?.email || "Profile"} ▼
                 </button>
 
                 {userMenuOpen && (
