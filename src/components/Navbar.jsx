@@ -14,89 +14,78 @@ export default function Navbar() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
 
-useEffect(() => {
-  async function loadUserAndCart() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  useEffect(() => {
+    async function loadUserData() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    setUser(user);
+      setUser(user);
 
-    if (!user) {
-      setCartCount(0);
-      setIsAdmin(false);
-      return;
+      if (!user) {
+        setCartCount(0);
+        setNotificationCount(0);
+        setIsAdmin(false);
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", user.id)
+        .single();
+
+      setIsAdmin(profile?.is_admin || false);
+
+      const { data: unreadNotifications } = await supabase
+        .from("notifications")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("is_read", false);
+
+      setNotificationCount((unreadNotifications || []).length);
+
+      const { data: activeCartItems } = await supabase
+        .from("cart_items")
+        .select(`
+          id,
+          products (
+            is_active
+          )
+        `)
+        .eq("user_id", user.id);
+
+      const activeCount = (activeCartItems || []).filter(
+        (item) => item.products?.is_active
+      ).length;
+
+      setCartCount(activeCount);
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", user.id)
-      .single();
+    loadUserData();
 
-    setIsAdmin(profile?.is_admin || false);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
+      loadUserData();
+    });
 
-    const { data: unreadNotifications } = await supabase
-      .from("notifications")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("is_read", false);
+    window.addEventListener("cartUpdated", loadUserData);
+    window.addEventListener("notificationsUpdated", loadUserData);
 
-    setNotificationCount(
-      (unreadNotifications || []).length
-    );
-
-    const { data: activeCartItems } = await supabase
-      .from("cart_items")
-      .select(`
-        id,
-        products (
-          is_active
-        )
-      `)
-      .eq("user_id", user.id);
-
-    const activeCount = (activeCartItems || []).filter(
-      (item) => item.products?.is_active
-    ).length;
-
-    setCartCount(activeCount);
-  }
-
-  loadUserAndCart();
-
-  const {
-    data: { subscription },
-  } = supabase.auth.onAuthStateChange(() => {
-    loadUserAndCart();
-  });
-
-  window.addEventListener("cartUpdated", loadUserAndCart);
-
-  return () => {
-    subscription.unsubscribe();
-    window.removeEventListener("cartUpdated", loadUserAndCart);
-
-    window.removeEventListener(
-      "notificationsUpdated",
-      loadUserAndCart
-    );
-
-    window.addEventListener(
-      "notificationsUpdated",
-      loadUserAndCart
-    );
-  };
-}, []);
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener("cartUpdated", loadUserData);
+      window.removeEventListener("notificationsUpdated", loadUserData);
+    };
+  }, []);
 
   async function handleLogout() {
     const confirmed = confirm("Are you sure you want to log out?");
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
-   await supabase.auth.signOut();
+    await supabase.auth.signOut();
     setMenuOpen(false);
     router.push("/");
     router.refresh();
@@ -106,13 +95,13 @@ useEffect(() => {
     setMenuOpen(false);
   }
 
-  const cartLabel =
-    cartCount > 0 ? `Cart (${cartCount})` : "Cart";
+  const purchaseListLabel =
+    cartCount > 0 ? `Purchase List (${cartCount})` : "Purchase List";
 
-    const notificationLabel =
-      notificationCount > 0
-        ? `Notifications (${notificationCount})`
-        : "Notifications";
+  const notificationLabel =
+    notificationCount > 0
+      ? `Notifications (${notificationCount})`
+      : "Notifications";
 
   return (
     <header className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur border-b border-zinc-800">
@@ -132,57 +121,25 @@ useEffect(() => {
         </button>
 
         <nav className="hidden md:flex items-center gap-6 text-zinc-300">
-          <Link href="/" className="hover:text-white transition">
-            Home
-          </Link>
-
-          <Link href="/creators" className="hover:text-white transition">
-            Creators
-          </Link>
-
-          <Link href="/store" className="hover:text-white transition">
-            Marketplace
-          </Link>
-
-          <Link href="/roadmap" className="hover:text-white transition">
-            Roadmap
-          </Link>
+          <Link href="/" className="hover:text-white transition">Home</Link>
+          <Link href="/creators" className="hover:text-white transition">Creators</Link>
+          <Link href="/store" className="hover:text-white transition">Marketplace</Link>
+          <Link href="/roadmap" className="hover:text-white transition">Roadmap</Link>
 
           {user ? (
             <>
-              <Link href="/dashboard" className="hover:text-white transition">
-                Dashboard
-              </Link>
-
-              <Link href="/notifications" className="hover:text-white transition">
-                {notificationLabel}
-              </Link>
-
-              <Link href="/revenue" className="hover:text-white transition">
-                Revenue
-              </Link>
+              <Link href="/dashboard" className="hover:text-white transition">Dashboard</Link>
+              <Link href="/notifications" className="hover:text-white transition">{notificationLabel}</Link>
+              <Link href="/revenue" className="hover:text-white transition">Revenue</Link>
 
               {isAdmin && (
-                <Link href="/admin" className="hover:text-white transition">
-                  Admin
-                </Link>
+                <Link href="/admin" className="hover:text-white transition">Admin</Link>
               )}
 
-              <Link href="/favorites" className="hover:text-white transition">
-                Favorites
-              </Link>
-
-              <Link href="/following" className="hover:text-white transition">
-                Following
-              </Link>
-
-              <Link href="/feed" className="hover:text-white transition">
-                Feed
-              </Link>
-
-              <Link href="/cart" className="hover:text-white transition">
-                {cartLabel}
-              </Link>
+              <Link href="/favorites" className="hover:text-white transition">Favorites</Link>
+              <Link href="/following" className="hover:text-white transition">Following</Link>
+              <Link href="/feed" className="hover:text-white transition">Feed</Link>
+              <Link href="/cart" className="hover:text-white transition">{purchaseListLabel}</Link>
 
               <button
                 onClick={handleLogout}
@@ -210,105 +167,25 @@ useEffect(() => {
 
       {menuOpen && (
         <nav className="md:hidden px-6 pb-6 space-y-3 text-zinc-300">
-          <Link
-            href="/"
-            onClick={closeMenu}
-            className="block border border-zinc-800 rounded-2xl p-4"
-          >
-            Home
-          </Link>
-
-          <Link
-            href="/creators"
-            onClick={closeMenu}
-            className="block border border-zinc-800 rounded-2xl p-4"
-          >
-            Creators
-          </Link>
-
-          <Link
-            href="/store"
-            onClick={closeMenu}
-            className="block border border-zinc-800 rounded-2xl p-4"
-          >
-            Marketplace
-          </Link>
-
-          <Link
-            href="/roadmap"
-            onClick={closeMenu}
-            className="block border border-zinc-800 rounded-2xl p-4"
-          >
-            Roadmap
-          </Link>
+          <Link href="/" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Home</Link>
+          <Link href="/creators" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Creators</Link>
+          <Link href="/store" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Marketplace</Link>
+          <Link href="/roadmap" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Roadmap</Link>
 
           {user ? (
             <>
-              <Link
-                href="/dashboard"
-                onClick={closeMenu}
-                className="block border border-zinc-800 rounded-2xl p-4"
-              >
-                Dashboard
-              </Link>
-
-              <Link
-                href="/notifications"
-                onClick={closeMenu}
-                className="block border border-zinc-800 rounded-2xl p-4"
-              >
-                {notificationLabel}
-              </Link>
-
-              <Link
-                href="/revenue"
-                onClick={closeMenu}
-                className="block border border-zinc-800 rounded-2xl p-4"
-              >
-                Revenue
-              </Link>
+              <Link href="/dashboard" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Dashboard</Link>
+              <Link href="/notifications" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">{notificationLabel}</Link>
+              <Link href="/revenue" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Revenue</Link>
 
               {isAdmin && (
-                <Link
-                  href="/admin"
-                  onClick={closeMenu}
-                  className="block border border-zinc-800 rounded-2xl p-4"
-                >
-                  Admin
-                </Link>
+                <Link href="/admin" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Admin</Link>
               )}
 
-              <Link
-                href="/favorites"
-                onClick={closeMenu}
-                className="block border border-zinc-800 rounded-2xl p-4"
-              >
-                Favorites
-              </Link>
-
-              <Link
-                href="/following"
-                onClick={closeMenu}
-                className="block border border-zinc-800 rounded-2xl p-4"
-              >
-                Following
-              </Link>
-
-              <Link
-                href="/feed"
-                onClick={closeMenu}
-                className="block border border-zinc-800 rounded-2xl p-4"
-              >
-                Feed
-              </Link>
-
-              <Link
-                href="/cart"
-                onClick={closeMenu}
-                className="block border border-zinc-800 rounded-2xl p-4"
-              >
-                {cartLabel}
-              </Link>
+              <Link href="/favorites" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Favorites</Link>
+              <Link href="/following" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Following</Link>
+              <Link href="/feed" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Feed</Link>
+              <Link href="/cart" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">{purchaseListLabel}</Link>
 
               <button
                 onClick={handleLogout}
@@ -319,19 +196,11 @@ useEffect(() => {
             </>
           ) : (
             <>
-              <Link
-                href="/signup"
-                onClick={closeMenu}
-                className="block border border-zinc-800 rounded-2xl p-4"
-              >
+              <Link href="/signup" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
                 Create Account
               </Link>
 
-              <Link
-                href="/login"
-                onClick={closeMenu}
-                className="block bg-white text-black rounded-2xl p-4 font-semibold"
-              >
+              <Link href="/login" onClick={closeMenu} className="block bg-white text-black rounded-2xl p-4 font-semibold">
                 Login
               </Link>
             </>
