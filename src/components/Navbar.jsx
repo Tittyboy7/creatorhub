@@ -1,18 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import UserMenu from "@/components/UserMenu";
 
 export default function Navbar() {
   const router = useRouter();
+  const userMenuRef = useRef(null);
 
   const [user, setUser] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [notificationCount, setNotificationCount] = useState(0);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
 
   useEffect(() => {
     async function loadUserData() {
@@ -80,6 +83,23 @@ export default function Navbar() {
     };
   }, []);
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target)
+      ) {
+        setUserMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   async function handleLogout() {
     const confirmed = confirm("Are you sure you want to log out?");
 
@@ -87,12 +107,14 @@ export default function Navbar() {
 
     await supabase.auth.signOut();
     setMenuOpen(false);
+    setUserMenuOpen(false);
     router.push("/");
     router.refresh();
   }
 
   function closeMenu() {
     setMenuOpen(false);
+    setUserMenuOpen(false);
   }
 
   const purchaseListLabel =
@@ -121,32 +143,54 @@ export default function Navbar() {
         </button>
 
         <nav className="hidden md:flex items-center gap-6 text-zinc-300">
-          <Link href="/" className="hover:text-white transition">Home</Link>
-          <Link href="/creators" className="hover:text-white transition">Creators</Link>
-          <Link href="/store" className="hover:text-white transition">Marketplace</Link>
-          <Link href="/roadmap" className="hover:text-white transition">Roadmap</Link>
+          <Link href="/" className="hover:text-white transition">
+            Home
+          </Link>
+
+          <Link href="/creators" className="hover:text-white transition">
+            Creators
+          </Link>
+
+          <Link href="/store" className="hover:text-white transition">
+            Marketplace
+          </Link>
+
+          <Link href="/roadmap" className="hover:text-white transition">
+            Roadmap
+          </Link>
 
           {user ? (
             <>
-              <Link href="/dashboard" className="hover:text-white transition">Dashboard</Link>
-              <Link href="/notifications" className="hover:text-white transition">{notificationLabel}</Link>
-              <Link href="/revenue" className="hover:text-white transition">Revenue</Link>
+              <Link href="/dashboard" className="hover:text-white transition">
+                Dashboard
+              </Link>
 
-              {isAdmin && (
-                <Link href="/admin" className="hover:text-white transition">Admin</Link>
-              )}
-
-              <Link href="/favorites" className="hover:text-white transition">Favorites</Link>
-              <Link href="/following" className="hover:text-white transition">Following</Link>
-              <Link href="/feed" className="hover:text-white transition">Feed</Link>
-              <Link href="/cart" className="hover:text-white transition">{purchaseListLabel}</Link>
-
-              <button
-                onClick={handleLogout}
-                className="bg-white text-black px-4 py-2 rounded-xl font-semibold"
+              <Link
+                href="/notifications"
+                className="hover:text-white transition"
               >
-                Logout
-              </button>
+                {notificationLabel}
+              </Link>
+
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="bg-white text-black px-4 py-2 rounded-xl font-semibold"
+                >
+                  Profile
+                </button>
+
+                {userMenuOpen && (
+                  <div className="absolute right-0 mt-3 w-64 z-50">
+                    <UserMenu
+                      notificationLabel={notificationLabel}
+                      purchaseListLabel={purchaseListLabel}
+                      isAdmin={isAdmin}
+                      onLogout={handleLogout}
+                    />
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <div className="flex items-center gap-3">
@@ -167,25 +211,57 @@ export default function Navbar() {
 
       {menuOpen && (
         <nav className="md:hidden px-6 pb-6 space-y-3 text-zinc-300 max-h-[calc(100vh-90px)] overflow-y-auto">
-          <Link href="/" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Home</Link>
-          <Link href="/creators" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Creators</Link>
-          <Link href="/store" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Marketplace</Link>
-          <Link href="/roadmap" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Roadmap</Link>
+          <Link href="/" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
+            Home
+          </Link>
+
+          <Link href="/creators" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
+            Creators
+          </Link>
+
+          <Link href="/store" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
+            Marketplace
+          </Link>
+
+          <Link href="/roadmap" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
+            Roadmap
+          </Link>
 
           {user ? (
             <>
-              <Link href="/dashboard" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Dashboard</Link>
-              <Link href="/notifications" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">{notificationLabel}</Link>
-              <Link href="/revenue" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Revenue</Link>
+              <Link href="/dashboard" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
+                Dashboard
+              </Link>
+
+              <Link href="/notifications" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
+                {notificationLabel}
+              </Link>
+
+              <Link href="/revenue" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
+                Revenue
+              </Link>
 
               {isAdmin && (
-                <Link href="/admin" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Admin</Link>
+                <Link href="/admin" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
+                  Admin
+                </Link>
               )}
 
-              <Link href="/favorites" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Favorites</Link>
-              <Link href="/following" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Following</Link>
-              <Link href="/feed" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Feed</Link>
-              <Link href="/cart" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">{purchaseListLabel}</Link>
+              <Link href="/favorites" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
+                Favorites
+              </Link>
+
+              <Link href="/following" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
+                Following
+              </Link>
+
+              <Link href="/feed" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
+                Feed
+              </Link>
+
+              <Link href="/cart" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
+                {purchaseListLabel}
+              </Link>
 
               <button
                 onClick={handleLogout}
