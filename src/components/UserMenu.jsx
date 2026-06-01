@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 export default function UserMenu({
+  userEmail,
   notificationLabel,
   purchaseListLabel,
   isAdmin,
@@ -10,6 +11,12 @@ export default function UserMenu({
 }) {
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 space-y-2 shadow-2xl">
+      {userEmail && (
+        <div className="border-b border-zinc-800 pb-3 mb-3">
+          <p className="text-zinc-500 text-sm">Signed in as</p>
+          <p className="text-white text-sm break-all">{userEmail}</p>
+        </div>
+      )}
       <Link href="/dashboard" className="block p-3 rounded-2xl hover:bg-zinc-800 transition">
         Dashboard
       </Link>
