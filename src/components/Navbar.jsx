@@ -212,6 +212,10 @@ export default function Navbar() {
 
       {menuOpen && (
         <nav className="md:hidden px-6 pb-6 space-y-3 text-zinc-300 max-h-[calc(100vh-90px)] overflow-y-auto">
+          <p className="text-zinc-500 text-sm uppercase tracking-wide px-1">
+            Navigation
+          </p>
+
           <Link href="/" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
             Home
           </Link>
@@ -230,6 +234,10 @@ export default function Navbar() {
 
           {user ? (
             <>
+              <p className="text-zinc-500 text-sm uppercase tracking-wide px-1">
+                Account
+              </p>
+
               <Link href="/dashboard" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
                 Dashboard
               </Link>
