@@ -124,12 +124,21 @@ export default function CartPage() {
               Save products here before purchasing them from creators.
             </p>
 
-            <Link
-              href="/store"
-              className="inline-block mt-8 bg-white text-black px-6 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
-            >
-              Browse Marketplace
-            </Link>
+            <div className="flex flex-wrap justify-center gap-3 mt-8">
+              <Link
+                href="/store"
+                className="bg-white text-black px-6 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
+              >
+                Browse Marketplace
+              </Link>
+
+              <Link
+                href="/favorites"
+                className="border border-zinc-700 px-6 py-3 rounded-2xl hover:bg-zinc-800 transition"
+              >
+                View Favorites
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="space-y-8">
