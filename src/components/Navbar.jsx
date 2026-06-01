@@ -166,7 +166,7 @@ export default function Navbar() {
       </div>
 
       {menuOpen && (
-        <nav className="md:hidden px-6 pb-6 space-y-3 text-zinc-300">
+        <nav className="md:hidden px-6 pb-6 space-y-3 text-zinc-300 max-h-[calc(100vh-90px)] overflow-y-auto">
           <Link href="/" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Home</Link>
           <Link href="/creators" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Creators</Link>
           <Link href="/store" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">Marketplace</Link>
