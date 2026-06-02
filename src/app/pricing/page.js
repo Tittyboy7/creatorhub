@@ -32,7 +32,7 @@ export default function PricingPage() {
 
             <Link
               href="/signup"
-              className="inline-block bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+              className="inline-block bg-white text-black px-6 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
             >
               Get Started
             </Link>
@@ -61,10 +61,48 @@ export default function PricingPage() {
 
             <Link
               href="/roadmap"
-              className="inline-block border border-zinc-700 px-6 py-3 rounded-2xl"
+              className="inline-block border border-zinc-700 px-6 py-3 rounded-2xl hover:bg-zinc-800 transition"
             >
               View Roadmap
             </Link>
+          </div>
+        </div>
+
+        <div className="mt-12 bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+          <h2 className="text-3xl font-bold mb-6">
+            Compare Plans
+          </h2>
+
+          <div className="space-y-4 text-zinc-300">
+            <div className="flex justify-between gap-6 border-b border-zinc-800 pb-3">
+              <span>Creator storefront</span>
+              <span className="text-zinc-400">Free + Pro</span>
+            </div>
+
+            <div className="flex justify-between gap-6 border-b border-zinc-800 pb-3">
+              <span>Product listings</span>
+              <span className="text-zinc-400">Free + Pro</span>
+            </div>
+
+            <div className="flex justify-between gap-6 border-b border-zinc-800 pb-3">
+              <span>Social links and announcements</span>
+              <span className="text-zinc-400">Free + Pro</span>
+            </div>
+
+            <div className="flex justify-between gap-6 border-b border-zinc-800 pb-3">
+              <span>Advanced analytics</span>
+              <span className="text-zinc-400">Pro</span>
+            </div>
+
+            <div className="flex justify-between gap-6 border-b border-zinc-800 pb-3">
+              <span>AI creator tools</span>
+              <span className="text-zinc-400">Pro</span>
+            </div>
+
+            <div className="flex justify-between gap-6">
+              <span>Priority discovery placement</span>
+              <span className="text-zinc-400">Pro</span>
+            </div>
           </div>
         </div>
       </div>
