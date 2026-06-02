@@ -336,13 +336,13 @@ export default async function CreatorProfilePage({ params }) {
             {regularProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6"
+                className="group bg-zinc-900 border border-zinc-800 rounded-3xl p-6 transition duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:shadow-2xl"
               >
                 {product.image_url ? (
                   <img
                     src={product.image_url}
                     alt={product.title}
-                    className="h-40 w-full object-cover rounded-2xl mb-4"
+                    className="h-48 w-full object-cover rounded-2xl mb-4 transition duration-300 group-hover:scale-[1.02]"
                   />
                 ) : (
                   <div className="h-40 bg-zinc-800 rounded-2xl mb-4 flex items-center justify-center text-zinc-500">
