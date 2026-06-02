@@ -79,6 +79,128 @@ export default async function HomePage() {
         </section>
 
         <section>
+          <h2 className="text-4xl font-bold text-center mb-12">
+            How CreatorHub Works
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <h3 className="text-2xl font-semibold mb-4">
+                1. Create Your Storefront
+              </h3>
+
+              <p className="text-zinc-400">
+                Build a creator profile with your products, links,
+                announcements, and branding.
+              </p>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <h3 className="text-2xl font-semibold mb-4">
+                2. Share Your Products
+              </h3>
+
+              <p className="text-zinc-400">
+                Showcase products from your favorite platforms in one
+                organized place.
+              </p>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <h3 className="text-2xl font-semibold mb-4">
+                3. Grow Your Audience
+              </h3>
+
+              <p className="text-zinc-400">
+                Gain followers, publish updates, and build stronger
+                relationships with your community.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="text-4xl font-bold text-center mb-6">
+            Why CreatorHub?
+          </h2>
+
+          <p className="text-zinc-400 text-lg text-center max-w-3xl mx-auto mb-12">
+            CreatorHub gives creators one place to organize products, updates,
+            audience activity, and business tools instead of spreading everything
+            across disconnected links.
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <h3 className="text-2xl font-semibold mb-4">
+                More Than a Link Page
+              </h3>
+
+              <p className="text-zinc-400">
+                Showcase products, announcements, reviews, and creator activity
+                in one branded storefront.
+              </p>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <h3 className="text-2xl font-semibold mb-4">
+                Built for Creator Businesses
+              </h3>
+
+              <p className="text-zinc-400">
+                Track revenue, product interest, followers, notifications,
+                and storefront performance from one dashboard.
+              </p>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <h3 className="text-2xl font-semibold mb-4">
+                Platform-Agnostic Selling
+              </h3>
+
+              <p className="text-zinc-400">
+                Link products from external stores while still giving fans one
+                central place to browse everything you offer.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
+              <p className="text-5xl font-bold">
+                {creators?.length || 0}
+              </p>
+
+              <p className="text-zinc-400 mt-3">
+                Featured Creators
+              </p>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
+              <p className="text-5xl font-bold">
+                {products?.length || 0}
+              </p>
+
+              <p className="text-zinc-400 mt-3">
+                Active Products
+              </p>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
+              <p className="text-5xl font-bold">
+                {announcements?.length || 0}
+              </p>
+
+              <p className="text-zinc-400 mt-3">
+                Recent Updates
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section>
           <h2 className="text-3xl font-bold mb-8">
             Latest Announcements
           </h2>
