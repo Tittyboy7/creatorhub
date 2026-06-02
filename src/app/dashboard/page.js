@@ -371,6 +371,16 @@ export default function DashboardPage() {
               {completedCount} of {checklistItems.length} tasks completed
             </p>
 
+            <div className="flex flex-wrap gap-3 mb-8">
+
+              <Link
+                href={`/creator/${creator.username}`}
+                className="border border-zinc-700 px-5 py-3 rounded-2xl"
+              >
+                View Storefront
+              </Link>
+            </div>
+
             <div className="space-y-3">
               {checklistItems.map((item) => (
                 <div
