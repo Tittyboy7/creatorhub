@@ -217,7 +217,7 @@ export default async function CreatorProfilePage({ params }) {
                   href={creator.social_links.youtube}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="border border-zinc-700 px-4 py-2 rounded-xl text-zinc-300 hover:text-white"
+                  className="border border-zinc-700 px-4 py-2 rounded-xl text-zinc-300 hover:text-white hover:bg-zinc-800 transition"
                 >
                   YouTube
                 </a>
@@ -228,7 +228,7 @@ export default async function CreatorProfilePage({ params }) {
                   href={creator.social_links.tiktok}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="border border-zinc-700 px-4 py-2 rounded-xl text-zinc-300 hover:text-white"
+                  className="border border-zinc-700 px-4 py-2 rounded-xl text-zinc-300 hover:text-white hover:bg-zinc-800 transition"
                 >
                   TikTok
                 </a>
@@ -239,7 +239,7 @@ export default async function CreatorProfilePage({ params }) {
                   href={creator.social_links.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="border border-zinc-700 px-4 py-2 rounded-xl text-zinc-300 hover:text-white"
+                  className="border border-zinc-700 px-4 py-2 rounded-xl text-zinc-300 hover:text-white hover:bg-zinc-800 transition"
                 >
                   Instagram
                 </a>
@@ -250,7 +250,7 @@ export default async function CreatorProfilePage({ params }) {
                   href={creator.social_links.shopify}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="border border-zinc-700 px-4 py-2 rounded-xl text-zinc-300 hover:text-white"
+                  className="border border-zinc-700 px-4 py-2 rounded-xl text-zinc-300 hover:text-white hover:bg-zinc-800 transition"
                 >
                   Shopify
                 </a>
@@ -261,7 +261,7 @@ export default async function CreatorProfilePage({ params }) {
                   href={creator.social_links.patreon}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="border border-zinc-700 px-4 py-2 rounded-xl text-zinc-300 hover:text-white"
+                  className="border border-zinc-700 px-4 py-2 rounded-xl text-zinc-300 hover:text-white hover:bg-zinc-800 transition"
                 >
                   Patreon
                 </a>
@@ -338,48 +338,51 @@ export default async function CreatorProfilePage({ params }) {
                 key={product.id}
                 className="group bg-zinc-900 border border-zinc-800 rounded-3xl p-6 transition duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:shadow-2xl"
               >
-                {product.image_url ? (
-                  <img
-                    src={product.image_url}
-                    alt={product.title}
-                    className="h-48 w-full object-cover rounded-2xl mb-4 transition duration-300 group-hover:scale-[1.02]"
-                  />
-                ) : (
-                  <div className="h-40 bg-zinc-800 rounded-2xl mb-4 flex items-center justify-center text-zinc-500">
-                    Product Image
-                  </div>
-                )}
+                <Link href={`/product/${product.id}`} className="block">
+                  {product.image_url ? (
+                    <img
+                      src={product.image_url}
+                      alt={product.title}
+                      className="h-48 w-full object-cover rounded-2xl mb-4 transition duration-300 group-hover:scale-[1.02]"
+                    />
+                  ) : (
+                    <div className="h-40 bg-zinc-800 rounded-2xl mb-4 flex items-center justify-center text-zinc-500">
+                      Product Image
+                    </div>
+                  )}
 
-                <Link
-                  href={`/product/${product.id}`}
-                  className="block text-2xl font-semibold hover:text-zinc-300"
-                >
-                  {product.title}
+                  <h3 className="text-2xl font-semibold hover:text-zinc-300">
+                    {product.title}
+                  </h3>
+
+                  {product.category && (
+                    <span className="inline-block mt-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+                      {product.category}
+                    </span>
+                  )}
+
+                  {product.description && (
+                    <p className="text-zinc-400 mt-2">
+                      {product.description}
+                    </p>
+                  )}
+
+                  <p className="text-xl font-bold mt-4">
+                    {product.price}
+                  </p>
+
+                  <p className="text-zinc-500 mt-4 font-medium group-hover:text-white transition">
+                    View Product →
+                  </p>
+
+                  {product.reviews_count > 0 && (
+                    <p className="text-zinc-500 mt-2">
+                      ⭐ {Number(product.average_rating).toFixed(1)} / 5 ·{" "}
+                      {product.reviews_count} review
+                      {product.reviews_count === 1 ? "" : "s"}
+                    </p>
+                  )}
                 </Link>
-
-                {product.category && (
-                  <span className="inline-block mt-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
-                    {product.category}
-                  </span>
-                )}
-
-                {product.description && (
-                  <p className="text-zinc-400 mt-2">
-                    {product.description}
-                  </p>
-                )}
-
-                <p className="text-xl font-bold mt-4">
-                  {product.price}
-                </p>
-
-                {product.reviews_count > 0 && (
-                  <p className="text-zinc-500 mt-2">
-                    ⭐ {Number(product.average_rating).toFixed(1)} / 5 ·{" "}
-                    {product.reviews_count} review
-                    {product.reviews_count === 1 ? "" : "s"}
-                  </p>
-                )}
 
                 <BuyNowButton
                   productId={product.id}
