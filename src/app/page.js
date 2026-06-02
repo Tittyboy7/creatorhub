@@ -166,6 +166,21 @@ export default async function HomePage() {
           </div>
         </section>
 
+        <section className="bg-zinc-900 border border-zinc-800 rounded-3xl p-10">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-4xl font-bold mb-4">
+              Built Around Creator Ownership
+            </h2>
+
+            <p className="text-zinc-400 text-lg leading-relaxed">
+              CreatorsHub helps creators organize their products, links,
+              updates, and audience activity without forcing them into one
+              checkout system. Creators stay in control of where they sell,
+              how they present their work, and how they grow.
+            </p>
+          </div>
+        </section>
+
         <section>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
