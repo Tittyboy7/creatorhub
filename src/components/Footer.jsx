@@ -4,7 +4,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-zinc-800 mt-20">
       <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid md:grid-cols-3 gap-10">
+        <div className="grid md:grid-cols-4 gap-10">
           <div>
             <h3 className="text-xl font-bold">
               CreatorHub
@@ -22,21 +22,21 @@ export default function Footer() {
             </h4>
 
             <div className="flex flex-col gap-2 text-zinc-400">
-              <Link href="/about">
-                About
-              </Link>
+              <Link href="/about">About</Link>
+              <Link href="/creators">Creators</Link>
+              <Link href="/store">Marketplace</Link>
+              <Link href="/roadmap">Roadmap</Link>
+            </div>
+          </div>
 
-              <Link href="/creators">
-                Creators
-              </Link>
+          <div>
+            <h4 className="font-semibold mb-4">
+              Support
+            </h4>
 
-              <Link href="/store">
-                Marketplace
-              </Link>
-
-              <Link href="/roadmap">
-                Roadmap
-              </Link>
+            <div className="flex flex-col gap-2 text-zinc-400">
+              <Link href="/contact">Contact</Link>
+              <Link href="/roadmap">Suggest a Feature</Link>
             </div>
           </div>
 
@@ -46,17 +46,9 @@ export default function Footer() {
             </h4>
 
             <div className="flex flex-col gap-2 text-zinc-400">
-              <Link href="/favorites">
-                Favorites
-              </Link>
-
-              <Link href="/following">
-                Following
-              </Link>
-
-              <Link href="/cart">
-                Purchase List
-              </Link>
+              <Link href="/favorites">Favorites</Link>
+              <Link href="/following">Following</Link>
+              <Link href="/cart">Purchase List</Link>
             </div>
           </div>
         </div>
