@@ -399,6 +399,34 @@ export default async function HomePage() {
             </div>
           )}
         </section>
+
+        <section className="text-center py-16">
+          <h2 className="text-5xl font-bold mb-6">
+            Ready to Build Your Creator Hub?
+          </h2>
+
+          <p className="text-zinc-400 text-xl max-w-2xl mx-auto mb-10">
+            Create your storefront, share your products,
+            connect with followers, and grow your creator business.
+          </p>
+
+          <div className="flex justify-center gap-4 flex-wrap">
+            <Link
+              href="/signup"
+              className="bg-white text-black px-8 py-4 rounded-2xl font-semibold"
+            >
+              Create Account
+            </Link>
+
+            <Link
+              href="/creators"
+              className="border border-zinc-700 px-8 py-4 rounded-2xl"
+            >
+              Explore Creators
+            </Link>
+          </div>
+        </section>
+
       </div>
     </div>
   );
