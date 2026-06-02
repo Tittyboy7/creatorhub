@@ -281,7 +281,7 @@ export default async function CreatorProfilePage({ params }) {
               creator.accent_color
             )}`}
           >
-            Featured Product
+            ⭐ Creator Pick
           </span>
 
             {creator.featured_product_message && (
@@ -387,6 +387,18 @@ export default async function CreatorProfilePage({ params }) {
                 />
               </div>
             ))}
+          </div>
+
+          <div className="mt-12 bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
+            <h2 className="text-3xl font-bold mb-4">
+              Like this creator’s work?
+            </h2>
+
+            <p className="text-zinc-400 mb-6">
+              Follow their storefront to keep up with new products and announcements.
+            </p>
+
+            <FollowButton creatorId={creator.id} />
           </div>
         </div>
       </div>
