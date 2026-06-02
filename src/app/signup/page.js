@@ -53,7 +53,7 @@ export default function SignupPage() {
         <h1 className="text-4xl font-bold mb-3">Create Account</h1>
 
         <p className="text-zinc-400 mb-6">
-          Create your CreatorHub account. You’ll receive a confirmation email
+          Create your CreatorsHub account. You’ll receive a confirmation email
           before your account is fully activated. If you do not see it, check your
           spam or junk folder.
         </p>

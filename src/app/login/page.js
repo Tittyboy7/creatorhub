@@ -45,7 +45,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-6">
       <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-10 w-full max-w-md">
         <h1 className="text-4xl font-bold mb-8 text-center">
-          CreatorHub Login
+          CreatorsHub Login
         </h1>
 
         {errorMessage && (

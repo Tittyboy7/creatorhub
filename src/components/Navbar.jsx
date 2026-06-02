@@ -129,7 +129,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur border-b border-zinc-800">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" onClick={closeMenu} className="flex flex-col">
-          <span className="text-2xl font-bold">CreatorHub</span>
+          <span className="text-2xl font-bold">CreatorsHub</span>
           <span className="text-zinc-400 text-sm hidden sm:block">
             One platform for creators to sell everything.
           </span>

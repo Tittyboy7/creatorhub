@@ -229,7 +229,7 @@ export default function CartPage() {
 
                 <div className="max-w-md">
                   <p className="text-zinc-300 leading-relaxed">
-                    CreatorHub does not process checkout directly.
+                    CreatorsHub does not process checkout directly.
                     Purchases are completed through each creator’s
                     external storefront.
                   </p>

@@ -57,7 +57,7 @@ export default async function HomePage() {
           </h1>
 
           <p className="text-zinc-400 text-xl max-w-3xl mx-auto mb-10">
-            CreatorHub helps creators centralize products, storefronts,
+            CreatorsHub helps creators centralize products, storefronts,
             social links, and external checkout pages in one simple profile.
           </p>
 
@@ -80,7 +80,7 @@ export default async function HomePage() {
 
         <section>
           <h2 className="text-4xl font-bold text-center mb-12">
-            How CreatorHub Works
+            How CreatorsHub Works
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -121,11 +121,11 @@ export default async function HomePage() {
 
         <section>
           <h2 className="text-4xl font-bold text-center mb-6">
-            Why CreatorHub?
+            Why CreatorsHub?
           </h2>
 
           <p className="text-zinc-400 text-lg text-center max-w-3xl mx-auto mb-12">
-            CreatorHub gives creators one place to organize products, updates,
+            CreatorsHub gives creators one place to organize products, updates,
             audience activity, and business tools instead of spreading everything
             across disconnected links.
           </p>

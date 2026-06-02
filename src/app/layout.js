@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "CreatorHub",
+  title: "CreatorsHub",
   description: "A marketplace and storefront platform for creators.",
 };
 

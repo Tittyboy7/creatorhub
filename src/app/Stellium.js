@@ -1,4 +1,4 @@
-export default function CreatorHubBeta() {
+export default function CreatorsHubBeta() {
   const features = [
     {
       title: "Unified Storefront",
@@ -48,7 +48,7 @@ export default function CreatorHubBeta() {
       <div className="max-w-7xl mx-auto space-y-10">
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold">CreatorHub</h1>
+            <h1 className="text-4xl font-bold">CreatorsHub</h1>
             <p className="text-zinc-400 mt-2">
               One platform for creators to sell everything.
             </p>

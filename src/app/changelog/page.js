@@ -30,7 +30,7 @@ export default function ChangelogPage() {
         </h1>
 
         <p className="text-zinc-400 text-lg mb-10">
-          Track what’s new on CreatorHub.
+          Track what’s new on CreatorsHub.
         </p>
 
         <div className="space-y-6">

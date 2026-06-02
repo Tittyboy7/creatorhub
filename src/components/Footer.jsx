@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-10">
           <div>
             <h3 className="text-xl font-bold">
-              CreatorHub
+              CreatorsHub
             </h3>
 
             <p className="text-zinc-400 mt-3">
@@ -59,7 +59,7 @@ export default function Footer() {
 
         <div className="border-t border-zinc-800 mt-10 pt-8 flex flex-col md:flex-row md:justify-between gap-4 text-zinc-500 text-sm">
           <p>
-            © {new Date().getFullYear()} CreatorHub
+            © {new Date().getFullYear()} CreatorsHub
           </p>
 
           <p>

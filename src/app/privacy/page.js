@@ -9,7 +9,7 @@ export default function PrivacyPage() {
         </h1>
 
         <p className="text-zinc-400 text-lg leading-relaxed mb-6">
-          CreatorHub respects your privacy and is committed to protecting
+          CreatorsHub respects your privacy and is committed to protecting
           your personal information.
         </p>
 
@@ -25,7 +25,7 @@ export default function PrivacyPage() {
         </p>
 
         <p className="text-zinc-400 text-lg leading-relaxed mb-8">
-          This policy may be updated as CreatorHub evolves.
+          This policy may be updated as CreatorsHub evolves.
         </p>
 
         <Link

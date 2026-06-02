@@ -4,7 +4,7 @@ export default function RoadmapPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-10">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-5xl font-bold mb-4">CreatorHub Roadmap</h1>
+        <h1 className="text-5xl font-bold mb-4">CreatorsHub Roadmap</h1>
 
         <p className="text-zinc-400 text-lg mb-10">
           See what is live now and what is coming next.

@@ -9,7 +9,7 @@ export default function TermsPage() {
         </h1>
 
         <p className="text-zinc-400 text-lg leading-relaxed mb-6">
-          By using CreatorHub, you agree to use the platform responsibly
+          By using CreatorsHub, you agree to use the platform responsibly
           and follow all applicable laws.
         </p>
 
@@ -19,12 +19,12 @@ export default function TermsPage() {
         </p>
 
         <p className="text-zinc-400 text-lg leading-relaxed mb-6">
-          CreatorHub may update, remove, or restrict content that violates
+          CreatorsHub may update, remove, or restrict content that violates
           platform rules or harms the user experience.
         </p>
 
         <p className="text-zinc-400 text-lg leading-relaxed mb-8">
-          These terms may be updated as CreatorHub continues to grow.
+          These terms may be updated as CreatorsHub continues to grow.
         </p>
 
         <Link

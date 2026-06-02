@@ -9,7 +9,7 @@ export default function GuidelinesPage() {
         </h1>
 
         <p className="text-zinc-400 text-lg leading-relaxed mb-6">
-          CreatorHub is built to help creators share products, updates,
+          CreatorsHub is built to help creators share products, updates,
           and storefronts in a safe and respectful environment.
         </p>
 
@@ -25,7 +25,7 @@ export default function GuidelinesPage() {
         </p>
 
         <p className="text-zinc-400 text-lg leading-relaxed mb-8">
-          These guidelines may evolve as CreatorHub grows.
+          These guidelines may evolve as CreatorsHub grows.
         </p>
 
         <Link
