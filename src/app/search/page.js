@@ -139,6 +139,10 @@ export default function SearchPage() {
                             {creator.bio}
                           </p>
                         )}
+
+                        <p className="text-zinc-500 mt-4 font-medium group-hover:text-white transition">
+                          View Storefront →
+                        </p>
                       </div>
                     </Link>
                   ))}
@@ -161,27 +165,51 @@ export default function SearchPage() {
                     <Link
                       key={product.id}
                       href={`/product/${product.id}`}
-                      className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-zinc-700 transition"
+                      className="group bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden transition duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:shadow-2xl"
                     >
-                      <h3 className="text-2xl font-semibold">
-                        {product.title}
-                      </h3>
-
-                      {product.creators && (
-                        <p className="text-zinc-500 mt-1">
-                          Sold by {product.creators.display_name}
-                        </p>
+                      {product.image_url ? (
+                        <img
+                          src={product.image_url}
+                          alt={product.title}
+                          className="h-48 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                        />
+                      ) : (
+                        <div className="h-48 bg-zinc-800 flex items-center justify-center text-zinc-500">
+                          Product Image
+                        </div>
                       )}
 
-                      {product.category && (
-                        <p className="text-zinc-400 mt-3">
-                          {product.category}
-                        </p>
-                      )}
+                      <div className="p-6">
+                        <h3 className="text-2xl font-semibold">
+                          {product.title}
+                        </h3>
 
-                      <p className="text-xl font-bold mt-4">
-                        {product.price}
-                      </p>
+                        {product.creators && (
+                          <p className="text-zinc-500 mt-1">
+                            Sold by {product.creators.display_name}
+                          </p>
+                        )}
+
+                        {product.category && (
+                          <span className="inline-block mt-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+                            {product.category}
+                          </span>
+                        )}
+
+                        {product.description && (
+                          <p className="text-zinc-400 mt-4 line-clamp-2">
+                            {product.description}
+                          </p>
+                        )}
+
+                        <p className="text-xl font-bold mt-4">
+                          {product.price}
+                        </p>
+
+                        <p className="text-zinc-500 mt-4 font-medium group-hover:text-white transition">
+                          View Product →
+                        </p>
+                      </div>
                     </Link>
                   ))}
                 </div>
