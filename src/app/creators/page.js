@@ -95,16 +95,16 @@ export default function CreatorsPage() {
               <Link
                 key={creator.id}
                 href={`/creator/${creator.username}`}
-                className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden hover:border-zinc-600 transition"
+                className="group bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden transition duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:shadow-2xl"
               >
                 {creator.banner_url ? (
                   <img
                     src={creator.banner_url}
                     alt={creator.display_name}
-                    className="h-32 w-full object-cover"
+                    className="h-36 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
                   />
                 ) : (
-                  <div className="h-32 bg-zinc-800" />
+                  <div className="h-36 bg-gradient-to-br from-zinc-800 to-zinc-900" />
                 )}
 
                 <div className="p-6">
@@ -112,10 +112,10 @@ export default function CreatorsPage() {
                     <img
                       src={creator.avatar_url}
                       alt={creator.display_name}
-                      className="w-20 h-20 object-cover rounded-full -mt-16 mb-4 border-4 border-zinc-900"
+                      className="relative z-10 w-20 h-20 object-cover rounded-full -mt-16 mb-4 border-4 border-zinc-900"
                     />
                   ) : (
-                    <div className="w-20 h-20 rounded-full bg-zinc-700 -mt-16 mb-4 border-4 border-zinc-900" />
+                    className="relative z-10 w-20 h-20 rounded-full bg-zinc-700 -mt-16 mb-4 border-4 border-zinc-900"
                   )}
 
                   <h2 className="text-2xl font-semibold">

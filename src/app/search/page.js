@@ -97,21 +97,49 @@ export default function SearchPage() {
                     <Link
                       key={creator.id}
                       href={`/creator/${creator.username}`}
-                      className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-zinc-700 transition"
+                      className="group bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden transition duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:shadow-2xl"
                     >
-                      <h3 className="text-2xl font-semibold">
-                        {creator.display_name}
-                      </h3>
-
-                      <p className="text-zinc-500 mt-1">
-                        @{creator.username}
-                      </p>
-
-                      {creator.niche && (
-                        <p className="text-zinc-400 mt-3">
-                          {creator.niche}
-                        </p>
+                      {creator.banner_url ? (
+                        <img
+                          src={creator.banner_url}
+                          alt={creator.display_name}
+                          className="h-36 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                        />
+                      ) : (
+                        <div className="h-36 bg-gradient-to-br from-zinc-800 to-zinc-900" />
                       )}
+
+                      <div className="p-6">
+                        {creator.avatar_url ? (
+                          <img
+                            src={creator.avatar_url}
+                            alt={creator.display_name}
+                            className="relative z-10 w-20 h-20 object-cover rounded-full -mt-16 mb-4 border-4 border-zinc-900"
+                          />
+                        ) : (
+                          <div className="relative z-10 w-20 h-20 rounded-full bg-zinc-700 -mt-16 mb-4 border-4 border-zinc-900" />
+                        )}
+
+                        <h3 className="text-2xl font-semibold">
+                          {creator.display_name}
+                        </h3>
+
+                        <p className="text-zinc-500 mt-1">
+                          @{creator.username}
+                        </p>
+
+                        {creator.niche && (
+                          <span className="inline-block mt-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+                            {creator.niche}
+                          </span>
+                        )}
+
+                        {creator.bio && (
+                          <p className="text-zinc-400 mt-4 line-clamp-2">
+                            {creator.bio}
+                          </p>
+                        )}
+                      </div>
                     </Link>
                   ))}
                 </div>
