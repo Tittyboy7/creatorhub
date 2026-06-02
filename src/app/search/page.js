@@ -76,9 +76,34 @@ export default function SearchPage() {
 
         {!hasSearch ? (
           <div className="mt-10 bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-            <p className="text-zinc-400">
-              Start typing to search creators and products.
-            </p>
+            <div className="mt-10 bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <h2 className="text-2xl font-bold mb-3">
+                Search CreatorsHub
+              </h2>
+
+              <p className="text-zinc-400 mb-6">
+                Try searching by creator name, username, niche, product title,
+                category, or description.
+              </p>
+
+              <div className="flex flex-wrap gap-3">
+                <span className="bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+                  Gaming
+                </span>
+
+                <span className="bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+                  Art
+                </span>
+
+                <span className="bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+                  Fitness
+                </span>
+
+                <span className="bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+                  Products
+                </span>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="mt-10 space-y-10">
