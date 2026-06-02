@@ -26,6 +26,7 @@ export default function Footer() {
               <Link href="/creators">Creators</Link>
               <Link href="/store">Marketplace</Link>
               <Link href="/search">Search</Link>
+              <Link href="/pricing">Pricing</Link>
               <Link href="/roadmap">Roadmap</Link>
               <Link href="/changelog">Changelog</Link>
             </div>
