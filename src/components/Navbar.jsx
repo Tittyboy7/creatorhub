@@ -159,6 +159,10 @@ export default function Navbar() {
             Roadmap
           </Link>
 
+          <Link href="/search" className="hover:text-white transition">
+            Search
+          </Link>
+
           {user ? (
             <>
               <Link href="/dashboard" className="hover:text-white transition">
@@ -230,6 +234,10 @@ export default function Navbar() {
 
           <Link href="/roadmap" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
             Roadmap
+          </Link>
+
+          <Link href="/search" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
+            Search
           </Link>
 
           {user ? (
