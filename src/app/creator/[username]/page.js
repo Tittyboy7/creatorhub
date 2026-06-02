@@ -65,7 +65,7 @@ export default async function CreatorProfilePage({ params }) {
               className="h-80 w-full object-cover rounded-3xl border border-zinc-800 shadow-2xl"
             />
 
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent rounded-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20 rounded-3xl" />
 
             <div className="absolute bottom-8 left-8 z-10">
               <div className="flex items-center gap-6">
@@ -95,6 +95,13 @@ export default async function CreatorProfilePage({ params }) {
                       {creator.niche}
                     </span>
                   )}
+
+                  <p className="text-zinc-400 text-sm mt-2">
+                    {(creatorProducts || []).length} Product
+                    {(creatorProducts || []).length === 1 ? "" : "s"} •{" "}
+                    {announcements?.length || 0} Announcement
+                    {(announcements?.length || 0) === 1 ? "" : "s"}
+                  </p>
 
                   <FollowButton creatorId={creator.id} />
                 </div>
@@ -135,6 +142,13 @@ export default async function CreatorProfilePage({ params }) {
                       {creator.niche}
                     </span>
                   )}
+
+                  <p className="text-zinc-400 text-sm mt-2">
+                    {(creatorProducts || []).length} Product
+                    {(creatorProducts || []).length === 1 ? "" : "s"} •{" "}
+                    {announcements?.length || 0} Announcement
+                    {(announcements?.length || 0) === 1 ? "" : "s"}
+                  </p>
 
                   <FollowButton creatorId={creator.id} />
                 </div>
