@@ -26,6 +26,7 @@ export default function Footer() {
               <Link href="/creators">Creators</Link>
               <Link href="/store">Marketplace</Link>
               <Link href="/roadmap">Roadmap</Link>
+              <Link href="/changelog">Changelog</Link>
             </div>
           </div>
 
@@ -37,6 +38,7 @@ export default function Footer() {
             <div className="flex flex-col gap-2 text-zinc-400">
               <Link href="/contact">Contact</Link>
               <Link href="/roadmap">Suggest a Feature</Link>
+              <Link href="/guidelines">Community Guidelines</Link>
               <Link href="/privacy">Privacy Policy</Link>
               <Link href="/terms">Terms of Service</Link>
             </div>
