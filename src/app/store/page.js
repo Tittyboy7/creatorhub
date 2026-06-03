@@ -198,20 +198,20 @@ export default function StorePage() {
                   </p>
 
                   {product.reviews_count > 0 && (
-                    <p className="text-zinc-500 mt-2 text-sm">
+                    <p className="text-zinc-500 mt-2 text-xs md:text-sm">
                       ⭐ {Number(product.average_rating).toFixed(1)} / 5 ·{" "}
                       {product.reviews_count} review
                       {product.reviews_count === 1 ? "" : "s"}
                     </p>
                   )}
 
-                  <p className="text-zinc-500 mt-2 text-sm">
+                  <p className="text-zinc-500 mt-2 text-xs md:text-sm">
                     {product.views || 0} views ·{" "}
                     {product.favorites_count || 0} favorites
                   </p>
 
                   {product.creators && (
-                    <p className="block mt-4 text-zinc-400">
+                    <p className="block mt-4 text-zinc-400 text-sm line-clamp-1">
                       Sold by {product.creators.display_name}
                     </p>
                   )}
