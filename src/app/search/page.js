@@ -117,7 +117,7 @@ export default function SearchPage() {
                   No creators found.
                 </p>
               ) : (
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-6">
                   {filteredCreators.map((creator) => (
                     <Link
                       key={creator.id}
@@ -196,7 +196,7 @@ export default function SearchPage() {
                         <img
                           src={product.image_url}
                           alt={product.title}
-                          className="h-48 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                          className="h-32 md:h-48 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
                         />
                       ) : (
                         <div className="h-48 bg-zinc-800 flex items-center justify-center text-zinc-500">

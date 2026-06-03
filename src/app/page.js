@@ -51,8 +51,8 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white px-5 py-8 md:p-10">
       <div className="max-w-7xl mx-auto space-y-16">
-        <section className="text-center py-20">
-          <h1 className="text-6xl font-bold mb-6">
+        <section className="text-center py-12 md:py-20">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
             One hub for creators to sell everything.
           </h1>
 
@@ -79,12 +79,12 @@ export default async function HomePage() {
         </section>
 
         <section>
-          <h2 className="text-4xl font-bold text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12">
             How CreatorsHub Works
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 md:p-8">
               <h3 className="text-2xl font-semibold mb-4">
                 1. Create Your Storefront
               </h3>
@@ -95,7 +95,7 @@ export default async function HomePage() {
               </p>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 md:p-8">
               <h3 className="text-2xl font-semibold mb-4">
                 2. Share Your Products
               </h3>
@@ -106,7 +106,7 @@ export default async function HomePage() {
               </p>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 md:p-8">
               <h3 className="text-2xl font-semibold mb-4">
                 3. Grow Your Audience
               </h3>
@@ -131,7 +131,7 @@ export default async function HomePage() {
           </p>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 md:p-8">
               <h3 className="text-2xl font-semibold mb-4">
                 More Than a Link Page
               </h3>
@@ -142,7 +142,7 @@ export default async function HomePage() {
               </p>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 md:p-8">
               <h3 className="text-2xl font-semibold mb-4">
                 Built for Creator Businesses
               </h3>
@@ -153,7 +153,7 @@ export default async function HomePage() {
               </p>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 md:p-8">
               <h3 className="text-2xl font-semibold mb-4">
                 Platform-Agnostic Selling
               </h3>
@@ -256,12 +256,12 @@ export default async function HomePage() {
         </section>
 
         <section>
-          <h2 className="text-4xl font-bold text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12">
             Why Creators Choose CreatorsHub
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 md:p-8">
               <h3 className="text-2xl font-semibold mb-4">
                 One Link for Everything
               </h3>
@@ -272,7 +272,7 @@ export default async function HomePage() {
               </p>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 md:p-8">
               <h3 className="text-2xl font-semibold mb-4">
                 Own Your Audience
               </h3>
@@ -283,7 +283,7 @@ export default async function HomePage() {
               </p>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 md:p-8">
               <h3 className="text-2xl font-semibold mb-4">
                 Grow Your Business
               </h3>
@@ -360,7 +360,7 @@ export default async function HomePage() {
           {!creators || creators.length === 0 ? (
             <p className="text-zinc-400">No creators yet.</p>
           ) : (
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
               {creators.map((creator) => (
                 <Link
                   key={creator.id}
@@ -371,13 +371,13 @@ export default async function HomePage() {
                     <img
                       src={creator.banner_url}
                       alt={creator.display_name}
-                      className="h-32 w-full object-cover"
+                      className="h-24 md:h-32 w-full object-cover"
                     />
                   ) : (
                     <div className="h-32 bg-zinc-800" />
                   )}
 
-                  <div className="p-6">
+                  <div className="p-4 md:p-6">
                     {creator.avatar_url ? (
                       <img
                         src={creator.avatar_url}
@@ -431,17 +431,17 @@ export default async function HomePage() {
           {sortedProducts.length === 0 ? (
             <p className="text-zinc-400">No products yet.</p>
           ) : (
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
               {sortedProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6"
+                  className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 md:p-6"
                 >
                   {product.image_url ? (
                     <img
                       src={product.image_url}
                       alt={product.title}
-                      className="h-40 w-full object-cover rounded-2xl mb-4"
+                      className="h-32 md:h-40 w-full object-cover rounded-2xl mb-4"
                     />
                   ) : (
                     <div className="h-40 bg-zinc-800 rounded-2xl mb-4" />
@@ -497,7 +497,7 @@ export default async function HomePage() {
         </section>
 
         <section className="text-center py-16">
-          <h2 className="text-5xl font-bold mb-6">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6">
             Ready to Build Your Creator Hub?
           </h2>
 

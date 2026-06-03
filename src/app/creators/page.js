@@ -90,7 +90,7 @@ export default function CreatorsPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             {filteredCreators.map((creator) => (
               <Link
                 key={creator.id}
@@ -101,13 +101,13 @@ export default function CreatorsPage() {
                   <img
                     src={creator.banner_url}
                     alt={creator.display_name}
-                    className="h-36 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                    className="h-24 md:h-36 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
                   />
                 ) : (
                   <div className="h-36 bg-gradient-to-br from-zinc-800 to-zinc-900" />
                 )}
 
-                <div className="p-6">
+                <div className="p-4 md:p-6">
                   {creator.avatar_url ? (
                     <img
                       src={creator.avatar_url}

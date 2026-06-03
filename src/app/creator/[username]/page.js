@@ -332,18 +332,18 @@ export default async function CreatorProfilePage({ params }) {
             Products
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-6">
             {regularProducts.map((product) => (
               <div
                 key={product.id}
-                className="group bg-zinc-900 border border-zinc-800 rounded-3xl p-6 transition duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:shadow-2xl"
+                className="group bg-zinc-900 border border-zinc-800 rounded-3xl p-4 md:p-6 transition duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:shadow-2xl"
               >
                 <Link href={`/product/${product.id}`} className="block">
                   {product.image_url ? (
                     <img
                       src={product.image_url}
                       alt={product.title}
-                      className="h-48 w-full object-cover rounded-2xl mb-4 transition duration-300 group-hover:scale-[1.02]"
+                      className="h-32 md:h-48 w-full object-cover rounded-2xl mb-4 transition duration-300 group-hover:scale-[1.02]"
                     />
                   ) : (
                     <div className="h-40 bg-zinc-800 rounded-2xl mb-4 flex items-center justify-center text-zinc-500">
