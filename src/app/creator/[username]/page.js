@@ -21,7 +21,7 @@ export default async function CreatorProfilePage({ params }) {
 
   if (!creator) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-white p-10">
+      <div className="min-h-screen bg-zinc-950 text-white px-5 py-8 md:p-10">
         <h1 className="text-4xl font-bold">Creator not found</h1>
       </div>
     );
@@ -55,7 +55,7 @@ export default async function CreatorProfilePage({ params }) {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-10">
+    <div className="min-h-screen bg-zinc-950 text-white px-5 py-8 md:p-10">
       <div className="max-w-4xl mx-auto">
         {creator.banner_url ? (
           <div className="relative mb-8">
@@ -68,21 +68,21 @@ export default async function CreatorProfilePage({ params }) {
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/20 rounded-3xl" />
 
             <div className="absolute bottom-8 left-8 z-10">
-              <div className="flex items-center gap-6">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-6">
                 {creator.avatar_url ? (
                   <img
                     src={creator.avatar_url}
                     alt={`${creator.display_name} avatar`}
-                    className="w-32 h-32 object-cover rounded-full border-4 border-zinc-950"
+                    className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-full border-4 border-zinc-950"
                   />
                 ) : (
-                  <div className="w-32 h-32 bg-zinc-700 rounded-full flex items-center justify-center text-zinc-400 border-4 border-zinc-950">
+                  <div className="w-24 h-24 md:w-32 md:h-32 bg-zinc-700 rounded-full flex items-center justify-center text-zinc-400 border-4 border-zinc-950">
                     Avatar
                   </div>
                 )}
 
                 <div>
-                  <h1 className="text-5xl font-bold">
+                  <h1 className="text-3xl md:text-5xl font-bold">
                     {creator.display_name}
                   </h1>
 
@@ -115,21 +115,21 @@ export default async function CreatorProfilePage({ params }) {
             </div>
 
             <div className="absolute bottom-8 left-8 z-10">
-              <div className="flex items-center gap-6">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-6">
                 {creator.avatar_url ? (
                   <img
                     src={creator.avatar_url}
                     alt={`${creator.display_name} avatar`}
-                    className="w-32 h-32 object-cover rounded-full border-4 border-zinc-950"
+                    className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-full border-4 border-zinc-950"
                   />
                 ) : (
-                  <div className="w-32 h-32 bg-zinc-700 rounded-full flex items-center justify-center text-zinc-400 border-4 border-zinc-950">
+                  <div className="w-24 h-24 md:w-32 md:h-32 bg-zinc-700 rounded-full flex items-center justify-center text-zinc-400 border-4 border-zinc-950">
                     Avatar
                   </div>
                 )}
 
                 <div>
-                  <h1 className="text-5xl font-bold">
+                  <h1 className="text-3xl md:text-5xl font-bold">
                     {creator.display_name}
                   </h1>
 
