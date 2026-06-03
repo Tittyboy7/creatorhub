@@ -82,8 +82,14 @@ export default async function CreatorProfilePage({ params }) {
                 )}
 
                 <div>
-                  <h1 className="text-3xl md:text-5xl font-bold">
+                  <h1 className="text-3xl md:text-5xl font-bold flex items-center gap-2">
                     {creator.display_name}
+
+                    {creator.is_verified && (
+                      <span className="text-blue-400 text-2xl md:text-4xl">
+                        ✓
+                      </span>
+                    )}
                   </h1>
 
                   <p className="text-zinc-300 mt-2">
@@ -129,8 +135,14 @@ export default async function CreatorProfilePage({ params }) {
                 )}
 
                 <div>
-                  <h1 className="text-3xl md:text-5xl font-bold">
+                  <h1 className="text-3xl md:text-5xl font-bold flex items-center gap-2">
                     {creator.display_name}
+
+                    {creator.is_verified && (
+                      <span className="text-blue-400 text-2xl md:text-4xl">
+                        ✓
+                      </span>
+                    )}
                   </h1>
 
                   <p className="text-zinc-300 mt-2">

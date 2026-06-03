@@ -388,8 +388,14 @@ export default async function HomePage() {
                       <div className="w-20 h-20 rounded-full bg-zinc-700 -mt-16 mb-4 border-4 border-zinc-900" />
                     )}
 
-                    <h3 className="text-2xl font-semibold">
+                    <h3 className="text-lg md:text-2xl font-semibold line-clamp-1 flex items-center gap-2">
                       {creator.display_name}
+
+                      {creator.is_verified && (
+                        <span className="text-blue-400">
+                          ✓
+                        </span>
+                      )}
                     </h3>
 
                     <p className="text-zinc-400 mt-1">
