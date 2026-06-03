@@ -216,6 +216,46 @@ export default async function HomePage() {
         </section>
 
         <section>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
+            <h2 className="text-3xl font-bold mb-4">
+              Built for Every Type of Creator
+            </h2>
+
+            <p className="text-zinc-400 max-w-2xl mx-auto mb-6">
+              Whether you create videos, digital products, courses, artwork,
+              music, software, or physical products, CreatorsHub helps you
+              organize everything in one place.
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-3">
+              <span className="bg-zinc-800 px-4 py-2 rounded-full">
+                Gaming
+              </span>
+
+              <span className="bg-zinc-800 px-4 py-2 rounded-full">
+                Education
+              </span>
+
+              <span className="bg-zinc-800 px-4 py-2 rounded-full">
+                Art
+              </span>
+
+              <span className="bg-zinc-800 px-4 py-2 rounded-full">
+                Fitness
+              </span>
+
+              <span className="bg-zinc-800 px-4 py-2 rounded-full">
+                Music
+              </span>
+
+              <span className="bg-zinc-800 px-4 py-2 rounded-full">
+                Technology
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section>
           <h2 className="text-3xl font-bold mb-8">
             Latest Announcements
           </h2>
@@ -438,6 +478,13 @@ export default async function HomePage() {
               className="border border-zinc-700 px-8 py-4 rounded-2xl"
             >
               Explore Creators
+            </Link>
+
+            <Link
+              href="/pricing"
+              className="border border-zinc-700 px-8 py-4 rounded-2xl"
+            >
+              View Pricing
             </Link>
           </div>
         </section>
