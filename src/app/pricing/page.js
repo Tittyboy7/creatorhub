@@ -104,6 +104,23 @@ export default function PricingPage() {
               <span className="text-zinc-400">Pro</span>
             </div>
           </div>
+
+          <div className="mt-12 bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 rounded-3xl p-8 text-center">
+            <h2 className="text-3xl font-bold mb-4">
+              Interested in CreatorsHub Pro?
+            </h2>
+
+            <p className="text-zinc-400 mb-6">
+              Pro features are coming soon. Share feedback or request features on the roadmap.
+            </p>
+
+            <Link
+              href="/roadmap"
+              className="inline-block bg-white text-black px-6 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
+            >
+              Request Pro Features
+            </Link>
+          </div>
         </div>
       </div>
     </div>
