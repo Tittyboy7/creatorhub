@@ -122,6 +122,45 @@ export default function PricingPage() {
             </Link>
           </div>
         </div>
+
+        <div className="mt-12 bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+          <h2 className="text-3xl font-bold mb-6">
+            Pricing FAQ
+          </h2>
+
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-xl font-semibold">
+                Can I use CreatorsHub for free?
+              </h3>
+
+              <p className="text-zinc-400 mt-2">
+                Yes. Creators can start with a free storefront, product listings,
+                social links, announcements, and basic analytics.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-xl font-semibold">
+                When will CreatorsHub Pro launch?
+              </h3>
+
+              <p className="text-zinc-400 mt-2">
+                Pro features are planned for a future release as the platform grows.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-xl font-semibold">
+                Will CreatorsHub take a fee from my sales?
+              </h3>
+
+              <p className="text-zinc-400 mt-2">
+                Not currently. Purchases are completed through each creator's external storefront, and CreatorsHub does not charge a transaction fee.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
