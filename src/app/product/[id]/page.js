@@ -27,15 +27,15 @@ export default async function ProductPage({ params }) {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-white p-10">
-        <div className="max-w-4xl mx-auto bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-          <h1 className="text-4xl font-bold">
+      <div className="min-h-screen bg-zinc-950 text-white px-5 py-8 md:p-10">
+        <div className="max-w-4xl mx-auto bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8">
+          <h1 className="text-3xl md:text-4xl font-bold">
             This product is no longer available.
           </h1>
 
           <Link
             href="/store"
-            className="inline-block mt-6 bg-white text-black px-6 py-3 rounded-2xl font-semibold"
+            className="inline-block mt-6 bg-white text-black px-6 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
           >
             Back to Marketplace
           </Link>
@@ -52,38 +52,38 @@ export default async function ProductPage({ params }) {
     .eq("id", product.id);
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-10">
+    <div className="min-h-screen bg-zinc-950 text-white px-5 py-8 md:p-10">
       <div className="max-w-6xl mx-auto space-y-10">
         <Link
           href="/store"
-          className="inline-block border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
+          className="inline-block border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800 transition"
         >
           Back to Marketplace
         </Link>
 
-        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-8 items-start">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-6 md:gap-8 items-start">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 md:p-6">
             {product.image_url ? (
               <img
                 src={product.image_url}
                 alt={product.title}
-                className="h-[460px] w-full object-cover rounded-2xl"
+                className="h-72 md:h-[460px] w-full object-cover rounded-2xl"
               />
             ) : (
-              <div className="h-[460px] w-full bg-zinc-800 rounded-2xl flex items-center justify-center text-zinc-500">
+              <div className="h-72 md:h-[460px] w-full bg-zinc-800 rounded-2xl flex items-center justify-center text-zinc-500">
                 Product Image
               </div>
             )}
           </div>
 
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 md:p-8">
             {product.category && (
               <span className="inline-block bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm mb-5">
                 {product.category}
               </span>
             )}
 
-            <h1 className="text-5xl font-bold mb-3">
+            <h1 className="text-4xl md:text-5xl font-bold mb-3">
               {product.title}
             </h1>
 
@@ -118,12 +118,12 @@ export default async function ProductPage({ params }) {
               </Link>
             )}
 
-            <p className="text-4xl font-bold mb-5">
+            <p className="text-3xl md:text-4xl font-bold mb-5">
               {product.price}
             </p>
 
             {product.reviews_count > 0 && (
-              <p className="text-zinc-400 mb-5">
+              <p className="text-zinc-400 mb-5 text-sm md:text-base">
                 ⭐ {Number(product.average_rating).toFixed(1)} / 5 ·{" "}
                 {product.reviews_count} review
                 {product.reviews_count === 1 ? "" : "s"}
@@ -131,7 +131,7 @@ export default async function ProductPage({ params }) {
             )}
 
             {product.description && (
-              <p className="text-zinc-400 text-lg leading-relaxed mb-6">
+              <p className="text-zinc-400 text-base md:text-lg leading-relaxed mb-6">
                 {product.description}
               </p>
             )}
@@ -141,7 +141,7 @@ export default async function ProductPage({ params }) {
                 <p className="text-2xl font-bold">
                   {product.views || 0}
                 </p>
-                <p className="text-zinc-500 text-sm">Views</p>
+                <p className="text-zinc-500 text-xs md:text-sm">Views</p>
               </div>
 
               <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4">
@@ -155,7 +155,7 @@ export default async function ProductPage({ params }) {
                 <p className="text-2xl font-bold">
                   {product.checkout_clicks || 0}
                 </p>
-                <p className="text-zinc-500 text-sm">Checkouts</p>
+                <p className="text-zinc-500 text-xs md:text-sm">Checkouts</p>
               </div>
             </div>
 
@@ -173,7 +173,7 @@ export default async function ProductPage({ params }) {
             {product.creators && (
               <Link
                 href={`/creator/${product.creators.username}`}
-                className="block mt-5 w-full border border-zinc-700 py-3 rounded-2xl text-center hover:bg-zinc-800"
+                className="block mt-5 w-full border border-zinc-700 py-3 rounded-2xl text-center hover:bg-zinc-800 transition"
               >
                 View Creator Storefront
               </Link>
