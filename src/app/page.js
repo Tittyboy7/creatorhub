@@ -256,6 +256,47 @@ export default async function HomePage() {
         </section>
 
         <section>
+          <h2 className="text-4xl font-bold text-center mb-12">
+            Why Creators Choose CreatorsHub
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <h3 className="text-2xl font-semibold mb-4">
+                One Link for Everything
+              </h3>
+
+              <p className="text-zinc-400">
+                Showcase products, announcements, social links, and storefronts
+                from across the internet in one place.
+              </p>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <h3 className="text-2xl font-semibold mb-4">
+                Own Your Audience
+              </h3>
+
+              <p className="text-zinc-400">
+                Build followers and keep your community connected without relying
+                on a single platform.
+              </p>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+              <h3 className="text-2xl font-semibold mb-4">
+                Grow Your Business
+              </h3>
+
+              <p className="text-zinc-400">
+                Turn attention into sales with organized storefronts, product
+                discovery, and creator-focused tools.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section>
           <h2 className="text-3xl font-bold mb-8">
             Latest Announcements
           </h2>
