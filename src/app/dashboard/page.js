@@ -275,31 +275,31 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-10">
+    <div className="min-h-screen bg-zinc-950 text-white px-5 py-8 md:p-10">
       <div className="max-w-6xl mx-auto space-y-10">
         <div>
-          <h1 className="text-5xl font-bold mb-4">Creator Dashboard</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Creator Dashboard</h1>
           <p className="text-zinc-400 text-lg">Welcome back, {user?.email}</p>
         </div>
 
         {creator && (
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 md:p-6">
               <p className="text-zinc-400">Products</p>
               <p className="text-4xl font-bold mt-2">{products.length}</p>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 md:p-6">
               <p className="text-zinc-400">Total Views</p>
               <p className="text-4xl font-bold mt-2">{totalViews}</p>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 md:p-6">
               <p className="text-zinc-400">Total Favorites</p>
               <p className="text-4xl font-bold mt-2">{totalFavorites}</p>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 md:p-6">
               <p className="text-zinc-400">Average Rating</p>
 
               <p className="text-4xl font-bold mt-2">
@@ -315,26 +315,26 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 md:p-6">
               <p className="text-zinc-400">Followers</p>
               <p className="text-4xl font-bold mt-2">{totalFollowers}</p>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 md:p-6">
               <p className="text-zinc-400">Checkout Clicks</p>
               <p className="text-4xl font-bold mt-2">
                 {totalCheckoutClicks}
               </p>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 md:p-6">
               <p className="text-zinc-400">Total Revenue</p>
               <p className="text-2xl font-bold mt-2 break-words">
                 ${totalRevenue.toFixed(2)}
               </p>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 md:p-6">
               <p className="text-zinc-400">Revenue Entries</p>
               <p className="text-4xl font-bold mt-2">
                 {revenueEntries.length}
