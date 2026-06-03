@@ -4,7 +4,7 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white px-5 py-8 md:p-10">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-5xl font-bold mb-4">
+        <h1 className="text-4xl md:text-5xl font-bold mb-4">
           Pricing
         </h1>
 
@@ -12,8 +12,8 @@ export default function PricingPage() {
           Start free. Upgrade when you are ready to grow your creator business.
         </p>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8">
             <h2 className="text-3xl font-bold mb-3">
               Free
             </h2>
@@ -38,7 +38,7 @@ export default function PricingPage() {
             </Link>
           </div>
 
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-white rounded-3xl p-8 shadow-2xl">
+          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 border border-white rounded-3xl p-6 md:p-8 shadow-2xl">
             <span className="inline-block mb-4 bg-white text-black px-3 py-1 rounded-full text-sm font-semibold">
               Coming Soon
             </span>
@@ -68,7 +68,7 @@ export default function PricingPage() {
           </div>
         </div>
 
-        <div className="mt-12 bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+        <div className="mt-12 bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8">
           <h2 className="text-3xl font-bold mb-6">
             Compare Plans
           </h2>
@@ -105,8 +105,8 @@ export default function PricingPage() {
             </div>
           </div>
 
-          <div className="mt-12 bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 rounded-3xl p-8 text-center">
-            <h2 className="text-3xl font-bold mb-4">
+          <div className="mt-12 bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 rounded-3xl p-6 md:p-8 text-center">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">
               Interested in CreatorsHub Pro?
             </h2>
 
@@ -123,7 +123,7 @@ export default function PricingPage() {
           </div>
         </div>
 
-        <div className="mt-12 bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+        <div className="mt-12 bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8">
           <h2 className="text-3xl font-bold mb-6">
             Pricing FAQ
           </h2>
