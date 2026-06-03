@@ -2,9 +2,9 @@ import Link from "next/link";
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-10">
+    <div className="min-h-screen bg-zinc-950 text-white px-5 py-8 md:p-10">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-5xl font-bold mb-6">Contact CreatorsHub</h1>
+        <h1 className="text-4xl md:text-5xl font-bold mb-6">Contact CreatorsHub</h1>
 
         <p className="text-zinc-400 text-lg leading-relaxed mb-6">
           Have feedback, questions, or feature ideas? We’d love to hear from you.
