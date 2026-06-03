@@ -136,7 +136,7 @@ export default async function ProductPage({ params }) {
               </p>
             )}
 
-            <div className="grid grid-cols-3 gap-3 text-center mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center mb-8">
               <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4">
                 <p className="text-2xl font-bold">
                   {product.views || 0}
@@ -148,7 +148,7 @@ export default async function ProductPage({ params }) {
                 <p className="text-2xl font-bold">
                   {product.favorites_count || 0}
                 </p>
-                <p className="text-zinc-500 text-sm">Favorites</p>
+                <p className="text-zinc-500 text-xs md:text-sm">Favorites</p>
               </div>
 
               <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4">

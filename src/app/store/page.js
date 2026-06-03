@@ -164,62 +164,62 @@ export default function StorePage() {
                 key={product.id}
                 className="group bg-zinc-900 border border-zinc-800 rounded-3xl p-4 md:p-6 transition duration-300 hover:-translate-y-1 hover:border-zinc-700 hover:shadow-2xl"
               >
-                {product.image_url ? (
-                  <img
-                    src={product.image_url}
-                    alt={product.title}
-                    className="h-32 md:h-48 w-full object-cover rounded-2xl mb-4 transition duration-300 group-hover:scale-[1.02]"
-                  />
-                ) : (
-                  <div className="h-40 bg-zinc-800 rounded-2xl mb-4 flex items-center justify-center text-zinc-500">
-                    Product Image
-                  </div>
-                )}
+                <Link href={`/product/${product.id}`} className="block">
+                  {product.image_url ? (
+                    <img
+                      src={product.image_url}
+                      alt={product.title}
+                      className="h-32 md:h-48 w-full object-cover rounded-2xl mb-4 transition duration-300 group-hover:scale-[1.02]"
+                    />
+                  ) : (
+                    <div className="h-32 md:h-48 bg-zinc-800 rounded-2xl mb-4 flex items-center justify-center text-zinc-500">
+                      Product Image
+                    </div>
+                  )}
 
-                <Link
-                  href={`/product/${product.id}`}
-                  className="block text-2xl font-semibold hover:text-zinc-300 underline-offset-4 hover:underline"
-                >
-                  {product.title}
+                  <h3 className="text-xl md:text-2xl font-semibold hover:text-zinc-300 underline-offset-4 hover:underline">
+                    {product.title}
+                  </h3>
+
+                  {product.category && (
+                    <span className="inline-block mt-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+                      {product.category}
+                    </span>
+                  )}
+
+                  {product.description && (
+                    <p className="text-zinc-400 mt-2 line-clamp-2">
+                      {product.description}
+                    </p>
+                  )}
+
+                  <p className="text-xl md:text-2xl font-bold mt-4">
+                    {product.price}
+                  </p>
+
+                  {product.reviews_count > 0 && (
+                    <p className="text-zinc-500 mt-2 text-sm">
+                      ⭐ {Number(product.average_rating).toFixed(1)} / 5 ·{" "}
+                      {product.reviews_count} review
+                      {product.reviews_count === 1 ? "" : "s"}
+                    </p>
+                  )}
+
+                  <p className="text-zinc-500 mt-2 text-sm">
+                    {product.views || 0} views ·{" "}
+                    {product.favorites_count || 0} favorites
+                  </p>
+
+                  {product.creators && (
+                    <p className="block mt-4 text-zinc-400">
+                      Sold by {product.creators.display_name}
+                    </p>
+                  )}
+
+                  <p className="text-zinc-500 mt-4 font-medium group-hover:text-white transition">
+                    View Product →
+                  </p>
                 </Link>
-
-                {product.category && (
-                  <span className="inline-block mt-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
-                    {product.category}
-                  </span>
-                )}
-
-                {product.description && (
-                  <p className="text-zinc-400 mt-2">
-                    {product.description}
-                  </p>
-                )}
-
-                <p className="text-2xl font-bold mt-4">
-                  {product.price}
-                </p>
-
-                {product.reviews_count > 0 && (
-                  <p className="text-zinc-500 mt-2">
-                    ⭐ {Number(product.average_rating).toFixed(1)} / 5 ·{" "}
-                    {product.reviews_count} review
-                    {product.reviews_count === 1 ? "" : "s"}
-                  </p>
-                )}
-
-                <p className="text-zinc-500 mt-2">
-                  {product.views || 0} views ·{" "}
-                  {product.favorites_count || 0} favorites
-                </p>
-
-                {product.creators && (
-                  <Link
-                    href={`/creator/${product.creators.username}`}
-                    className="block mt-4 text-zinc-400 hover:text-white"
-                  >
-                    Sold by {product.creators.display_name}
-                  </Link>
-                )}
 
                 <div className="mt-5 space-y-3">
                   <BuyNowButton
@@ -227,15 +227,11 @@ export default function StorePage() {
                     externalUrl={product.external_url}
                   />
 
-                  <FavoriteButton
-                    productId={product.id}
-                  />
+                  <FavoriteButton productId={product.id} />
 
-                  <AddToCartButton
-                    productId={product.id}
-                  />
+                  <AddToCartButton productId={product.id} />
                 </div>
-              </div>            
+              </div>
             ))}
           </div>
         )}
