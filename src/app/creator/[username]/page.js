@@ -351,7 +351,7 @@ export default async function CreatorProfilePage({ params }) {
                     </div>
                   )}
 
-                  <h3 className="text-2xl font-semibold hover:text-zinc-300">
+                  <h3 className="text-xl md:text-2xl font-semibold hover:text-zinc-300">
                     {product.title}
                   </h3>
 
