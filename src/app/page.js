@@ -49,7 +49,7 @@ export default async function HomePage() {
     .slice(0, 6);
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-10">
+    <div className="min-h-screen bg-zinc-950 text-white px-5 py-8 md:p-10">
       <div className="max-w-7xl mx-auto space-y-16">
         <section className="text-center py-20">
           <h1 className="text-6xl font-bold mb-6">
