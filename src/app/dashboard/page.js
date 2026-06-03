@@ -635,14 +635,14 @@ export default function DashboardPage() {
             </div>
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <h2 className="text-3xl font-bold">
                   Recent Announcements
                 </h2>
 
                 <Link
                   href="/add-announcement"
-                  className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
+                  className="w-full sm:w-auto text-center bg-white text-black px-5 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
                 >
                   Add Announcement
                 </Link>
