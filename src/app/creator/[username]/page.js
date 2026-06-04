@@ -3,6 +3,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import FollowButton from "@/components/FollowButton";
 import BuyNowButton from "@/components/BuyNowButton";
+import VerifiedBadge from "@/components/VerifiedBadge";
 import {
   getAccentBadgeClass,
   getAccentBorderClass,
@@ -85,11 +86,7 @@ export default async function CreatorProfilePage({ params }) {
                   <h1 className="text-3xl md:text-5xl font-bold flex items-center gap-2">
                     {creator.display_name}
 
-                    {creator.is_verified && (
-                      <span className="text-blue-400 text-2xl md:text-4xl">
-                        ✓
-                      </span>
-                    )}
+                    {creator.is_verified && <VerifiedBadge />}
                   </h1>
 
                   <p className="text-zinc-300 mt-2">
@@ -138,11 +135,7 @@ export default async function CreatorProfilePage({ params }) {
                   <h1 className="text-3xl md:text-5xl font-bold flex items-center gap-2">
                     {creator.display_name}
 
-                    {creator.is_verified && (
-                      <span className="text-blue-400 text-2xl md:text-4xl">
-                        ✓
-                      </span>
-                    )}
+                    {creator.is_verified && <VerifiedBadge />}
                   </h1>
 
                   <p className="text-zinc-300 mt-2">

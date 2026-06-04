@@ -2,6 +2,7 @@ import { formatDate } from "@/lib/formatDate";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import BuyNowButton from "@/components/BuyNowButton";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -391,11 +392,7 @@ export default async function HomePage() {
                     <h3 className="text-lg md:text-2xl font-semibold line-clamp-1 flex items-center gap-2">
                       {creator.display_name}
 
-                      {creator.is_verified && (
-                        <span className="text-blue-400">
-                          ✓
-                        </span>
-                      )}
+                      {creator.is_verified && <VerifiedBadge />}
                     </h3>
 
                     <p className="text-zinc-400 mt-1">

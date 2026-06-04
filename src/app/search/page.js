@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
 export default function SearchPage() {
   const [search, setSearch] = useState("");
@@ -148,11 +149,7 @@ export default function SearchPage() {
                         <h3 className="text-xl md:text-2xl font-semibold flex items-center gap-2">
                           {creator.display_name}
 
-                          {creator.is_verified && (
-                            <span className="text-blue-400">
-                              ✓
-                            </span>
-                          )}
+                          {creator.is_verified && <VerifiedBadge />}
                         </h3>
 
                         <p className="text-zinc-500 mt-1">

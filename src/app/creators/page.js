@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
 export default function CreatorsPage() {
   const [creators, setCreators] = useState([]);
@@ -121,11 +122,7 @@ export default function CreatorsPage() {
                   <h2 className="text-lg md:text-2xl font-semibold line-clamp-1 flex items-center gap-2">
                     {creator.display_name}
 
-                    {creator.is_verified && (
-                      <span className="text-blue-400">
-                        ✓
-                      </span>
-                    )}
+                    {creator.is_verified && <VerifiedBadge />}
                   </h2>
   
                   <p className="text-zinc-400 mt-1 text-sm line-clamp-1">@{creator.username}</p>
