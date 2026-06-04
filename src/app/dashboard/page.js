@@ -21,6 +21,7 @@ export default function DashboardPage() {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const [featuredMessage, setFeaturedMessage] = useState("");
+  const [verificationRequest, setVerificationRequest] = useState(null);
 
   useEffect(() => {
     async function loadDashboard() {
@@ -99,6 +100,16 @@ export default function DashboardPage() {
         );
 
         setTotalRevenue(revenueTotal);
+
+        const { data: latestRequest } = await supabase
+          .from("verification_requests")
+          .select("*")
+          .eq("creator_id", creatorData.id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        setVerificationRequest(latestRequest);
       }
 
       const { data: notificationData } = await supabase
@@ -362,137 +373,178 @@ export default function DashboardPage() {
           </div>
         ) : (
           <>
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-            <h2 className="text-3xl font-bold mb-2">
-              Getting Started
-            </h2>
+          <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-6">
+  <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8">
+    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+      <div>
+        <h2 className="text-3xl font-bold mb-2">
+          {creator.display_name}
+        </h2>
 
-            <p className="text-zinc-400 mb-6">
-              {completedCount} of {checklistItems.length} tasks completed
-            </p>
+        <p className="text-zinc-400 mb-4">
+          @{creator.username}
+        </p>
 
-            <div className="flex flex-wrap gap-3 mb-8">
+        <div className="flex flex-wrap gap-2 mb-5">
+          <span
+            className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getAccentBadgeClass(
+              creator.accent_color
+            )}`}
+          >
+            Accent: {creator.accent_color || "white"}
+          </span>
 
-              <Link
-                href={`/creator/${creator.username}`}
-                className="border border-zinc-700 px-5 py-3 rounded-2xl"
-              >
-                View Storefront
-              </Link>
-            </div>
+          {creator.niche && (
+            <span className="inline-block bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
+              {creator.niche}
+            </span>
+          )}
+        </div>
 
-            <div className="space-y-3">
-              {checklistItems.map((item) => (
-                <div
-                  key={item.label}
-                  className="flex items-center gap-3"
-                >
-                  <span className="text-xl">
-                    {item.complete ? "✅" : "⬜"}
-                  </span>
+        <p className="text-zinc-400 max-w-2xl">
+          {creator.bio || "Add a bio so visitors understand who you are and what you create."}
+        </p>
+      </div>
 
-                  <span
-                    className={
-                      item.complete
-                        ? "text-white"
-                        : "text-zinc-400"
-                    }
-                  >
-                    {item.label}
-                  </span>
-                </div>
-              ))}
-            </div>
+      <div className="flex flex-wrap gap-3 md:justify-end">
+        <Link
+          href={`/creator/${creator.username}`}
+          className="bg-white text-black px-5 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
+        >
+          View Storefront
+        </Link>
 
-            <div className="flex gap-4 flex-wrap mt-8">
-              <Link
-                href="/edit-profile"
-                className="bg-white text-black px-6 py-3 rounded-2xl font-semibold"
-              >
-                Edit Profile
-              </Link>
+        <Link
+          href="/edit-profile"
+          className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800 transition"
+        >
+          Edit Profile
+        </Link>
+      </div>
+    </div>
 
-              <Link
-                href="/add-product"
-                className="border border-zinc-700 px-6 py-3 rounded-2xl"
-              >
-                Add Product
-              </Link>
+    <div className="grid sm:grid-cols-2 gap-3 mt-8">
+      <Link
+        href="/add-product"
+        className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 hover:border-zinc-600 transition"
+      >
+        <p className="font-semibold">
+          Add Product
+        </p>
+        <p className="text-zinc-500 text-sm mt-1">
+          List something new in your storefront.
+        </p>
+      </Link>
 
-              <Link
-                href="/add-announcement"
-                className="border border-zinc-700 px-6 py-3 rounded-2xl"
-              >
-                Add Announcement
-              </Link>
-            </div>
+      <Link
+        href="/add-announcement"
+        className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 hover:border-zinc-600 transition"
+      >
+        <p className="font-semibold">
+          Add Announcement
+        </p>
+        <p className="text-zinc-500 text-sm mt-1">
+          Share an update with your audience.
+        </p>
+      </Link>
+
+      <Link
+        href="/revenue"
+        className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 hover:border-zinc-600 transition"
+      >
+        <p className="font-semibold">
+          Revenue
+        </p>
+        <p className="text-zinc-500 text-sm mt-1">
+          Track creator income and sales.
+        </p>
+      </Link>
+
+      <Link
+        href="/notifications"
+        className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 hover:border-zinc-600 transition"
+      >
+        <p className="font-semibold">
+          Notifications
+        </p>
+        <p className="text-zinc-500 text-sm mt-1">
+          View recent activity.
+        </p>
+      </Link>
+    </div>
+  </div>
+
+  <div className="space-y-6">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+      <h2 className="text-2xl font-bold mb-3">
+        Verification
+      </h2>
+
+      {creator.is_verified ? (
+        <p className="text-green-400 font-semibold">
+          ✓ Verified Creator
+        </p>
+      ) : verificationRequest ? (
+        <p className="text-zinc-300">
+          Current status:{" "}
+          <span className="font-semibold capitalize">
+            {verificationRequest.status}
+          </span>
+        </p>
+      ) : (
+        <>
+          <p className="text-zinc-400 mb-4">
+            Request verification to build trust with visitors.
+          </p>
+
+          <Link
+            href="/verification-request"
+            className="inline-block border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800 transition"
+          >
+            Request Verification
+          </Link>
+        </>
+      )}
+    </div>
+
+    <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+      <div className="flex items-center justify-between gap-4 mb-4">
+        <h2 className="text-2xl font-bold">
+          Setup Progress
+        </h2>
+
+        <span className="text-zinc-400 text-sm">
+          {completedCount}/{checklistItems.length}
+        </span>
+      </div>
+
+      <div className="space-y-3">
+        {checklistItems.map((item) => (
+          <div
+            key={item.label}
+            className="flex items-center gap-3 text-sm"
+          >
+            <span>
+              {item.complete ? "✅" : "⬜"}
+            </span>
+
+            <span
+              className={
+                item.complete ? "text-white" : "text-zinc-400"
+              }
+            >
+              {item.label}
+            </span>
           </div>
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-              <h2 className="text-3xl font-bold mb-2">
-                {creator.display_name}
-              </h2>
+        ))}
+      </div>
 
-              <p className="text-zinc-400 mb-2">@{creator.username}</p>
-
-              <span
-                className={`inline-block mb-4 px-3 py-1 rounded-full text-sm font-semibold ${getAccentBadgeClass(
-                  creator.accent_color
-                )}`}
-              >
-                Accent: {creator.accent_color || "white"}
-              </span>
-              {creator.niche && (
-                <span className="inline-block mb-4 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
-                  {creator.niche}
-                </span>
-              )}
-
-              <p className="text-zinc-400 mb-6">{creator.bio}</p>
-
-              <div className="flex gap-4 flex-wrap">
-                <Link
-                  href="/add-product"
-                  className="bg-white text-black px-6 py-3 rounded-2xl font-semibold"
-                >
-                  Add Product
-                </Link>
-
-                <Link
-                  href="/add-announcement"
-                  className="bg-white text-black px-6 py-3 rounded-2xl font-semibold"
-                >
-                  Add Announcement
-                </Link>
-
-                <Link
-                  href="/edit-profile"
-                  className="border border-zinc-700 px-6 py-3 rounded-2xl"
-                >
-                  Edit Profile
-                </Link>
-
-                <Link
-                  href={`/creator/${creator.username}`}
-                  className="border border-zinc-700 px-6 py-3 rounded-2xl"
-                >
-                  View Storefront
-                </Link>
-
-                <Link
-                  href={`/creator/${creator.username}`}
-                  className="border border-zinc-700 px-6 py-3 rounded-2xl"
-                >
-                  View Storefront
-                </Link>
-
-                <Link
-                  href="/verification-request"
-                  className="border border-zinc-700 px-6 py-3 rounded-2xl hover:bg-zinc-800 transition"
-                >
-                  Request Verification
-                </Link>
-              </div>
-            </div>
+      <p className="text-zinc-500 text-sm mt-4">
+        Complete all setup steps to make your storefront more trustworthy.
+      </p>
+    </div>
+  </div>
+</div>
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
               <div className="flex items-start justify-between gap-4 flex-wrap mb-6">
