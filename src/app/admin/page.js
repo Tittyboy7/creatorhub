@@ -166,6 +166,17 @@ export default function AdminPage() {
               Review announcements and linked product posts.
             </p>
           </Link>
+
+          <Link
+            href="/admin/verification-requests"
+            className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-zinc-600 transition"
+          >
+            <h2 className="text-2xl font-bold">Verification Requests</h2>
+
+            <p className="text-zinc-400 mt-2">
+              Review creator verification requests.
+            </p>
+          </Link>
         </div>
       </div>
     </div>
