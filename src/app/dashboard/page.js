@@ -546,10 +546,10 @@ export default function DashboardPage() {
   </div>
 </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8">
               <div className="flex items-start justify-between gap-4 flex-wrap mb-6">
                 <div>
-                  <h2 className="text-3xl font-bold">
+                  <h2 className="text-2xl md:text-3xl font-bold">
                     Featured Product Controls
                   </h2>
 
