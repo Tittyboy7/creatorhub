@@ -40,6 +40,7 @@ export default function Footer() {
             <div className="flex flex-col gap-2 text-zinc-400">
               <Link href="/contact">Contact</Link>
               <Link href="/roadmap">Suggest a Feature</Link>
+              <Link href="/verified">Verified Creators</Link>
               <Link href="/guidelines">Community Guidelines</Link>
               <Link href="/privacy">Privacy Policy</Link>
               <Link href="/terms">Terms of Service</Link>
