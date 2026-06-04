@@ -477,6 +477,20 @@ export default function DashboardPage() {
                 >
                   View Storefront
                 </Link>
+
+                <Link
+                  href={`/creator/${creator.username}`}
+                  className="border border-zinc-700 px-6 py-3 rounded-2xl"
+                >
+                  View Storefront
+                </Link>
+
+                <Link
+                  href="/verification-request"
+                  className="border border-zinc-700 px-6 py-3 rounded-2xl hover:bg-zinc-800 transition"
+                >
+                  Request Verification
+                </Link>
               </div>
             </div>
 
