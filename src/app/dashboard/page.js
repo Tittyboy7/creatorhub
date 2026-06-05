@@ -546,6 +546,48 @@ export default function DashboardPage() {
   </div>
 </div>
 
+<div className="grid md:grid-cols-3 gap-6">
+  <Link
+    href="/dashboard/products"
+    className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-zinc-600 transition"
+  >
+    <h2 className="text-2xl font-bold">
+      Products
+    </h2>
+
+    <p className="text-zinc-400 mt-2">
+      Manage listings, visibility, edits, and product performance.
+    </p>
+  </Link>
+
+  <Link
+    href="/add-announcement"
+    className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-zinc-600 transition"
+  >
+    <h2 className="text-2xl font-bold">
+      Announcements
+    </h2>
+
+    <p className="text-zinc-400 mt-2">
+      Create updates and keep your followers informed.
+    </p>
+  </Link>
+
+  <Link
+    href="/revenue"
+    className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-zinc-600 transition"
+  >
+    <h2 className="text-2xl font-bold">
+      Revenue
+    </h2>
+
+    <p className="text-zinc-400 mt-2">
+      Track income, platforms, and monthly performance.
+    </p>
+  </Link>
+</div>
+
+          <div className="grid lg:grid-cols-2 gap-6"> 
             <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8">
               <div className="flex items-start justify-between gap-4 flex-wrap mb-6">
                 <div>
@@ -700,9 +742,9 @@ export default function DashboardPage() {
               )}
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                <h2 className="text-3xl font-bold">
+                <h2 className="text-2xl md:text-3xl font-bold">
                   Recent Announcements
                 </h2>
 
@@ -744,9 +786,9 @@ export default function DashboardPage() {
               )}
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8">
               <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-                <h2 className="text-3xl font-bold">
+                <h2 className="text-2xl md:text-3xl font-bold">
                   Recent Revenue
                 </h2>
 
@@ -766,6 +808,7 @@ export default function DashboardPage() {
                   </Link>
                 </div>
               </div>
+            </div>
 
               {revenueEntries.length === 0 ? (
                 <p className="text-zinc-400">
@@ -892,182 +935,49 @@ export default function DashboardPage() {
               </div>
             </div>
 
-<div>
-  <h2 className="text-3xl font-bold mb-6">
-    All Announcements
-  </h2>
+<div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8">
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h2 className="text-2xl md:text-3xl font-bold">
+        Announcement Management
+      </h2>
 
-  {announcements.length === 0 ? (
-    <p className="text-zinc-400">
-      No announcements yet.
-    </p>
-  ) : (
-    <div className="space-y-6">
-      {announcements.map((announcement) => (
-        <div
-          key={announcement.id}
-          className={`bg-zinc-900 border rounded-3xl p-6 ${
-            announcement.is_active
-              ? "border-zinc-800"
-              : "border-red-900 opacity-70"
-          }`}
-        >
-          <h3 className="text-2xl font-semibold">
-            {announcement.title}
-          </h3>
-
-          <p className="text-zinc-500 text-sm mt-1">
-            {formatDate(announcement.created_at)}
-          </p>
-
-          {announcement.products && (
-            <span className="inline-block mt-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
-              Linked Product
-            </span>
-          )}
-
-          {!announcement.is_active && (
-            <span className="inline-block mt-3 bg-red-950 text-red-400 px-3 py-1 rounded-full text-sm">
-              Hidden
-            </span>
-          )}
-
-          {announcement.content && (
-            <p className="text-zinc-400 mt-3">
-              {announcement.content}
-            </p>
-          )}
-
-          {announcement.products && (
-            <Link
-              href={`/product/${announcement.products.id}`}
-              className="inline-block mt-4 text-zinc-400 hover:text-white"
-            >
-              Linked product: {announcement.products.title}
-            </Link>
-          )}
-
-            <Link
-              href={`/edit-announcement/${announcement.id}`}
-              className="inline-block mt-4 mr-3 bg-white text-black px-5 py-3 rounded-2xl font-semibold"
-            >
-              Edit Announcement
-            </Link>
-
-          <button
-            onClick={() =>
-              handleToggleAnnouncementActive(announcement)
-            }
-            className="mt-4 mr-3 border border-zinc-700 text-zinc-300 px-5 py-3 rounded-2xl hover:bg-zinc-800"
-          >
-            {announcement.is_active
-              ? "Hide Announcement"
-              : "Unhide Announcement"}
-          </button>
-
-          <button
-            onClick={() =>
-              handleDeleteAnnouncement(
-                announcement.id
-              )
-            }
-            className="mt-4 border border-red-900 text-red-400 px-5 py-3 rounded-2xl hover:bg-red-950"
-          >
-            Delete Announcement
-          </button>
-        </div>
-      ))}
+      <p className="text-zinc-400 mt-2">
+        Manage your {announcements.length} announcement
+        {announcements.length === 1 ? "" : "s"} from one dedicated page.
+      </p>
     </div>
-  )}
+
+    <Link
+      href="/dashboard/announcements"
+      className="bg-white text-black px-5 py-3 rounded-2xl font-semibold text-center hover:bg-zinc-200 transition"
+    >
+      Manage Announcements
+    </Link>
+  </div>
 </div>
 
-<div>
-  <h2 className="text-3xl font-bold mb-6">
-    All Products
-  </h2>
+<div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8">
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h2 className="text-2xl md:text-3xl font-bold">
+        Product Management
+      </h2>
 
-              {products.length === 0 ? (
-                <p className="text-zinc-400">No products yet.</p>
-              ) : (
-                <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {products.map((product) => (
-                    <div
-                      key={product.id}
-                      className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6"
-                    >
-                      {product.image_url ? (
-                        <img
-                          src={product.image_url}
-                          alt={product.title}
-                          className="h-40 w-full object-cover rounded-2xl mb-4"
-                        />
-                      ) : (
-                        <div className="h-40 bg-zinc-800 rounded-2xl mb-4 flex items-center justify-center text-zinc-500">
-                          Product Image
-                        </div>
-                      )}
+      <p className="text-zinc-400 mt-2">
+        Manage your {products.length} product
+        {products.length === 1 ? "" : "s"} from one dedicated page.
+      </p>
+    </div>
 
-                      <h3 className="text-xl font-semibold">{product.title}</h3>
-
-                      {!product.is_active && (
-                        <span className="inline-block mt-3 bg-red-950 text-red-400 px-3 py-1 rounded-full text-sm">
-                          Hidden
-                        </span>
-                      )}
-
-                      {product.category && (
-                        <span className="inline-block mt-3 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
-                          {product.category}
-                        </span>
-                      )}
-
-                      <p className="text-zinc-400 mt-2">
-                        {product.description}
-                      </p>
-
-                      <p className="text-2xl font-bold mt-4">
-                        {product.price}
-                      </p>
-
-                      <p className="text-zinc-500 mt-2">
-                        {product.views || 0} views
-                      </p>
-
-                      <p className="text-zinc-500 mt-1">
-                        {product.favorites_count || 0} favorites
-                      </p>
-
-                      <p className="text-zinc-500 mt-1">
-                        {product.checkout_clicks || 0} checkout clicks
-                      </p>
-
-                      <div className="mt-4 space-y-3">
-                        <Link
-                          href={`/edit-product/${product.id}`}
-                          className="w-full bg-white text-black py-3 rounded-2xl font-semibold flex items-center justify-center"
-                        >
-                          Edit Product
-                        </Link>
-
-                        <button
-                          onClick={() => handleToggleProductActive(product)}
-                          className="w-full border border-zinc-700 text-zinc-300 py-3 rounded-2xl hover:bg-zinc-800 flex items-center justify-center"
-                        >
-                          {product.is_active ? "Hide Product" : "Unhide Product"}
-                        </button>
-
-                        <button
-                          onClick={() => handleDeleteProduct(product.id)}
-                          className="w-full border border-red-900 text-red-400 py-3 rounded-2xl hover:bg-red-950 flex items-center justify-center"
-                        >
-                          Delete Product
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+    <Link
+      href="/dashboard/products"
+      className="bg-white text-black px-5 py-3 rounded-2xl font-semibold text-center hover:bg-zinc-200 transition"
+    >
+      Manage Products
+    </Link>
+  </div>
+</div>
           </>
         )}
       </div>

@@ -116,18 +116,31 @@ export default function EditProductPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-6">
       <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-10 w-full max-w-xl">
-        <h1 className="text-4xl font-bold mb-3">Edit Product</h1>
+        <div className="mb-8">
+  <h1 className="text-4xl font-bold">
+    Edit Product
+  </h1>
 
-        <p className="text-zinc-400 mb-8">
-          Update your product listing details.
-        </p>
+  <p className="text-zinc-400 mt-3">
+    Update your product listing details.
+  </p>
 
-        <Link
-          href="/dashboard"
-          className="inline-block mb-8 border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
-        >
-          Back to Dashboard
-        </Link>
+  <div className="flex flex-col sm:flex-row gap-3 mt-6">
+    <Link
+      href="/dashboard/products"
+      className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800 transition text-center"
+    >
+      Back to Product Management
+    </Link>
+
+    <Link
+      href="/dashboard"
+      className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800 transition text-center"
+    >
+      Back to Dashboard
+    </Link>
+  </div>
+</div>
 
         <form onSubmit={handleUpdate} className="space-y-6">
           <input
