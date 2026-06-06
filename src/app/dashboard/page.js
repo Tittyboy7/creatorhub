@@ -479,7 +479,7 @@ export default function DashboardPage() {
   </Link>
 
   <Link
-    href="/revenue"
+    href="/dashboard/revenue"
     className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-zinc-600 transition"
   >
     <h2 className="text-2xl font-bold">
@@ -806,39 +806,26 @@ export default function DashboardPage() {
               )}
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-              <h2 className="text-3xl font-bold mb-3">
-                Revenue Tracking
-              </h2>
+            <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8">
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h2 className="text-2xl md:text-3xl font-bold">
+        Revenue Management
+      </h2>
 
-              <p className="text-zinc-400 mb-6">
-                Track income from Twitch, Kick, YouTube, products,
-                sponsorships, and more.
-              </p>
+      <p className="text-zinc-400 mt-2">
+        Manage revenue entries, imports, and income tracking from one dedicated page.
+      </p>
+    </div>
 
-              <div className="flex gap-4 flex-wrap">
-                <Link
-                  href="/revenue"
-                  className="bg-white text-black px-6 py-3 rounded-2xl font-semibold"
-                >
-                  View Revenue
-                </Link>
-
-                <Link
-                  href="/add-revenue"
-                  className="border border-zinc-700 px-6 py-3 rounded-2xl"
-                >
-                  Add Revenue
-                </Link>
-
-                <Link
-                  href="/import-revenue"
-                  className="border border-zinc-700 px-6 py-3 rounded-2xl"
-                >
-                  Import CSV
-                </Link>
-              </div>
-            </div>
+    <Link
+      href="/dashboard/revenue"
+      className="bg-white text-black px-5 py-3 rounded-2xl font-semibold text-center hover:bg-zinc-200 transition"
+    >
+      Manage Revenue
+    </Link>
+  </div>
+</div>
 
 <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8">
   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
