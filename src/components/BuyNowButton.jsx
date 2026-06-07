@@ -1,12 +1,10 @@
 "use client";
 
 import { supabase } from "@/lib/supabase";
-import { getAccentButtonClass } from "@/lib/accentColors";
 
 export default function BuyNowButton({
   productId,
   externalUrl,
-  accentColor = "white",
 }) {
   async function handleClick() {
     await supabase.rpc("increment_checkout_clicks", {
@@ -22,9 +20,7 @@ export default function BuyNowButton({
     <button
       type="button"
       onClick={handleClick}
-      className={`block w-full text-center py-3 rounded-2xl font-semibold cursor-pointer ${getAccentButtonClass(
-        accentColor
-      )}`}
+      className="block w-full rounded-2xl bg-white py-3 text-center font-semibold text-black transition hover:bg-zinc-200 cursor-pointer"
     >
       Buy Now
     </button>
