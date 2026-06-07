@@ -64,9 +64,7 @@ export default function DashboardAnnouncementsPage() {
   async function handleToggleAnnouncementActive(announcement) {
     const { error } = await supabase
       .from("announcements")
-      .update({
-        is_active: !announcement.is_active,
-      })
+      .update({ is_active: !announcement.is_active })
       .eq("id", announcement.id);
 
     if (error) {
@@ -74,14 +72,11 @@ export default function DashboardAnnouncementsPage() {
       return;
     }
 
-    setAnnouncements((currentAnnouncements) =>
-      currentAnnouncements.map((currentAnnouncement) =>
-        currentAnnouncement.id === announcement.id
-          ? {
-              ...currentAnnouncement,
-              is_active: !announcement.is_active,
-            }
-          : currentAnnouncement
+    setAnnouncements((current) =>
+      current.map((item) =>
+        item.id === announcement.id
+          ? { ...item, is_active: !announcement.is_active }
+          : item
       )
     );
   }
@@ -103,150 +98,122 @@ export default function DashboardAnnouncementsPage() {
       return;
     }
 
-    setAnnouncements((currentAnnouncements) =>
-      currentAnnouncements.filter(
-        (announcement) => announcement.id !== announcementId
-      )
+    setAnnouncements((current) =>
+      current.filter((announcement) => announcement.id !== announcementId)
     );
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
-        Loading...
-      </div>
-    );
+    return <p className="text-zinc-400">Loading announcements...</p>;
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white px-5 py-8 md:p-10">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold">
-              Announcement Management
-            </h1>
-
-            <p className="text-zinc-400 mt-3">
-              Manage announcements for {creator?.display_name}.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/dashboard"
-              className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800 transition"
-            >
-              Back to Dashboard
-            </Link>
-
-            <Link
-              href="/add-announcement"
-              className="bg-white text-black px-5 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
-            >
-              Add Announcement
-            </Link>
-          </div>
+    <div>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold">Announcements</h2>
+          <p className="mt-2 text-zinc-400">
+            Manage updates for {creator?.display_name}.
+          </p>
         </div>
 
-        {announcements.length === 0 ? (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
-            <h2 className="text-2xl font-bold mb-3">
-              No announcements yet
-            </h2>
-
-            <p className="text-zinc-400 mb-6">
-              Share updates with your followers and storefront visitors.
-            </p>
-
-            <Link
-              href="/add-announcement"
-              className="inline-block bg-white text-black px-6 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
-            >
-              Add Announcement
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {announcements.map((announcement) => (
-              <div
-                key={announcement.id}
-                className={`bg-zinc-900 border rounded-3xl p-6 ${
-                  announcement.is_active
-                    ? "border-zinc-800"
-                    : "border-red-900 opacity-80"
-                }`}
-              >
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                  <div>
-                    <h2 className="text-2xl font-semibold">
-                      {announcement.title}
-                    </h2>
-
-                    <p className="text-zinc-500 text-sm mt-1">
-                      {formatDate(announcement.created_at)}
-                    </p>
-                  </div>
-
-                  {!announcement.is_active && (
-                    <span className="bg-red-950 text-red-400 px-3 py-1 rounded-full text-sm w-fit">
-                      Hidden
-                    </span>
-                  )}
-                </div>
-
-                {announcement.products && (
-                  <span className="inline-block mt-4 bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
-                    Linked Product
-                  </span>
-                )}
-
-                {announcement.content && (
-                  <p className="text-zinc-400 mt-4 whitespace-pre-wrap">
-                    {announcement.content}
-                  </p>
-                )}
-
-                {announcement.products && (
-                  <Link
-                    href={`/product/${announcement.products.id}`}
-                    className="inline-block mt-4 text-zinc-400 hover:text-white"
-                  >
-                    Linked product: {announcement.products.title}
-                  </Link>
-                )}
-
-                <div className="flex flex-wrap gap-3 mt-6">
-                  <Link
-                    href={`/edit-announcement/${announcement.id}`}
-                    className="bg-white text-black px-5 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
-                  >
-                    Edit Announcement
-                  </Link>
-
-                  <button
-                    onClick={() => handleToggleAnnouncementActive(announcement)}
-                    className="border border-zinc-700 text-zinc-300 px-5 py-3 rounded-2xl hover:bg-zinc-800 transition"
-                  >
-                    {announcement.is_active
-                      ? "Hide Announcement"
-                      : "Unhide Announcement"}
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      handleDeleteAnnouncement(announcement.id)
-                    }
-                    className="border border-red-900 text-red-400 px-5 py-3 rounded-2xl hover:bg-red-950 transition"
-                  >
-                    Delete Announcement
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <Link
+          href="/add-announcement"
+          className="rounded-xl bg-white px-5 py-3 text-center font-semibold text-black hover:bg-zinc-200"
+        >
+          Add Announcement
+        </Link>
       </div>
+
+      {announcements.length === 0 ? (
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-center">
+          <h3 className="text-xl font-bold">No announcements yet</h3>
+
+          <p className="mt-2 text-zinc-400">
+            Share updates with your followers and storefront visitors.
+          </p>
+
+          <Link
+            href="/add-announcement"
+            className="mt-6 inline-block rounded-xl bg-white px-5 py-3 font-semibold text-black hover:bg-zinc-200"
+          >
+            Add your first announcement
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {announcements.map((announcement) => (
+            <div
+              key={announcement.id}
+              className={`rounded-2xl border bg-zinc-900 p-5 ${
+                announcement.is_active
+                  ? "border-zinc-800"
+                  : "border-red-900 opacity-80"
+              }`}
+            >
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold">
+                    {announcement.title}
+                  </h3>
+
+                  <p className="mt-1 text-sm text-zinc-500">
+                    {formatDate(announcement.created_at)}
+                  </p>
+                </div>
+
+                <span
+                  className={`w-fit rounded-full px-3 py-1 text-sm ${
+                    announcement.is_active
+                      ? "bg-green-950 text-green-400"
+                      : "bg-red-950 text-red-400"
+                  }`}
+                >
+                  {announcement.is_active ? "Active" : "Hidden"}
+                </span>
+              </div>
+
+              {announcement.content && (
+                <p className="mt-4 whitespace-pre-wrap text-zinc-400">
+                  {announcement.content}
+                </p>
+              )}
+
+              {announcement.products && (
+                <Link
+                  href={`/product/${announcement.products.id}`}
+                  className="mt-4 inline-block text-sm text-zinc-400 hover:text-white"
+                >
+                  Linked product: {announcement.products.title}
+                </Link>
+              )}
+
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link
+                  href={`/edit-announcement/${announcement.id}`}
+                  className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-200"
+                >
+                  Edit
+                </Link>
+
+                <button
+                  onClick={() => handleToggleAnnouncementActive(announcement)}
+                  className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+                >
+                  {announcement.is_active ? "Hide" : "Unhide"}
+                </button>
+
+                <button
+                  onClick={() => handleDeleteAnnouncement(announcement.id)}
+                  className="rounded-xl border border-red-900 px-4 py-2 text-sm text-red-400 hover:bg-red-950"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

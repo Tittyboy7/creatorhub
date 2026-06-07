@@ -27,7 +27,7 @@ export default function EditRevenuePage() {
 
       if (error) {
         alert(error.message);
-        router.push("/revenue");
+        router.push("/dashboard/revenue");
         return;
       }
 
@@ -66,94 +66,131 @@ export default function EditRevenuePage() {
     if (error) {
       alert(error.message);
       setIsSubmitting(false);
-    } else {
-      alert("Revenue entry updated!");
-      router.push("/revenue");
+      return;
     }
+
+    router.push("/dashboard/revenue");
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
-        Loading...
+      <div className="min-h-screen bg-zinc-950 px-5 py-10 text-white">
+        <div className="mx-auto max-w-xl">
+          <p className="text-zinc-400">Loading revenue entry...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-6">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-10 w-full max-w-xl">
-        <h1 className="text-4xl font-bold mb-3">Edit Revenue</h1>
+    <div className="min-h-screen bg-zinc-950 px-5 py-10 text-white">
+      <div className="mx-auto max-w-xl">
+        <div className="mb-6">
+          <Link
+            href="/dashboard/revenue"
+            className="text-sm text-zinc-400 hover:text-white"
+          >
+            ← Back to Revenue
+          </Link>
 
-        <p className="text-zinc-400 mb-4">
-          Update this revenue entry.
-        </p>
+          <h1 className="mt-4 text-3xl font-bold">Edit Revenue</h1>
 
-        <Link
-          href="/revenue"
-          className="inline-block mb-8 border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
+          <p className="mt-2 text-zinc-400">
+            Update this revenue entry.
+          </p>
+        </div>
+
+        <form
+          onSubmit={handleUpdate}
+          className="space-y-5 rounded-2xl border border-zinc-800 bg-zinc-900 p-6"
         >
-          Back to Revenue
-        </Link>
+          <div>
+            <label className="mb-2 block text-sm text-zinc-400">
+              Platform
+            </label>
 
-        <form onSubmit={handleUpdate} className="space-y-6">
-          <select
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            value={platform}
-            onChange={(e) => setPlatform(e.target.value)}
-          >
-            <option value="">Select Platform</option>
-            <option value="Twitch">Twitch</option>
-            <option value="Kick">Kick</option>
-            <option value="YouTube">YouTube</option>
-            <option value="Products">Products</option>
-            <option value="Sponsorship">Sponsorship</option>
-            <option value="Other">Other</option>
-          </select>
+            <select
+              className="w-full rounded-xl border border-zinc-700 bg-zinc-800 p-4 outline-none focus:border-zinc-500"
+              value={platform}
+              onChange={(e) => setPlatform(e.target.value)}
+            >
+              <option value="">Select Platform</option>
+              <option value="Twitch">Twitch</option>
+              <option value="Kick">Kick</option>
+              <option value="YouTube">YouTube</option>
+              <option value="Products">Products</option>
+              <option value="Sponsorship">Sponsorship</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
 
-          <select
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            value={revenueType}
-            onChange={(e) => setRevenueType(e.target.value)}
-          >
-            <option value="">Select Revenue Type</option>
-            <option value="Subs">Subs</option>
-            <option value="Donations">Donations</option>
-            <option value="Ads">Ads</option>
-            <option value="Product Sales">Product Sales</option>
-            <option value="Sponsorship">Sponsorship</option>
-            <option value="Other">Other</option>
-          </select>
+          <div>
+            <label className="mb-2 block text-sm text-zinc-400">
+              Revenue Type
+            </label>
 
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
+            <select
+              className="w-full rounded-xl border border-zinc-700 bg-zinc-800 p-4 outline-none focus:border-zinc-500"
+              value={revenueType}
+              onChange={(e) => setRevenueType(e.target.value)}
+            >
+              <option value="">Select Revenue Type</option>
+              <option value="Subs">Subs</option>
+              <option value="Donations">Donations</option>
+              <option value="Ads">Ads</option>
+              <option value="Product Sales">Product Sales</option>
+              <option value="Sponsorship">Sponsorship</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
 
-          <input
-            type="month"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            value={entryMonth}
-            onChange={(e) => setEntryMonth(e.target.value)}
-          />
+          <div>
+            <label className="mb-2 block text-sm text-zinc-400">
+              Amount
+            </label>
 
-          <textarea
-            placeholder="Notes optional..."
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 h-32"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              className="w-full rounded-xl border border-zinc-700 bg-zinc-800 p-4 outline-none focus:border-zinc-500"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm text-zinc-400">
+              Month
+            </label>
+
+            <input
+              type="month"
+              className="w-full rounded-xl border border-zinc-700 bg-zinc-800 p-4 outline-none focus:border-zinc-500"
+              value={entryMonth}
+              onChange={(e) => setEntryMonth(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm text-zinc-400">
+              Notes
+            </label>
+
+            <textarea
+              placeholder="Notes optional..."
+              className="h-32 w-full rounded-xl border border-zinc-700 bg-zinc-800 p-4 outline-none focus:border-zinc-500"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+          </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-white text-black py-4 rounded-2xl font-semibold disabled:opacity-50"
+            className="w-full rounded-xl bg-white py-4 font-semibold text-black hover:bg-zinc-200 disabled:opacity-50"
           >
-            {isSubmitting ? "Saving..." : "Save Revenue Entry"}
+            {isSubmitting ? "Saving..." : "Save Changes"}
           </button>
         </form>
       </div>

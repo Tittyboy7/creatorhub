@@ -57,9 +57,7 @@ export default function DashboardProductsPage() {
   async function handleToggleProductActive(product) {
     const { error } = await supabase
       .from("products")
-      .update({
-        is_active: !product.is_active,
-      })
+      .update({ is_active: !product.is_active })
       .eq("id", product.id);
 
     if (error) {
@@ -67,11 +65,11 @@ export default function DashboardProductsPage() {
       return;
     }
 
-    setProducts((currentProducts) =>
-      currentProducts.map((currentProduct) =>
-        currentProduct.id === product.id
-          ? { ...currentProduct, is_active: !product.is_active }
-          : currentProduct
+    setProducts((current) =>
+      current.map((item) =>
+        item.id === product.id
+          ? { ...item, is_active: !product.is_active }
+          : item
       )
     );
 
@@ -95,169 +93,153 @@ export default function DashboardProductsPage() {
       return;
     }
 
-    setProducts((currentProducts) =>
-      currentProducts.filter((product) => product.id !== productId)
+    setProducts((current) =>
+      current.filter((product) => product.id !== productId)
     );
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
-        Loading...
-      </div>
-    );
+    return <p className="text-zinc-400">Loading products...</p>;
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white px-5 py-8 md:p-10">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold">
-              Product Management
-            </h1>
-
-            <p className="text-zinc-400 mt-3">
-              Manage products for {creator?.display_name}.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/dashboard"
-              className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800 transition"
-            >
-              Back to Dashboard
-            </Link>
-
-            <Link
-              href="/add-product"
-              className="bg-white text-black px-5 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
-            >
-              Add Product
-            </Link>
-          </div>
+    <div>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 className="text-3xl font-bold">Products</h2>
+          <p className="mt-2 text-zinc-400">
+            Manage products for {creator?.display_name}.
+          </p>
         </div>
 
-        {products.length === 0 ? (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center">
-            <h2 className="text-2xl font-bold mb-3">
-              No products yet
-            </h2>
+        <Link
+          href="/add-product"
+          className="rounded-xl bg-white px-5 py-3 text-center font-semibold text-black hover:bg-zinc-200"
+        >
+          Add Product
+        </Link>
+      </div>
 
-            <p className="text-zinc-400 mb-6">
-              Add your first product to start building your storefront.
-            </p>
+      {products.length === 0 ? (
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-center">
+          <h3 className="text-xl font-bold">No products yet</h3>
 
-            <Link
-              href="/add-product"
-              className="inline-block bg-white text-black px-6 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition"
+          <p className="mt-2 text-zinc-400">
+            Add your first product to start building your storefront.
+          </p>
+
+          <Link
+            href="/add-product"
+            className="mt-6 inline-block rounded-xl bg-white px-5 py-3 font-semibold text-black hover:bg-zinc-200"
+          >
+            Add your first product
+          </Link>
+        </div>
+      ) : (
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className={`rounded-2xl border bg-zinc-900 p-4 ${
+                product.is_active
+                  ? "border-zinc-800"
+                  : "border-red-900 opacity-80"
+              }`}
             >
-              Add Product
-            </Link>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <div
-                key={product.id}
-                className={`bg-zinc-900 border rounded-3xl p-5 md:p-6 ${
-                  product.is_active
-                    ? "border-zinc-800"
-                    : "border-red-900 opacity-80"
-                }`}
-              >
-                {product.image_url ? (
-                  <img
-                    src={product.image_url}
-                    alt={product.title}
-                    className="h-40 w-full object-cover rounded-2xl mb-4"
-                  />
-                ) : (
-                  <div className="h-40 bg-zinc-800 rounded-2xl mb-4 flex items-center justify-center text-zinc-500">
-                    Product Image
-                  </div>
-                )}
-
-                <h3 className="text-xl font-semibold">
-                  {product.title}
-                </h3>
-
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {!product.is_active && (
-                    <span className="bg-red-950 text-red-400 px-3 py-1 rounded-full text-sm">
-                      Hidden
-                    </span>
-                  )}
-
-                  {product.category && (
-                    <span className="bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm">
-                      {product.category}
-                    </span>
-                  )}
+              {product.image_url ? (
+                <img
+                  src={product.image_url}
+                  alt={product.title}
+                  className="mb-4 h-40 w-full rounded-xl object-cover"
+                />
+              ) : (
+                <div className="mb-4 flex h-40 items-center justify-center rounded-xl bg-zinc-800 text-zinc-500">
+                  Product Image
                 </div>
+              )}
 
-                {product.description && (
-                  <p className="text-zinc-400 mt-3 line-clamp-2">
-                    {product.description}
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-semibold">{product.title}</h3>
+
+                  <p className="mt-1 text-xl font-bold">
+                    {product.price}
                   </p>
-                )}
-
-                <p className="text-2xl font-bold mt-4">
-                  {product.price}
-                </p>
-
-                <div className="grid grid-cols-3 gap-3 mt-4 text-center">
-                  <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
-                    <p className="font-bold">{product.views || 0}</p>
-                    <p className="text-zinc-500 text-xs">Views</p>
-                  </div>
-
-                  <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
-                    <p className="font-bold">{product.favorites_count || 0}</p>
-                    <p className="text-zinc-500 text-xs">Favorites</p>
-                  </div>
-
-                  <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-3">
-                    <p className="font-bold">{product.checkout_clicks || 0}</p>
-                    <p className="text-zinc-500 text-xs">Checkouts</p>
-                  </div>
                 </div>
 
-                <div className="mt-5 space-y-3">
-                  <Link
-                    href={`/edit-product/${product.id}`}
-                    className="w-full bg-white text-black py-3 rounded-2xl font-semibold flex items-center justify-center hover:bg-zinc-200 transition"
-                  >
-                    Edit Product
-                  </Link>
+                <span
+                  className={`shrink-0 rounded-full px-3 py-1 text-xs ${
+                    product.is_active
+                      ? "bg-green-950 text-green-400"
+                      : "bg-red-950 text-red-400"
+                  }`}
+                >
+                  {product.is_active ? "Active" : "Hidden"}
+                </span>
+              </div>
 
-                  <Link
-                    href={`/product/${product.id}`}
-                    className="w-full border border-zinc-700 text-zinc-300 py-3 rounded-2xl hover:bg-zinc-800 flex items-center justify-center transition"
-                  >
-                    View Product
-                  </Link>
+              {product.category && (
+                <span className="mt-3 inline-block rounded-full bg-zinc-800 px-3 py-1 text-xs text-zinc-300">
+                  {product.category}
+                </span>
+              )}
 
-                  <button
-                    onClick={() => handleToggleProductActive(product)}
-                    className="w-full border border-zinc-700 text-zinc-300 py-3 rounded-2xl hover:bg-zinc-800 flex items-center justify-center transition"
-                  >
-                    {product.is_active ? "Hide Product" : "Unhide Product"}
-                  </button>
+              {product.description && (
+                <p className="mt-3 line-clamp-2 text-sm text-zinc-400">
+                  {product.description}
+                </p>
+              )}
 
-                  <button
-                    onClick={() => handleDeleteProduct(product.id)}
-                    className="w-full border border-red-900 text-red-400 py-3 rounded-2xl hover:bg-red-950 flex items-center justify-center transition"
-                  >
-                    Delete Product
-                  </button>
+              <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
+                  <p className="font-bold">{product.views || 0}</p>
+                  <p className="text-xs text-zinc-500">Views</p>
+                </div>
+
+                <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
+                  <p className="font-bold">{product.favorites_count || 0}</p>
+                  <p className="text-xs text-zinc-500">Favorites</p>
+                </div>
+
+                <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-3">
+                  <p className="font-bold">{product.checkout_clicks || 0}</p>
+                  <p className="text-xs text-zinc-500">Checkouts</p>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                <Link
+                  href={`/edit-product/${product.id}`}
+                  className="rounded-xl bg-white px-4 py-2 text-center text-sm font-semibold text-black hover:bg-zinc-200"
+                >
+                  Edit
+                </Link>
+
+                <Link
+                  href={`/product/${product.id}`}
+                  className="rounded-xl border border-zinc-700 px-4 py-2 text-center text-sm text-zinc-300 hover:bg-zinc-800"
+                >
+                  View
+                </Link>
+
+                <button
+                  onClick={() => handleToggleProductActive(product)}
+                  className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+                >
+                  {product.is_active ? "Hide" : "Unhide"}
+                </button>
+
+                <button
+                  onClick={() => handleDeleteProduct(product.id)}
+                  className="rounded-xl border border-red-900 px-4 py-2 text-sm text-red-400 hover:bg-red-950"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
