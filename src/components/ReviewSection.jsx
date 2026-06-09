@@ -162,24 +162,10 @@ export default function ReviewSection({ productId }) {
 
           <p className="text-zinc-400 mt-2">
             {reviews.length === 0
-              ? "No reviews yet."
-              : `${averageRating.toFixed(1)} / 5 from ${
-                  reviews.length
-                } review${reviews.length === 1 ? "" : "s"}`}
+              ? "No reviews yet. Be the first to share feedback."
+              : "Read feedback from buyers and fans."}
           </p>
         </div>
-
-        {reviews.length > 0 && (
-          <div className="bg-zinc-950 border border-zinc-800 rounded-2xl px-6 py-4 text-center">
-            <p className="text-3xl font-bold">
-              ⭐ {averageRating.toFixed(1)}
-            </p>
-
-            <p className="text-zinc-500 text-sm mt-1">
-              Average Rating
-            </p>
-          </div>
-        )}
       </div>
 
     {userReview ? (
@@ -243,14 +229,14 @@ export default function ReviewSection({ productId }) {
               className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6"
             >
               <div className="flex items-center justify-between gap-4 flex-wrap">
-                <div>
-                  <p className="text-xl font-semibold">
-                    ⭐ {review.rating} / 5
-                  </p>
+                <div className="flex items-center gap-3">
+                  <span className="rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-sm font-semibold">
+                    ⭐ {review.rating}/5
+                  </span>
 
-                  <p className="text-zinc-500 text-sm mt-1">
+                  <span className="text-sm text-zinc-500">
                     {new Date(review.created_at).toLocaleDateString()}
-                  </p>
+                  </span>
                 </div>
 
                 {user?.id === review.user_id && (
@@ -267,10 +253,10 @@ export default function ReviewSection({ productId }) {
                 <p className="text-zinc-400 mt-4 leading-relaxed">
                   {review.comment}
                 </p>
-              )}
-            </div>
-          ))}
-        </div>
+               )}
+             </div>
+           ))}
+         </div>
       )}
     </div>
   );
