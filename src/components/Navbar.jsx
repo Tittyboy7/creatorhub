@@ -155,6 +155,10 @@ export default function Navbar() {
             Marketplace
           </Link>
 
+          <Link href="/announcements" className="hover:text-white transition">
+            Announcements
+          </Link>
+
           <Link href="/pricing" className="hover:text-white transition">
             Pricing
           </Link>
@@ -234,6 +238,10 @@ export default function Navbar() {
 
           <Link href="/store" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
             Marketplace
+          </Link>
+
+          <Link href="/announcements" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
+            Announcements
           </Link>
 
           <Link href="/pricing" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">

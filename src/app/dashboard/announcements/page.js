@@ -162,15 +162,23 @@ export default function DashboardAnnouncementsPage() {
                   </p>
                 </div>
 
-                <span
-                  className={`w-fit rounded-full px-3 py-1 text-sm ${
-                    announcement.is_active
-                      ? "bg-green-950 text-green-400"
-                      : "bg-red-950 text-red-400"
-                  }`}
-                >
-                  {announcement.is_active ? "Active" : "Hidden"}
-                </span>
+                <div className="flex flex-wrap gap-2">
+                  <span
+                    className={`w-fit rounded-full px-3 py-1 text-sm ${
+                      announcement.is_active
+                        ? "bg-green-950 text-green-400"
+                        : "bg-red-950 text-red-400"
+                    }`}
+                  >
+                    {announcement.is_active ? "Active" : "Hidden by you"}
+                  </span>
+
+                  {announcement.admin_hidden && (
+                    <span className="w-fit rounded-full bg-red-950 px-3 py-1 text-sm text-red-400">
+                      Hidden by admin
+                    </span>
+                  )}
+                </div>
               </div>
 
               {announcement.content && (
@@ -198,9 +206,14 @@ export default function DashboardAnnouncementsPage() {
 
                 <button
                   onClick={() => handleToggleAnnouncementActive(announcement)}
-                  className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+                  disabled={announcement.admin_hidden}
+                  className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {announcement.is_active ? "Hide" : "Unhide"}
+                  {announcement.admin_hidden
+                    ? "Hidden by Admin"
+                    : announcement.is_active
+                    ? "Hide"
+                    : "Unhide"}
                 </button>
 
                 <button

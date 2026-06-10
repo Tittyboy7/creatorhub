@@ -70,7 +70,7 @@ export default function AdminAnnouncementsPage() {
     const { error } = await supabase
       .from("announcements")
       .update({
-        is_active: !announcement.is_active,
+        admin_hidden: !announcement.admin_hidden,
       })
       .eq("id", announcement.id);
 
@@ -84,7 +84,7 @@ export default function AdminAnnouncementsPage() {
         currentAnnouncement.id === announcement.id
           ? {
               ...currentAnnouncement,
-              is_active: !currentAnnouncement.is_active,
+              admin_hidden: !currentAnnouncement.admin_hidden,
             }
           : currentAnnouncement
       )
@@ -165,9 +165,9 @@ export default function AdminAnnouncementsPage() {
               <div
                 key={announcement.id}
                 className={`bg-zinc-900 border rounded-3xl p-6 ${
-                  announcement.is_active
-                    ? "border-zinc-800"
-                    : "border-red-900 opacity-70"
+                  announcement.admin_hidden
+                    ? "border-red-900 opacity-70"
+                    : "border-zinc-800"
                 }`}
               >
                 <h2 className="text-2xl font-semibold">
@@ -178,9 +178,9 @@ export default function AdminAnnouncementsPage() {
                   {formatDate(announcement.created_at)}
                 </p>
 
-                {!announcement.is_active && (
+                {announcement.admin_hidden && (
                   <span className="inline-block mt-3 bg-red-950 text-red-400 px-3 py-1 rounded-full text-sm">
-                    Hidden
+                    Hidden by admin
                   </span>
                 )}
 
@@ -223,9 +223,9 @@ export default function AdminAnnouncementsPage() {
                         : "bg-white text-black"
                     }`}
                   >
-                    {announcement.is_active
-                      ? "Hide Announcement"
-                      : "Restore Announcement"}
+                    {announcement.admin_hidden
+                      ? "Restore Announcement"
+                      : "Hide Announcement"}
                   </button>
                 </div>
               </div>

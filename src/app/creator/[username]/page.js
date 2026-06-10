@@ -79,6 +79,7 @@ export default async function CreatorProfilePage({ params }) {
     `)
     .eq("creator_id", creator.id)
     .eq("is_active", true)
+    .eq("admin_hidden", false)
     .order("created_at", { ascending: false });
 
   const activeAnnouncements = announcements || [];
