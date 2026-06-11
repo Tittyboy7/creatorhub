@@ -186,7 +186,7 @@ export default function NotificationsPage() {
   ).length;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-10">
+    <div className="min-h-screen bg-zinc-950 px-5 py-8 text-white md:p-10">
       <div className="max-w-4xl mx-auto">
         <Link
           href="/dashboard"
@@ -195,7 +195,47 @@ export default function NotificationsPage() {
           Back to Dashboard
         </Link>
 
-        <h1 className="text-5xl font-bold mb-4">Notifications</h1>
+        <h1 className="mb-4 text-4xl font-bold md:text-5xl">Notifications</h1>
+
+        <div className="mb-6 grid grid-cols-3 gap-3">
+          <button
+            onClick={() => setFilter("All")}
+            className={`rounded-2xl border p-4 text-left transition ${
+              filter === "All"
+                ? "border-white bg-zinc-800"
+                : "border-zinc-800 bg-zinc-900 hover:border-zinc-600 hover:bg-zinc-800"
+            }`}
+          >
+            <p className="text-xs text-zinc-500">All</p>
+            <p className="mt-1 text-2xl font-bold">{notifications.length}</p>
+          </button>
+
+          <button
+            onClick={() => setFilter("Unread")}
+            className={`rounded-2xl border p-4 text-left transition ${
+              filter === "Unread"
+                ? "border-white bg-zinc-800"
+                : "border-zinc-800 bg-zinc-900 hover:border-zinc-600 hover:bg-zinc-800"
+            }`}
+          >
+            <p className="text-xs text-zinc-500">Unread</p>
+            <p className="mt-1 text-2xl font-bold">{unreadCount}</p>
+          </button>
+
+          <button
+            onClick={() => setFilter("Read")}
+            className={`rounded-2xl border p-4 text-left transition ${
+              filter === "Read"
+                ? "border-white bg-zinc-800"
+                : "border-zinc-800 bg-zinc-900 hover:border-zinc-600 hover:bg-zinc-800"
+            }`}
+          >
+            <p className="text-xs text-zinc-500">Read</p>
+            <p className="mt-1 text-2xl font-bold">
+              {notifications.length - unreadCount}
+            </p>
+          </button>
+        </div>
 
         <div className="flex flex-wrap items-center justify-between gap-4 mb-10">
           <p className="text-zinc-400 text-lg">
@@ -207,7 +247,7 @@ export default function NotificationsPage() {
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
+                className="rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-black"
               >
                 Mark All Read
               </button>
@@ -229,27 +269,17 @@ export default function NotificationsPage() {
           </div>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-6 grid gap-3 md:grid-cols-[1fr_220px]">
           <input
             type="text"
             placeholder="Search notifications..."
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 mb-4"
+            className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
 
           <select
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 mb-4"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-          >
-            <option value="All">All</option>
-            <option value="Unread">Unread</option>
-            <option value="Read">Read</option>
-          </select>
-
-          <select
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 mb-4"
+            className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
           >
@@ -260,54 +290,99 @@ export default function NotificationsPage() {
             <option value="cart">Cart</option>
             <option value="revenue">Revenue</option>
           </select>
+        </div>
 
-          <p className="text-zinc-400">
-            Showing {filteredNotifications.length} notification
-            {filteredNotifications.length === 1 ? "" : "s"}
-          </p>
+        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-zinc-400">
+              Showing {filteredNotifications.length} notification
+              {filteredNotifications.length === 1 ? "" : "s"}
+            </p>
+
+            {(search || filter !== "All" || typeFilter !== "All") && (
+              <p className="mt-1 text-sm text-zinc-500">
+                Filters active
+                {search ? ` · Search: "${search}"` : ""}
+                {filter !== "All" ? ` · Status: ${filter}` : ""}
+                {typeFilter !== "All" ? ` · Type: ${typeFilter}` : ""}
+              </p>
+            )}
+          </div>
+
+          {(search || filter !== "All" || typeFilter !== "All") && (
+            <button
+              onClick={() => {
+                setSearch("");
+                setFilter("All");
+                setTypeFilter("All");
+              }}
+              className="w-fit text-sm font-semibold text-zinc-400 hover:text-white"
+            >
+              Clear filters
+            </button>
+          )}
         </div>
 
         {filteredNotifications.length === 0 ? (
-          <div>
-            <p className="text-zinc-400">No notifications yet.</p>
+          <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-8 text-center">
+            <h2 className="text-2xl font-bold">
+              {notifications.length === 0
+                ? "No notifications yet"
+                : "No matching notifications"}
+            </h2>
 
-            <Link
-              href="/dashboard"
-              className="inline-block mt-6 bg-white text-black px-6 py-3 rounded-2xl font-semibold"
-            >
-              Back to Dashboard
-            </Link>
+            <p className="mx-auto mt-2 max-w-xl text-zinc-400">
+              {notifications.length === 0
+                ? "Product saves, reviews, follows, revenue updates, and other important activity will appear here."
+                : "Try clearing your filters or changing your search."}
+            </p>
+
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link
+                href="/dashboard"
+                className="rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
+              >
+                Back to Dashboard
+              </Link>
+
+              <Link
+                href="/notification-preferences"
+                className="rounded-2xl border border-zinc-700 px-6 py-3 font-semibold hover:bg-zinc-800"
+              >
+                Notification Preferences
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
             {filteredNotifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`border rounded-3xl p-6 ${
+                className={`rounded-2xl border p-4 ${
                   notification.is_read
                     ? "bg-zinc-900 border-zinc-800 opacity-70"
                     : "bg-zinc-900 border-white"
                 }`}
               >
-                <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <h2 className="text-2xl font-semibold">
+                    <h2 className="text-xl font-semibold">
                       {notification.title}
                     </h2>
 
-                    <div className="mt-3">
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
                       <span
-                        className={`inline-block px-3 py-1 rounded-full text-sm ${getNotificationTypeClass(
+                        className={`inline-block rounded-full px-3 py-1 text-sm ${getNotificationTypeClass(
                           notification.type
                         )}`}
                       >
                         {notification.type || "general"}
                       </span>
-                    </div>
 
-                    <p className="text-zinc-500 text-sm mt-1">
-                      {formatDate(notification.created_at)}
-                    </p>
+                      <span className="text-sm text-zinc-500">
+                        {formatDate(notification.created_at)}
+                      </span>
+                    </div>
 
                     {notification.message && (
                       <p className="text-zinc-400 mt-3">
@@ -316,11 +391,11 @@ export default function NotificationsPage() {
                     )}
                   </div>
 
-                  <div className="flex gap-3 flex-wrap">
+                  <div className="flex flex-wrap gap-3 sm:justify-end">
                     {!notification.is_read && (
                       <button
                         onClick={() => markAsRead(notification.id)}
-                        className="bg-white text-black px-5 py-3 rounded-2xl font-semibold"
+                        className="rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-black"
                       >
                         Mark Read
                       </button>
@@ -330,7 +405,7 @@ export default function NotificationsPage() {
                       onClick={() =>
                         deleteNotification(notification.id)
                       }
-                      className="border border-red-900 text-red-400 px-5 py-3 rounded-2xl hover:bg-red-950"
+                      className="rounded-2xl border border-red-900 px-4 py-2 text-sm text-red-400 hover:bg-red-950"
                     >
                       Delete
                     </button>
