@@ -96,7 +96,7 @@ export default function ImportRevenuePage() {
     for (const key of possibleKeys) {
       if (rowData[key]) {
         return rowData[key];
-     }
+      }
     }
 
     return "";
@@ -176,7 +176,7 @@ export default function ImportRevenuePage() {
               "revenue",
               "income",
               "earnings",
-           ])
+            ])
           ),
           entry_month: getValue(rowData, [
             "entry_month",
@@ -210,9 +210,7 @@ export default function ImportRevenuePage() {
 
     const { data: existingEntries } = await supabase
       .from("revenue_entries")
-      .select(
-        "platform, revenue_type, amount, entry_month"
-      )
+      .select("platform, revenue_type, amount, entry_month")
       .eq("creator_id", creator.id);
 
     const newEntries = entries.filter((entry) => {
@@ -225,8 +223,7 @@ export default function ImportRevenuePage() {
       );
     });
 
-    const duplicateCount =
-      entries.length - newEntries.length;
+    const duplicateCount = entries.length - newEntries.length;
 
     if (newEntries.length === 0) {
       alert(
@@ -273,100 +270,206 @@ export default function ImportRevenuePage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-10">
-      <div className="max-w-5xl mx-auto">
+    <div className="min-h-screen bg-zinc-950 px-5 py-8 text-white md:p-10">
+      <div className="mx-auto max-w-6xl space-y-8">
         <Link
           href="/revenue"
-          className="inline-block mb-8 border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
+          className="inline-block rounded-2xl border border-zinc-700 px-5 py-3 hover:bg-zinc-800"
         >
           Back to Revenue
         </Link>
 
-        <h1 className="text-5xl font-bold mb-4">Import Revenue CSV</h1>
-
-        <p className="text-zinc-400 text-lg mb-8">
-          Upload a CSV with these columns: platform, revenue_type, amount,
-          entry_month, notes.
-        </p>
-
-        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 mb-8">
-          <h2 className="text-2xl font-bold mb-4">CSV Format</h2>
-
-          <pre className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 overflow-x-auto text-zinc-300 text-sm">
-        {`platform,revenue_type,amount,entry_month,notes
-        Twitch,Subs,125.50,2026-05,May subs
-        YouTube,Ads,87.20,2026-05,Ad revenue
-        Kick,Donations,45.00,2026-05,Stream donations`}
-          </pre>
-
-          <Link
-            href="/revenue-template.csv"
-            className="inline-block mt-4 bg-white text-black px-5 py-3 rounded-2xl font-semibold"
-          >
-            Download CSV Template
-          </Link>
-
-          <p className="text-zinc-500 mt-4 text-sm">
-            Flexible headers supported: platform/source/channel/site,
-            revenue_type/type/category/income_type,
-            amount/total/revenue/income/earnings,
-            entry_month/month/date_month/period,
-            notes/description/memo/details.
+        <section className="rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 shadow-2xl md:p-10">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500">
+            Bulk Revenue Import
           </p>
-        </div>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-10">
-          <input
-            type="file"
-            accept=".csv"
-            onChange={handleFileUpload}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-          />
+          <h1 className="text-4xl font-bold md:text-5xl">
+            Import Revenue CSV
+          </h1>
 
-          {fileName && (
-            <p className="text-zinc-400 mt-4">Uploaded: {fileName}</p>
-          )}
+          <p className="mt-4 max-w-3xl text-zinc-400">
+            Upload revenue entries from spreadsheets, payout reports, or platform exports.
+            CSV imports help you move faster while real-time platform syncing is built later.
+          </p>
+        </section>
 
-          {csvRows.length > 1 && (
-            <div className="mt-4 text-sm text-zinc-400 space-y-1">
-              <p>Valid rows: {validRows}</p>
-              <p>Skipped rows: {skippedRows}</p>
+        <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="space-y-6">
+            <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
+              <h2 className="text-2xl font-bold">
+                Upload CSV
+              </h2>
+
+              <p className="mt-2 text-sm text-zinc-500">
+                Choose a CSV file with revenue rows. Valid rows can be imported directly
+                into your revenue dashboard.
+              </p>
+
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                className="mt-6 w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+              />
+
+              {fileName && (
+                <p className="mt-4 text-sm text-zinc-400">
+                  Uploaded: {fileName}
+                </p>
+              )}
+
+              {csvRows.length > 1 && (
+                <div className="mt-5 grid grid-cols-2 gap-3">
+                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                    <p className="text-xs text-zinc-500">Valid Rows</p>
+                    <p className="mt-1 text-2xl font-bold">{validRows}</p>
+                  </div>
+
+                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                    <p className="text-xs text-zinc-500">Skipped Rows</p>
+                    <p className="mt-1 text-2xl font-bold">{skippedRows}</p>
+                  </div>
+                </div>
+              )}
+
+              {csvRows.length > 1 && (
+                <button
+                  onClick={handleImport}
+                  disabled={isImporting}
+                  className="mt-6 w-full rounded-2xl bg-white px-6 py-4 font-semibold text-black hover:bg-zinc-200 disabled:opacity-50"
+                >
+                  {isImporting ? "Importing..." : "Import Revenue Entries"}
+                </button>
+              )}
             </div>
-          )}
 
-          {csvRows.length > 1 && (
-            <button
-              onClick={handleImport}
-              disabled={isImporting}
-              className="mt-6 bg-white text-black px-6 py-3 rounded-2xl font-semibold disabled:opacity-50"
-            >
-              {isImporting ? "Importing..." : "Import Revenue Entries"}
-            </button>
-          )}
-        </div>
+            <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
+              <h2 className="text-2xl font-bold">
+                Supported Columns
+              </h2>
+
+              <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+                Required data includes platform, revenue type, amount, and entry month.
+                Notes are optional.
+              </p>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                {[
+                  "platform / source / channel / site",
+                  "revenue_type / type / category / income_type",
+                  "amount / total / revenue / income / earnings",
+                  "entry_month / month / date_month / period",
+                  "notes / description / memo / details",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-2xl border border-zinc-800 bg-zinc-950 p-3 text-sm text-zinc-400"
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold">
+                    CSV Format
+                  </h2>
+
+                  <p className="mt-2 text-sm text-zinc-500">
+                    Use this format for the cleanest import experience.
+                  </p>
+                </div>
+
+                <Link
+                  href="/revenue-template.csv"
+                  className="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-zinc-200"
+                >
+                  Download Template
+                </Link>
+              </div>
+
+              <pre className="mt-6 overflow-x-auto rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-sm text-zinc-300">
+{`platform,revenue_type,amount,entry_month,notes
+Twitch,Subs,125.50,2026-05,May subs
+YouTube,Ads,87.20,2026-05,Ad revenue
+Kick,Donations,45.00,2026-05,Stream donations`}
+              </pre>
+            </div>
+
+            <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
+              <h2 className="text-2xl font-bold">
+                Import behavior
+              </h2>
+
+              <div className="mt-5 space-y-3">
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                  <p className="font-semibold">Duplicates are skipped</p>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    Matching platform, type, amount, and month entries are not imported twice.
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                  <p className="font-semibold">Invalid rows are ignored</p>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    Rows missing required values will be counted as skipped rows.
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                  <p className="font-semibold">Revenue dashboard updates</p>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    Imported entries immediately appear in your revenue charts and breakdowns.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {csvRows.length > 0 && (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 overflow-x-auto">
-            <h2 className="text-3xl font-bold mb-6">CSV Preview</h2>
+          <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
+            <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2 className="text-2xl font-bold md:text-3xl">
+                  CSV Preview
+                </h2>
 
-            <table className="w-full text-left border-collapse">
-              <tbody>
-                {csvRows.slice(0, 10).map((row, rowIndex) => (
-                  <tr key={rowIndex} className="border-b border-zinc-800">
-                    {row.map((cell, cellIndex) => (
-                      <td key={cellIndex} className="p-3 text-zinc-300">
-                        {cell}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                <p className="mt-1 text-sm text-zinc-500">
+                  Showing the first 10 rows before import.
+                </p>
+              </div>
 
-            <p className="text-zinc-500 mt-4 text-sm">
-              Showing first 10 rows. Duplicate entries will be skipped automatically during import.
-            </p>
-          </div>
+              <p className="text-sm text-zinc-500">
+                Duplicate entries will be skipped automatically.
+              </p>
+            </div>
+
+            <div className="overflow-x-auto rounded-2xl border border-zinc-800">
+              <table className="w-full border-collapse text-left">
+                <tbody>
+                  {csvRows.slice(0, 10).map((row, rowIndex) => (
+                    <tr key={rowIndex} className="border-b border-zinc-800 last:border-b-0">
+                      {row.map((cell, cellIndex) => (
+                        <td
+                          key={cellIndex}
+                          className="p-3 text-sm text-zinc-300"
+                        >
+                          {cell}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
         )}
       </div>
     </div>
