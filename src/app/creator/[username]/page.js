@@ -119,10 +119,10 @@ export default async function CreatorProfilePage({ params }) {
             <img
               src={creator.banner_url}
               alt={`${creator.display_name} banner`}
-              className="h-[420px] w-full object-cover"
+              className="h-[520px] w-full object-cover sm:h-[420px]"
             />
           ) : (
-            <div className="h-[420px] w-full bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
+            <div className="h-[520px] w-full bg-gradient-to-br from-zinc-800 via-zinc-900 to-black sm:h-[420px]" />
           )}
 
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/75 to-black/20" />
@@ -195,10 +195,10 @@ export default async function CreatorProfilePage({ params }) {
           </Link>
 
           <Link
-            href="#updates"
+            href="#announcements"
             className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4 transition hover:border-zinc-600 hover:bg-zinc-800"
           >
-            <p className="text-sm text-zinc-400">Updates</p>
+            <p className="text-sm text-zinc-400">Announcements</p>
             <p className="mt-1 text-2xl font-bold">{activeAnnouncements.length}</p>
           </Link>
 
@@ -206,7 +206,7 @@ export default async function CreatorProfilePage({ params }) {
             href="#about"
             className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4 transition hover:border-zinc-600 hover:bg-zinc-800"
           >
-            <p className="text-sm text-zinc-400">Reviews</p>
+            <p className="text-sm text-zinc-400">Total Reviews</p>
 
             <p className="mt-1 text-2xl font-bold">{totalReviews}</p>
 
@@ -221,7 +221,7 @@ export default async function CreatorProfilePage({ params }) {
           >
             <div className="group relative w-fit">
               <p className="cursor-help text-sm text-zinc-400">
-                Avg. Rating ⓘ
+                Average Rating ⓘ
               </p>
 
               <div className="pointer-events-none absolute left-0 top-full z-20 mt-2 hidden w-64 rounded-xl border border-zinc-700 bg-zinc-950 p-3 text-xs text-zinc-400 shadow-xl group-hover:block">
@@ -334,6 +334,10 @@ export default async function CreatorProfilePage({ params }) {
           >
             <h2 className="text-2xl font-bold">About</h2>
 
+            <p className="mt-2 text-sm text-zinc-500">
+              Learn more about this creator and where to find them online.
+            </p>
+
             <p className="mt-4 leading-relaxed text-zinc-400">
               {creator.bio ||
                 "This creator has not added a bio yet. Check back soon for more information."}
@@ -341,9 +345,15 @@ export default async function CreatorProfilePage({ params }) {
 
             {socialLinks.length > 0 && (
               <div className="mt-6">
-                <p className="mb-3 text-sm font-semibold text-zinc-500">
-                  Connect
-                </p>
+                <div className="mb-3">
+                  <p className="text-sm font-semibold text-zinc-500">
+                    Connect
+                  </p>
+
+                  <p className="mt-1 text-xs text-zinc-600">
+                    Follow this creator across their platforms.
+                  </p>
+                </div>
 
                 <div className="flex flex-wrap gap-3">
                   {socialLinks.map((link) => (
@@ -354,7 +364,7 @@ export default async function CreatorProfilePage({ params }) {
                       rel="noopener noreferrer"
                       className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 transition hover:bg-zinc-800 hover:text-white"
                     >
-                      {link.label}
+                      {link.label} →
                     </a>
                   ))}
                 </div>
@@ -363,26 +373,34 @@ export default async function CreatorProfilePage({ params }) {
           </div>
 
           <div
-            id="updates"
+            id="announcements"
             className="flex h-full flex-col rounded-[2rem] border border-zinc-800 bg-zinc-900 p-6"
           >
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-bold">Latest Updates</h2>
+                <h2 className="text-2xl font-bold">Latest Announcements</h2>
                 <p className="mt-1 text-sm text-zinc-500">
-                  News, drops, and announcements from this creator.
+                  News, product drops, and announcements from this creator.
                 </p>
 
                 {activeAnnouncements.length > 3 && (
                   <p className="mt-2 text-xs text-zinc-600">
-                    Showing latest 3 of {activeAnnouncements.length} updates.
+                    Showing latest 3 of {activeAnnouncements.length} announcements.
                   </p>
                 )}
               </div>
             </div>
 
             {activeAnnouncements.length === 0 ? (
-              <p className="text-zinc-400">No announcements yet.</p>
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
+                <p className="font-semibold text-zinc-300">
+                  No announcements yet
+                </p>
+
+                <p className="mt-2 text-sm text-zinc-500">
+                  Follow this creator to stay updated when they share news, product drops, or announcements.
+                </p>
+              </div>
             ) : (
               <div className="space-y-3">
                 {activeAnnouncements.slice(0, 3).map((announcement) => (
@@ -456,7 +474,7 @@ export default async function CreatorProfilePage({ params }) {
 
               <p className="mx-auto mt-2 max-w-xl text-zinc-400">
                 This creator has not added any active products yet. Follow their storefront
-                to be notified when new products or updates are posted.
+                to be notified when new products or announcements are posted.
               </p>
 
               <div className="mt-6 flex justify-center">
@@ -476,7 +494,7 @@ export default async function CreatorProfilePage({ params }) {
               {(featuredProduct ? regularProducts : products).map((product) => (
                 <div
                   key={product.id}
-                  className="group flex flex-col rounded-[1.75rem] border border-zinc-800 bg-zinc-900 p-4 transition hover:-translate-y-1 hover:border-zinc-600"
+                  className="group flex flex-col rounded-[1.75rem] border border-zinc-800 bg-zinc-900 p-4 transition-all duration-200 hover:-translate-y-1 hover:border-zinc-600 hover:shadow-xl hover:shadow-black/20"
                 >
                   <Link
                     href={`/product/${product.id}`}
@@ -486,7 +504,7 @@ export default async function CreatorProfilePage({ params }) {
                       <img
                         src={product.image_url}
                         alt={product.title}
-                        className="h-48 w-full rounded-2xl object-cover transition group-hover:scale-[1.02]"
+                        className="h-48 w-full rounded-2xl object-cover transition duration-300 group-hover:scale-[1.02]"
                       />
                     ) : (
                       <div className="flex h-48 items-center justify-center rounded-2xl bg-zinc-800 text-zinc-500">
@@ -495,7 +513,7 @@ export default async function CreatorProfilePage({ params }) {
                     )}
 
                     <div className="mt-4">
-                      <h3 className="text-xl font-semibold group-hover:text-zinc-300">
+                      <h3 className="line-clamp-2 text-xl font-semibold group-hover:text-zinc-300">
                         {product.title}
                       </h3>
 
@@ -535,19 +553,17 @@ export default async function CreatorProfilePage({ params }) {
 
                       <div className="mt-4 flex items-center justify-between gap-3">
                         <p className="text-sm font-semibold text-zinc-500 transition group-hover:text-white">
-                          View product →
+                          View Product →
                         </p>                        
                       </div>
                     </div>
                   </Link>
 
-                  <div className="mt-auto pt-4">
-                    <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-3">
-                      <BuyNowButton
-                        productId={product.id}
-                        externalUrl={product.external_url}
-                      />
-                    </div>
+                  <div className="mt-auto space-y-3 pt-4">
+                    <BuyNowButton
+                      productId={product.id}
+                      externalUrl={product.external_url}
+                    />
                   </div>
                 </div>
               ))}
@@ -559,8 +575,7 @@ export default async function CreatorProfilePage({ params }) {
           <h2 className="text-3xl font-bold">Like this creator’s work?</h2>
 
           <p className="mx-auto mt-3 max-w-xl text-zinc-400">
-            Follow this storefront to keep up with new products, updates, and
-            creator announcements.
+            Follow this storefront to keep up with new products, announcements, and creator activity.
           </p>
 
           <div className="mt-6 flex justify-center">
