@@ -185,6 +185,21 @@ export default function DashboardPage() {
     product.created_at?.startsWith(currentMonth)
   ).length;
 
+  const platformTotals = revenueEntries.reduce((totals, entry) => {
+    totals[entry.platform] =
+      (totals[entry.platform] || 0) + Number(entry.amount || 0);
+
+    return totals;
+  }, {});
+
+  const topPlatforms = Object.entries(platformTotals)
+    .map(([platform, amount]) => ({
+      platform,
+      amount,
+    }))
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 4);
+
   const socialLinks = creator?.social_links || {};
 
   const hasSocialLinks = Object.values(socialLinks).some(
@@ -286,6 +301,102 @@ export default function DashboardPage() {
         <p className="mt-2 text-zinc-400">
           Welcome back, {creator?.display_name || user?.email}
         </p>
+
+        <div className="mt-8 rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-8">
+          <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+            Creator Business
+          </p>
+
+          <h2 className="mt-2 text-4xl font-bold">
+            {formatCurrency(totalRevenue)}
+          </h2>
+
+          <p className="mt-2 text-zinc-400">
+            Total revenue tracked across all creator income streams.
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/add-revenue"
+              className="rounded-2xl bg-white px-5 py-3 font-semibold text-black hover:bg-zinc-200"
+            >
+              Add Revenue
+            </Link>
+
+            <Link
+              href="/revenue"
+              className="rounded-2xl border border-zinc-700 px-5 py-3 hover:bg-zinc-800"
+            >
+              Open Revenue Dashboard
+            </Link>
+          </div>
+        </div>
+        <div className="mt-6 rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-2xl font-bold">
+                Platform Breakdown
+              </h3>
+
+              <p className="mt-1 text-sm text-zinc-500">
+                Revenue by income source
+              </p>
+            </div>
+
+            <Link
+              href="/revenue"
+              className="text-sm text-zinc-400 hover:text-white"
+            >
+              View Full Dashboard →
+            </Link>
+          </div>
+
+          {topPlatforms.length === 0 ? (
+            <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
+              <p className="font-semibold text-zinc-300">
+                No platform revenue data yet
+              </p>
+
+              <p className="mt-2 text-sm text-zinc-500">
+                Add or import revenue entries to see your top income sources here.
+              </p>
+            </div>
+          ) : (
+            <div className="mt-6 space-y-4">
+              {topPlatforms.map((platform) => {
+                const percent =
+                  totalRevenue === 0
+                    ? 0
+                    : Math.round(
+                        (platform.amount / totalRevenue) * 100
+                      );
+
+                return (
+                  <div key={platform.platform}>
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="font-medium">
+                        {platform.platform}
+                      </span>
+
+                      <span className="text-zinc-400">
+                        {formatCurrency(platform.amount)}
+                      </span>
+                    </div>
+
+                    <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
+                      <div
+                        className="h-full rounded-full bg-white"
+                        style={{
+                          width: `${percent}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {creator && (
