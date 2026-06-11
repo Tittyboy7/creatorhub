@@ -131,7 +131,7 @@ export default function Navbar() {
         <Link href="/" onClick={closeMenu} className="flex flex-col">
           <span className="text-2xl font-bold">CreatorsHub</span>
           <span className="text-zinc-400 text-sm hidden sm:block">
-            One platform for creators to sell everything.
+            Build your creator business in one place.
           </span>
         </Link>
 
@@ -152,7 +152,7 @@ export default function Navbar() {
           </Link>
 
           <Link href="/store" className="hover:text-white transition">
-            Marketplace
+            Store
           </Link>
 
           <Link href="/announcements" className="hover:text-white transition">
@@ -173,23 +173,27 @@ export default function Navbar() {
 
           {user ? (
             <>
-              <Link href="/dashboard" className="hover:text-white transition">
-                Dashboard
-              </Link>
-
               <Link
-                href="/notifications"
-                className="hover:text-white transition"
+                href="/dashboard"
+                className="rounded-xl border border-zinc-700 px-4 py-2 font-semibold hover:border-zinc-500 hover:bg-zinc-800 transition"
               >
-                {notificationLabel}
+                Dashboard
               </Link>
 
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="bg-white text-black px-4 py-2 rounded-xl font-semibold"
+                  className="flex items-center gap-2 rounded-xl bg-white px-4 py-2 font-semibold text-black transition hover:bg-zinc-200"
                 >
-                  Account ▼
+                  <span>Account</span>
+                  {notificationCount > 0 && (
+                    <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs text-white">
+                      {notificationCount}
+                    </span>
+                  )}
+                  <span className={`transition ${userMenuOpen ? "rotate-180" : ""}`}>
+                    ▼
+                  </span>
                 </button>
 
                 {userMenuOpen && (
@@ -237,7 +241,7 @@ export default function Navbar() {
           </Link>
 
           <Link href="/store" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
-            Marketplace
+            Store
           </Link>
 
           <Link href="/announcements" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
@@ -262,7 +266,11 @@ export default function Navbar() {
                 Account
               </p>
 
-              <Link href="/dashboard" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
+              <Link
+                href="/dashboard"
+                onClick={closeMenu}
+                className="block rounded-2xl bg-white p-4 font-semibold text-black"
+              >
                 Dashboard
               </Link>
 
