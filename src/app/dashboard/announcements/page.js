@@ -12,6 +12,7 @@ export default function DashboardAnnouncementsPage() {
   const [loading, setLoading] = useState(true);
   const [creator, setCreator] = useState(null);
   const [announcements, setAnnouncements] = useState([]);
+  const [statusFilter, setStatusFilter] = useState("All");
 
   useEffect(() => {
     async function loadAnnouncements() {
@@ -103,34 +104,164 @@ export default function DashboardAnnouncementsPage() {
     );
   }
 
+  const filteredAnnouncements = announcements.filter((announcement) => {
+    if (statusFilter === "Active") return announcement.is_active;
+    if (statusFilter === "Hidden") return !announcement.is_active;
+    return true;
+  });
+
   if (loading) {
     return <p className="text-zinc-400">Loading announcements...</p>;
   }
 
   return (
     <div>
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 className="text-3xl font-bold">Announcements</h2>
-          <p className="mt-2 text-zinc-400">
-            Manage updates for {creator?.display_name}.
+      <section className="mb-8 rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500">
+              Audience Updates
+            </p>
+
+            <h2 className="text-3xl font-bold">Announcements</h2>
+
+            <p className="mt-2 max-w-2xl text-zinc-400">
+              Manage updates, product drops, news, and storefront announcements for {creator?.display_name}.
+            </p>
+          </div>
+
+          <Link
+            href="/add-announcement"
+            className="rounded-2xl bg-white px-5 py-3 text-center font-semibold text-black hover:bg-zinc-200"
+          >
+            Add Announcement
+          </Link>
+        </div>
+      </section>
+
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+          <p className="text-sm text-zinc-400">Total Announcements</p>
+          <p className="mt-2 text-3xl font-bold">{announcements.length}</p>
+        </div>
+
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+          <p className="text-sm text-zinc-400">Active</p>
+          <p className="mt-2 text-3xl font-bold">
+            {announcements.filter((announcement) => announcement.is_active).length}
           </p>
         </div>
 
-        <Link
-          href="/add-announcement"
-          className="rounded-xl bg-white px-5 py-3 text-center font-semibold text-black hover:bg-zinc-200"
-        >
-          Add Announcement
-        </Link>
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+          <p className="text-sm text-zinc-400">Hidden</p>
+          <p className="mt-2 text-3xl font-bold">
+            {announcements.filter((announcement) => !announcement.is_active).length}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+          <p className="text-sm text-zinc-400">Linked Products</p>
+          <p className="mt-2 text-3xl font-bold">
+            {announcements.filter((announcement) => announcement.products).length}
+          </p>
+        </div>
       </div>
 
-      {announcements.length === 0 ? (
+      <div className="mb-8 rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
+        <div className="mb-5">
+          <h3 className="text-2xl font-bold">
+            Announcement Performance
+          </h3>
+
+          <p className="mt-1 text-sm text-zinc-500">
+            Overview of your creator communications.
+          </p>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+            <p className="text-sm text-zinc-400">
+              Latest Announcement
+            </p>
+
+            <p className="mt-2 text-lg font-semibold">
+              {announcements[0]?.title || "None"}
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+            <p className="text-sm text-zinc-400">
+              Active Announcements
+            </p>
+
+            <p className="mt-2 text-3xl font-bold">
+              {
+                announcements.filter(
+                  (announcement) => announcement.is_active
+                ).length
+              }
+            </p>
+          </div>
+
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+      <p className="text-sm text-zinc-400">
+        Product Linked
+      </p>
+
+      <p className="mt-2 text-3xl font-bold">
+        {
+          announcements.filter(
+            (announcement) => announcement.products
+          ).length
+        }
+      </p>
+    </div>
+  </div>
+</div>
+
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h3 className="text-2xl font-bold">Announcement Library</h3>
+
+          <p className="mt-1 text-sm text-zinc-500">
+            Edit, publish, hide, or remove storefront announcements.
+          </p>
+
+          <p className="mt-2 text-sm text-zinc-500">
+            Showing {filteredAnnouncements.length} announcement
+            {filteredAnnouncements.length === 1 ? "" : "s"}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          {["All", "Active", "Hidden"].map((option) => (
+            <button
+              key={option}
+              onClick={() => setStatusFilter(option)}
+              className={`rounded-full border px-4 py-2 text-sm font-semibold ${
+                statusFilter === option
+                  ? "border-white bg-white text-black"
+                  : "border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+              }`}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {filteredAnnouncements.length === 0 ? (
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-center">
-          <h3 className="text-xl font-bold">No announcements yet</h3>
+          <h3 className="text-xl font-bold">
+            {announcements.length === 0
+              ? "No announcements yet"
+              : "No matching announcements"}
+          </h3>
 
           <p className="mt-2 text-zinc-400">
-            Share updates with your followers and storefront visitors.
+            {announcements.length === 0
+              ? "Share updates with your followers and storefront visitors."
+              : "Try changing the announcement status filter."}
           </p>
 
           <Link
@@ -142,13 +273,13 @@ export default function DashboardAnnouncementsPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {announcements.map((announcement) => (
+          {filteredAnnouncements.map((announcement) => (
             <div
               key={announcement.id}
-              className={`rounded-2xl border bg-zinc-900 p-5 ${
+              className={`rounded-3xl border bg-zinc-900 p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/20 ${
                 announcement.is_active
-                  ? "border-zinc-800"
-                  : "border-red-900 opacity-80"
+                  ? "border-zinc-800 hover:border-zinc-600"
+                  : "border-red-900 opacity-80 hover:border-red-700"
               }`}
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -196,10 +327,10 @@ export default function DashboardAnnouncementsPage() {
                 </Link>
               )}
 
-              <div className="mt-5 flex flex-wrap gap-3">
+              <div className="mt-5 flex flex-wrap gap-2">
                 <Link
                   href={`/edit-announcement/${announcement.id}`}
-                  className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-200"
+                  className="rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-black transition hover:bg-zinc-200"
                 >
                   Edit
                 </Link>
@@ -207,7 +338,7 @@ export default function DashboardAnnouncementsPage() {
                 <button
                   onClick={() => handleToggleAnnouncementActive(announcement)}
                   disabled={announcement.admin_hidden}
-                  className="rounded-xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-2xl border border-zinc-700 px-4 py-2 text-sm text-zinc-300 transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {announcement.admin_hidden
                     ? "Hidden by Admin"
@@ -218,7 +349,7 @@ export default function DashboardAnnouncementsPage() {
 
                 <button
                   onClick={() => handleDeleteAnnouncement(announcement.id)}
-                  className="rounded-xl border border-red-900 px-4 py-2 text-sm text-red-400 hover:bg-red-950"
+                  className="rounded-2xl border border-red-900 px-4 py-2 text-sm text-red-400 transition hover:bg-red-950"
                 >
                   Delete
                 </button>
