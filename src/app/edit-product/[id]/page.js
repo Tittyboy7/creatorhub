@@ -5,6 +5,20 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
+function formatPreviewPrice(value) {
+  if (!value) return "$0";
+
+  const cleanedValue = String(value).replace(/[^0-9.-]/g, "");
+  const numberValue = Number(cleanedValue);
+
+  if (Number.isNaN(numberValue)) return value;
+
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(numberValue);
+}
+
 export default function EditProductPage() {
   const params = useParams();
   const router = useRouter();
@@ -15,6 +29,7 @@ export default function EditProductPage() {
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
+  const [externalUrl, setExternalUrl] = useState("");
   const [image, setImage] = useState(null);
   const [currentImageUrl, setCurrentImageUrl] = useState("");
 
@@ -28,7 +43,7 @@ export default function EditProductPage() {
 
       if (error) {
         alert(error.message);
-        router.push("/dashboard");
+        router.push("/dashboard/products");
         return;
       }
 
@@ -36,6 +51,7 @@ export default function EditProductPage() {
       setPrice(data.price || "");
       setCategory(data.category || "");
       setDescription(data.description || "");
+      setExternalUrl(data.external_url || "");
       setCurrentImageUrl(data.image_url || "");
       setLoading(false);
     }
@@ -92,6 +108,7 @@ export default function EditProductPage() {
         price: price.trim(),
         category,
         description: description.trim(),
+        external_url: externalUrl.trim(),
         image_url: imageUrl,
       })
       .eq("id", params.id);
@@ -101,110 +118,266 @@ export default function EditProductPage() {
       setIsSubmitting(false);
     } else {
       alert("Product updated!");
-      router.push("/dashboard");
+      router.push("/dashboard/products");
     }
   }
 
+  const previewImageUrl = image
+    ? URL.createObjectURL(image)
+    : currentImageUrl;
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
-        Loading...
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
+        Loading product...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-6">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-10 w-full max-w-xl">
-        <div className="mb-8">
-  <h1 className="text-4xl font-bold">
-    Edit Product
-  </h1>
+    <div className="min-h-screen bg-zinc-950 px-5 py-8 text-white md:p-10">
+      <div className="mx-auto max-w-5xl space-y-8">
+        <Link
+          href="/dashboard/products"
+          className="inline-block rounded-2xl border border-zinc-700 px-5 py-3 hover:bg-zinc-800"
+        >
+          Back to Products
+        </Link>
 
-  <p className="text-zinc-400 mt-3">
-    Update your product listing details.
-  </p>
+        <section className="rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 shadow-2xl md:p-10">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500">
+            Storefront Inventory
+          </p>
 
-  <div className="flex flex-col sm:flex-row gap-3 mt-6">
-    <Link
-      href="/dashboard/products"
-      className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800 transition text-center"
-    >
-      Back to Product Management
-    </Link>
+          <h1 className="text-4xl font-bold md:text-5xl">
+            Edit Product
+          </h1>
 
-    <Link
-      href="/dashboard"
-      className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800 transition text-center"
-    >
-      Back to Dashboard
-    </Link>
-  </div>
-</div>
+          <p className="mt-4 max-w-3xl text-zinc-400">
+            Update your product listing, storefront preview, category, price,
+            image, and checkout destination.
+          </p>
+        </section>
 
-        <form onSubmit={handleUpdate} className="space-y-6">
-          <input
-            type="text"
-            placeholder="Product Title"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-
-          <input
-            type="text"
-            placeholder="Price, e.g. $25"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-          />
-
-          <select
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
+        <section className="grid gap-6 lg:grid-cols-[1fr_0.8fr]">
+          <form
+            onSubmit={handleUpdate}
+            className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6"
           >
-            <option value="">Select Category</option>
-            <option value="Pokémon Cards">Pokémon Cards</option>
-            <option value="Digital Products">Digital Products</option>
-            <option value="Merch">Merch</option>
-            <option value="Collectibles">Collectibles</option>
-            <option value="Courses">Courses</option>
-            <option value="Coaching">Coaching</option>
-            <option value="Apparel">Apparel</option>
-            <option value="Other">Other</option>
-          </select>
+            <div className="grid gap-5">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-zinc-400">
+                  Product Title
+                </label>
 
-          <textarea
-            placeholder="Description"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 h-40"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
+                <input
+                  type="text"
+                  placeholder="Product Title"
+                  className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </div>
 
-          {currentImageUrl && (
-            <img
-              src={currentImageUrl}
-              alt="Current product"
-              className="h-40 w-full object-cover rounded-2xl"
-            />
-          )}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-zinc-400">
+                  Price
+                </label>
 
-          <input
-            type="file"
-            accept="image/*"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            onChange={(e) => setImage(e.target.files[0])}
-          />
+                <input
+                  type="text"
+                  placeholder="Price, e.g. $25"
+                  className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                />
+              </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-white text-black py-4 rounded-2xl font-semibold disabled:opacity-50"
-          >
-            {isSubmitting ? "Saving Changes..." : "Save Changes"}
-          </button>
-        </form>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-zinc-400">
+                  Category
+                </label>
+
+                <select
+                  className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                >
+                  <option value="">Select Category</option>
+                  <option value="Pokémon Cards">Pokémon Cards</option>
+                  <option value="Digital Products">Digital Products</option>
+                  <option value="Merch">Merch</option>
+                  <option value="Collectibles">Collectibles</option>
+                  <option value="Courses">Courses</option>
+                  <option value="Coaching">Coaching</option>
+                  <option value="Apparel">Apparel</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-zinc-400">
+                  Description
+                </label>
+
+                <textarea
+                  placeholder="Describe what buyers will receive..."
+                  className="h-40 w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-zinc-400">
+                  External Checkout URL
+                </label>
+
+                <input
+                  type="url"
+                  placeholder="https://..."
+                  className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                  value={externalUrl}
+                  onChange={(e) => setExternalUrl(e.target.value)}
+                />
+
+                <p className="mt-2 text-sm text-zinc-500">
+                  Optional. Add or update the Shopify, eBay, Etsy, Gumroad,
+                  Patreon, or external checkout link.
+                </p>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-zinc-400">
+                  Product Image
+                </label>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                  onChange={(e) => setImage(e.target.files[0])}
+                />
+
+                {image && (
+                  <p className="mt-2 text-sm text-zinc-500">
+                    Selected: {image.name}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full rounded-2xl bg-white py-4 font-semibold text-black hover:bg-zinc-200 disabled:opacity-50"
+              >
+                {isSubmitting ? "Saving Changes..." : "Save Changes"}
+              </button>
+            </div>
+          </form>
+
+          <aside className="space-y-4">
+            <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500">
+                Live Preview
+              </p>
+
+              <p className="mb-4 text-sm text-zinc-500">
+                This preview updates as you edit the product form.
+              </p>
+
+              <div className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950">
+                <div className="flex h-52 items-center justify-center bg-zinc-900 text-zinc-500">
+                  {previewImageUrl ? (
+                    <img
+                      src={previewImageUrl}
+                      alt="Product preview"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    "Product Image"
+                  )}
+                </div>
+
+                <div className="p-5">
+                  <h3 className="text-xl font-bold">
+                    {title || "Product Title"}
+                  </h3>
+
+                  <p className="mt-2 text-2xl font-bold">
+                    {formatPreviewPrice(price)}
+                  </p>
+
+                  {category && (
+                    <span className="mt-3 inline-block rounded-full bg-zinc-800 px-3 py-1 text-xs text-zinc-300">
+                      {category}
+                    </span>
+                  )}
+
+                  <p className="mt-4 line-clamp-3 text-sm text-zinc-400">
+                    {description ||
+                      "Product description preview will appear here."}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
+              <h2 className="text-2xl font-bold">
+                Product Checklist
+              </h2>
+
+              <div className="mt-4 space-y-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span>Title</span>
+                  <span>{title ? "✓" : "○"}</span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span>Price</span>
+                  <span>{price ? "✓" : "○"}</span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span>Category</span>
+                  <span>{category ? "✓" : "○"}</span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span>Description</span>
+                  <span>{description ? "✓" : "○"}</span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span>Image</span>
+                  <span>{previewImageUrl ? "✓" : "○"}</span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span>Checkout URL</span>
+                  <span>{externalUrl ? "✓" : "○"}</span>
+                </div>
+              </div>
+            </div>
+
+            <Link
+              href={`/product/${params.id}`}
+              className="block rounded-3xl border border-zinc-800 bg-zinc-900 p-6 transition hover:border-zinc-600 hover:bg-zinc-800"
+            >
+              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+                Public Listing
+              </p>
+
+              <h2 className="mt-2 text-2xl font-bold">
+                View Product
+              </h2>
+
+              <p className="mt-3 text-sm text-zinc-400">
+                Open the public product page to see how shoppers experience this listing.
+              </p>
+            </Link>
+          </aside>
+        </section>
       </div>
     </div>
   );
