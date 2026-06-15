@@ -12,6 +12,9 @@ import {
   Line,
   AreaChart,
   Area,
+  PieChart,
+  Pie,
+  Cell,
   XAxis,
   YAxis,
   Tooltip,
@@ -36,7 +39,7 @@ export default function RevenuePage() {
   const [selectedRevenueType, setSelectedRevenueType] = useState("All");
   const [loading, setLoading] = useState(true);
   const [entries, setEntries] = useState([]);
-  const [chartType, setChartType] = useState("bar");
+  const [chartType, setChartType] = useState("area");
 
   useEffect(() => {
     async function loadRevenue() {
@@ -124,9 +127,14 @@ export default function RevenuePage() {
     .reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
 
   const platformTotals = filteredEntries.reduce((totals, entry) => {
-    totals[entry.platform] =
-      (totals[entry.platform] || 0) + Number(entry.amount || 0);
+    const platform = entry.platform || "Other";
+    totals[platform] = (totals[platform] || 0) + Number(entry.amount || 0);
+    return totals;
+  }, {});
 
+  const revenueTypeTotals = filteredEntries.reduce((totals, entry) => {
+    const type = entry.revenue_type || "Other";
+    totals[type] = (totals[type] || 0) + Number(entry.amount || 0);
     return totals;
   }, {});
 
@@ -144,6 +152,8 @@ export default function RevenuePage() {
     }))
     .sort((a, b) => a.month.localeCompare(b.month));
 
+  const recentMonthlyChartData = monthlyChartData.slice(-12);
+
   const platformChartData = Object.entries(platformTotals)
     .map(([platform, amount]) => ({
       platform,
@@ -151,12 +161,55 @@ export default function RevenuePage() {
     }))
     .sort((a, b) => b.revenue - a.revenue);
 
+  const revenueTypeChartData = Object.entries(revenueTypeTotals)
+    .map(([type, amount]) => ({
+      type,
+      revenue: Number(amount.toFixed(2)),
+    }))
+    .sort((a, b) => b.revenue - a.revenue);
+
+  const chartColors = [
+    "#3b82f6",
+    "#22c55e",
+    "#f59e0b",
+    "#ec4899",
+    "#8b5cf6",
+    "#06b6d4",
+    "#f97316",
+    "#ef4444",
+  ];
+
   const bestPlatform = platformChartData[0];
 
   const averageMonthlyRevenue =
     monthlyChartData.length === 0
       ? 0
       : totalRevenue / monthlyChartData.length;
+
+  const previousMonthRevenue =
+    recentMonthlyChartData.length < 2
+      ? 0
+      : recentMonthlyChartData[recentMonthlyChartData.length - 2].revenue;
+
+  const latestMonthRevenue =
+    recentMonthlyChartData.length === 0
+      ? 0
+      : recentMonthlyChartData[recentMonthlyChartData.length - 1].revenue;
+
+  const monthlyGrowthPercent =
+    previousMonthRevenue === 0
+      ? latestMonthRevenue > 0
+        ? 100
+        : 0
+      : Math.round(
+          ((latestMonthRevenue - previousMonthRevenue) / previousMonthRevenue) *
+            100
+        );
+
+  const projectedNextMonthRevenue =
+    latestMonthRevenue * (1 + monthlyGrowthPercent / 100);
+
+  const projectedAnnualRevenue = averageMonthlyRevenue * 12;
 
   const hasActiveFilters =
     selectedPlatform !== "All" || selectedRevenueType !== "All";
@@ -171,7 +224,7 @@ export default function RevenuePage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 px-5 py-8 text-white md:p-10">
-      <div className="mx-auto max-w-7xl space-y-8">
+      <div className="mx-auto max-w-7xl space-y-6">
         <Link
           href="/dashboard"
           className="inline-block rounded-2xl border border-zinc-700 px-5 py-3 hover:bg-zinc-800"
@@ -179,25 +232,21 @@ export default function RevenuePage() {
           Back to Dashboard
         </Link>
 
-        <section className="rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 shadow-2xl md:p-10">
+        <section className="rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 md:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500">
+              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
                 Creator Business
               </p>
 
-              <h1 className="text-4xl font-bold md:text-6xl">
+              <h1 className="mt-2 text-4xl font-bold md:text-5xl">
                 Revenue Dashboard
               </h1>
 
-              <p className="mt-4 max-w-3xl text-lg text-zinc-400">
-                Track, compare, and manage revenue across your creator platforms,
-                products, subscriptions, donations, sponsorships, and income streams.
-              </p>
-
-              <p className="mt-3 text-sm text-zinc-500">
-                Manual entries and CSV imports are supported now. Real-time platform
-                syncing can be added later with connected platform APIs.
+              <p className="mt-4 max-w-3xl text-zinc-400">
+                Track, compare, and manage revenue across creator platforms,
+                products, subscriptions, donations, sponsorships, and income
+                streams.
               </p>
             </div>
 
@@ -247,10 +296,19 @@ export default function RevenuePage() {
           </div>
 
           <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
-            <p className="text-sm text-zinc-400">Entries</p>
-            <p className="mt-2 text-3xl font-bold">{filteredEntries.length}</p>
+            <p className="text-sm text-zinc-400">Monthly Growth</p>
+
+            <p
+              className={`mt-2 text-3xl font-bold ${
+                monthlyGrowthPercent >= 0 ? "text-green-400" : "text-red-400"
+              }`}
+            >
+              {monthlyGrowthPercent >= 0 ? "+" : ""}
+              {monthlyGrowthPercent}%
+            </p>
+
             <p className="mt-1 text-sm text-zinc-500">
-              Avg/month: {formatCurrency(averageMonthlyRevenue)}
+              Latest month vs previous month
             </p>
           </div>
         </section>
@@ -296,25 +354,14 @@ export default function RevenuePage() {
             </button>
           </div>
 
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-zinc-500">
-              Showing {filteredEntries.length} of {entries.length} revenue entr
-              {entries.length === 1 ? "y" : "ies"}
-            </p>
-
-            {hasActiveFilters && (
-              <p className="text-sm text-zinc-500">
-                Filters active
-                {selectedPlatform !== "All" ? ` · Platform: ${selectedPlatform}` : ""}
-                {selectedRevenueType !== "All"
-                  ? ` · Type: ${selectedRevenueType}`
-                  : ""}
-              </p>
-            )}
-          </div>
+          <p className="mt-4 text-sm text-zinc-500">
+            Showing {filteredEntries.length} of {entries.length} revenue entr
+            {entries.length === 1 ? "y" : "ies"}
+            {hasActiveFilters ? " with active filters" : ""}
+          </p>
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-[1.4fr_0.8fr]">
+        <section className="grid gap-6 xl:grid-cols-[1.3fr_0.9fr]">
           <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5 md:p-6">
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -322,7 +369,7 @@ export default function RevenuePage() {
                   Monthly Revenue
                 </h2>
                 <p className="mt-1 text-sm text-zinc-500">
-                  Track revenue trends over time.
+                  Last 12 months of tracked revenue.
                 </p>
               </div>
 
@@ -337,13 +384,13 @@ export default function RevenuePage() {
               </select>
             </div>
 
-            {monthlyChartData.length === 0 ? (
+            {recentMonthlyChartData.length === 0 ? (
               <p className="text-zinc-400">No chart data yet.</p>
             ) : (
               <div className="h-80">
                 <ResponsiveContainer width="100%" height={300}>
                   {chartType === "bar" && (
-                    <BarChart data={monthlyChartData}>
+                    <BarChart data={recentMonthlyChartData}>
                       <XAxis
                         dataKey="month"
                         stroke="#a1a1aa"
@@ -372,7 +419,7 @@ export default function RevenuePage() {
                   )}
 
                   {chartType === "line" && (
-                    <LineChart data={monthlyChartData}>
+                    <LineChart data={recentMonthlyChartData}>
                       <XAxis
                         dataKey="month"
                         stroke="#a1a1aa"
@@ -402,7 +449,7 @@ export default function RevenuePage() {
                   )}
 
                   {chartType === "area" && (
-                    <AreaChart data={monthlyChartData}>
+                    <AreaChart data={recentMonthlyChartData}>
                       <XAxis
                         dataKey="month"
                         stroke="#a1a1aa"
@@ -435,115 +482,217 @@ export default function RevenuePage() {
             )}
           </div>
 
-          <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5 md:p-6">
+          <div className="rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-5 md:p-6">
             <h2 className="text-2xl font-bold md:text-3xl">
-              Platform Breakdown
+              Revenue Forecast
             </h2>
 
             <p className="mt-1 text-sm text-zinc-500">
-              Compare revenue by source.
+              Estimated performance from current tracked revenue.
             </p>
 
-            {platformChartData.length === 0 ? (
-              <p className="mt-6 text-zinc-400">No platform data yet.</p>
-            ) : (
-              <div className="mt-6 space-y-3">
-                {platformChartData.map((item) => {
-                  const percent =
-                    totalRevenue === 0
-                      ? 0
-                      : Math.round((item.revenue / totalRevenue) * 100);
-
-                  return (
-                    <div
-                      key={item.platform}
-                      className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4"
-                    >
-                      <div className="flex items-center justify-between gap-4">
-                        <p className="font-semibold">{item.platform}</p>
-                        <p className="font-semibold text-zinc-300">
-                          {formatCurrency(item.revenue)}
-                        </p>
-                      </div>
-
-                      <div className="mt-3 h-2 overflow-hidden rounded-full bg-zinc-800">
-                        <div
-                          className="h-full rounded-full bg-white"
-                          style={{ width: `${percent}%` }}
-                        />
-                      </div>
-
-                      <p className="mt-2 text-xs text-zinc-500">
-                        {percent}% of filtered revenue
-                      </p>
-                    </div>
-                  );
-                })}
+            <div className="mt-5 grid gap-3">
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                <p className="text-sm text-zinc-500">Monthly Average</p>
+                <p className="mt-1 text-xl font-bold">
+                  {formatCurrency(averageMonthlyRevenue)}
+                </p>
               </div>
-            )}
+
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                <p className="text-sm text-zinc-500">Projected Annual</p>
+                <p className="mt-1 text-xl font-bold">
+                  {formatCurrency(projectedAnnualRevenue)}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                <p className="text-sm text-zinc-500">Projected Next Month</p>
+                <p className="mt-1 text-xl font-bold">
+                  {formatCurrency(projectedNextMonthRevenue)}
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-4 text-xs text-zinc-500">
+              Forecasts are estimates and may change as more revenue data is
+              added.
+            </p>
           </div>
         </section>
 
         <section className="grid gap-6 xl:grid-cols-2">
           <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5 md:p-6">
-            <h2 className="text-2xl font-bold md:text-3xl">
-              Monthly Breakdown
-            </h2>
+            <div className="mb-5">
+              <h2 className="text-2xl font-bold md:text-3xl">Revenue Share</h2>
+              <p className="mt-1 text-sm text-zinc-500">
+                Compare revenue by platform.
+              </p>
+            </div>
 
-            {Object.keys(monthlyTotals).length === 0 ? (
-              <p className="mt-6 text-zinc-400">No monthly data yet.</p>
+            {platformChartData.length === 0 ? (
+              <p className="mt-6 text-zinc-400">No chart data yet.</p>
             ) : (
-              <div className="mt-6 space-y-3">
-                {Object.entries(monthlyTotals)
-                  .sort(([a], [b]) => b.localeCompare(a))
-                  .map(([month, amount]) => (
-                    <div
-                      key={month}
-                      className="flex items-center justify-between rounded-2xl border border-zinc-800 bg-zinc-950 p-4"
-                    >
-                      <span className="font-semibold">{formatMonth(month)}</span>
-                      <span className="text-zinc-300">
-                        {formatCurrency(amount)}
-                      </span>
-                    </div>
-                  ))}
+              <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={platformChartData}
+                        dataKey="revenue"
+                        nameKey="platform"
+                        innerRadius={70}
+                        outerRadius={105}
+                        paddingAngle={3}
+                      >
+                        {platformChartData.map((entry, index) => (
+                          <Cell
+                            key={entry.platform}
+                            fill={chartColors[index % chartColors.length]}
+                          />
+                        ))}
+                      </Pie>
+
+                      <Tooltip
+                        formatter={(value) => [formatCurrency(value), "Revenue"]}
+                        contentStyle={{
+                          backgroundColor: "#18181b",
+                          border: "1px solid #3f3f46",
+                          borderRadius: "16px",
+                          color: "#ffffff",
+                        }}
+                        labelStyle={{ color: "#ffffff" }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="space-y-3">
+                  {platformChartData.map((item, index) => {
+                    const percent =
+                      totalRevenue === 0
+                        ? 0
+                        : Math.round((item.revenue / totalRevenue) * 100);
+
+                    return (
+                      <div
+                        key={item.platform}
+                        className="flex items-center justify-between gap-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-4"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span
+                            className="h-3 w-3 rounded-full"
+                            style={{
+                              backgroundColor:
+                                chartColors[index % chartColors.length],
+                            }}
+                          />
+
+                          <div>
+                            <p className="font-semibold">{item.platform}</p>
+                            <p className="text-xs text-zinc-500">
+                              {percent}% of revenue
+                            </p>
+                          </div>
+                        </div>
+
+                        <p className="font-semibold text-zinc-300">
+                          {formatCurrency(item.revenue)}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
 
           <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5 md:p-6">
-            <h2 className="text-2xl font-bold md:text-3xl">
-              Platform Chart
-            </h2>
+            <div className="mb-5">
+              <h2 className="text-2xl font-bold md:text-3xl">
+                Revenue Type Breakdown
+              </h2>
 
-            {platformChartData.length === 0 ? (
-              <p className="mt-6 text-zinc-400">No chart data yet.</p>
+              <p className="mt-1 text-sm text-zinc-500">
+                Compare revenue by category.
+              </p>
+            </div>
+
+            {revenueTypeChartData.length === 0 ? (
+              <p className="mt-6 text-zinc-400">
+                No revenue type data yet.
+              </p>
             ) : (
-              <div className="mt-6 h-80">
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={platformChartData}>
-                    <XAxis dataKey="platform" stroke="#a1a1aa" />
-                    <YAxis stroke="#a1a1aa" />
-                    <Tooltip
-                      formatter={(value) => [
-                        formatCurrency(value),
-                        "Revenue",
-                      ]}
-                      contentStyle={{
-                        backgroundColor: "#18181b",
-                        border: "1px solid #3f3f46",
-                        borderRadius: "16px",
-                        color: "#ffffff",
-                      }}
-                      labelStyle={{ color: "#ffffff" }}
-                    />
-                    <Bar
-                      dataKey="revenue"
-                      fill="#ffffff"
-                      radius={[8, 8, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+              <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={revenueTypeChartData}
+                        dataKey="revenue"
+                        nameKey="type"
+                        innerRadius={70}
+                        outerRadius={105}
+                        paddingAngle={3}
+                      >
+                        {revenueTypeChartData.map((entry, index) => (
+                          <Cell
+                            key={entry.type}
+                            fill={chartColors[index % chartColors.length]}
+                          />
+                        ))}
+                      </Pie>
+
+                      <Tooltip
+                        formatter={(value) => [formatCurrency(value), "Revenue"]}
+                        contentStyle={{
+                          backgroundColor: "#18181b",
+                          border: "1px solid #3f3f46",
+                          borderRadius: "16px",
+                          color: "#ffffff",
+                        }}
+                        labelStyle={{ color: "#ffffff" }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="space-y-3">
+                  {revenueTypeChartData.map((item, index) => {
+                    const percent =
+                      totalRevenue === 0
+                        ? 0
+                        : Math.round((item.revenue / totalRevenue) * 100);
+
+                    return (
+                      <div
+                        key={item.type}
+                        className="flex items-center justify-between gap-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-4"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span
+                            className="h-3 w-3 rounded-full"
+                            style={{
+                              backgroundColor:
+                                chartColors[index % chartColors.length],
+                            }}
+                          />
+
+                          <div>
+                            <p className="font-semibold">{item.type}</p>
+                            <p className="text-xs text-zinc-500">
+                              {percent}% of revenue
+                            </p>
+                          </div>
+                        </div>
+
+                        <p className="font-semibold text-zinc-300">
+                          {formatCurrency(item.revenue)}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
@@ -583,8 +732,8 @@ export default function RevenuePage() {
               <h3 className="text-xl font-bold">No revenue entries found</h3>
 
               <p className="mx-auto mt-2 max-w-xl text-zinc-400">
-                Add revenue manually or import a CSV to start tracking your creator
-                business income.
+                Add revenue manually or import a CSV to start tracking your
+                creator business income.
               </p>
 
               <Link

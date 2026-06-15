@@ -302,100 +302,87 @@ export default function DashboardPage() {
           Welcome back, {creator?.display_name || user?.email}
         </p>
 
-        <div className="mt-8 rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-8">
-          <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-            Creator Business
-          </p>
-
-          <h2 className="mt-2 text-4xl font-bold">
-            {formatCurrency(totalRevenue)}
-          </h2>
-
-          <p className="mt-2 text-zinc-400">
-            Total revenue tracked across all creator income streams.
-          </p>
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link
-              href="/add-revenue"
-              className="rounded-2xl bg-white px-5 py-3 font-semibold text-black hover:bg-zinc-200"
-            >
-              Add Revenue
-            </Link>
-
-            <Link
-              href="/revenue"
-              className="rounded-2xl border border-zinc-700 px-5 py-3 hover:bg-zinc-800"
-            >
-              Open Revenue Dashboard
-            </Link>
-          </div>
-        </div>
-        <div className="mt-6 rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
-          <div className="flex items-center justify-between">
+        <div className="mt-8 rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6">
+          <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
             <div>
-              <h3 className="text-2xl font-bold">
-                Platform Breakdown
-              </h3>
-
-              <p className="mt-1 text-sm text-zinc-500">
-                Revenue by income source
+              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+                Creator Business
               </p>
+
+              <h2 className="mt-2 text-4xl font-bold">
+                {formatCurrency(totalRevenue)}
+              </h2>
+
+              <p className="mt-2 text-sm text-zinc-400">
+                Total revenue tracked across all creator income streams.
+              </p>
+
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link
+                  href="/add-revenue"
+                  className="rounded-2xl bg-white px-5 py-3 font-semibold text-black hover:bg-zinc-200"
+                >
+                  Add Revenue
+                </Link>
+
+                <Link
+                  href="/revenue"
+                  className="rounded-2xl border border-zinc-700 px-5 py-3 hover:bg-zinc-800"
+                >
+                  Revenue Dashboard
+                </Link>
+              </div>
             </div>
 
-            <Link
-              href="/revenue"
-              className="text-sm text-zinc-400 hover:text-white"
-            >
-              View Full Dashboard →
-            </Link>
+            <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
+              <div className="mb-4 flex items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-xl font-bold">Platform Breakdown</h3>
+                  <p className="mt-1 text-sm text-zinc-500">Revenue by source</p>
+                </div>
+  
+                <Link
+                  href="/revenue"
+                  className="text-sm text-zinc-400 hover:text-white"
+                >
+                  View →
+                </Link>
+              </div>
+
+              {topPlatforms.length === 0 ? (
+               <p className="text-sm text-zinc-400">
+                  Add revenue entries to see your top income sources.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {topPlatforms.map((platform) => {
+                    const percent =
+                      totalRevenue === 0
+                        ? 0
+                        : Math.round((platform.amount / totalRevenue) * 100);
+
+                    return (
+                      <div key={platform.platform}>
+                        <div className="mb-1 flex items-center justify-between text-sm">
+                          <span className="font-medium">{platform.platform}</span>
+                          <span className="text-zinc-400">
+                            {formatCurrency(platform.amount)}
+                          </span>
+                        </div>
+
+                        <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
+                          <div
+                            className="h-full rounded-full bg-white"
+                            style={{ width: `${percent}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
-
-          {topPlatforms.length === 0 ? (
-            <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
-              <p className="font-semibold text-zinc-300">
-                No platform revenue data yet
-              </p>
-
-              <p className="mt-2 text-sm text-zinc-500">
-                Add or import revenue entries to see your top income sources here.
-              </p>
-            </div>
-          ) : (
-            <div className="mt-6 space-y-4">
-              {topPlatforms.map((platform) => {
-                const percent =
-                  totalRevenue === 0
-                    ? 0
-                    : Math.round(
-                        (platform.amount / totalRevenue) * 100
-                      );
-
-                return (
-                  <div key={platform.platform}>
-                    <div className="mb-2 flex items-center justify-between">
-                      <span className="font-medium">
-                        {platform.platform}
-                      </span>
-
-                      <span className="text-zinc-400">
-                        {formatCurrency(platform.amount)}
-                      </span>
-                    </div>
-
-                    <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
-                      <div
-                        className="h-full rounded-full bg-white"
-                        style={{
-                          width: `${percent}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
         </div>
       </div>
 
@@ -463,62 +450,6 @@ export default function DashboardPage() {
             </div>
           )}
 
-          <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
-            <div className="mb-4">
-              <h2 className="text-xl font-bold">This Month</h2>
-              <p className="mt-1 text-sm text-zinc-500">
-                Activity snapshot for {currentMonthLabel}.
-              </p>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-3">
-              <Link
-                href="/dashboard/revenue"
-                className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 transition hover:border-zinc-600 hover:bg-zinc-900"
-              >
-                <p className="text-sm text-zinc-400">Revenue</p>
-
-                <p className="mt-1 text-2xl font-bold">
-                  {formatCurrency(revenueThisMonth)}
-                </p>
-
-                <p className="mt-3 text-xs font-semibold text-zinc-500">
-                  Manage revenue →
-                </p>
-              </Link>
-
-              <Link
-                href="/dashboard/products"
-                className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 transition hover:border-zinc-600 hover:bg-zinc-900"
-              >
-                <p className="text-sm text-zinc-400">New Products</p>
-
-                <p className="mt-1 text-2xl font-bold">
-                  {productsThisMonth}
-                </p>
-
-                <p className="mt-3 text-xs font-semibold text-zinc-500">
-                  Manage products →
-                </p>
-              </Link>
-
-              <Link
-                href="/dashboard/announcements"
-                className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 transition hover:border-zinc-600 hover:bg-zinc-900"
-              >
-                <p className="text-sm text-zinc-400">Announcements</p>
-
-                <p className="mt-1 text-2xl font-bold">
-                  {announcementsThisMonth}
-                </p>
-
-                <p className="mt-3 text-xs font-semibold text-zinc-500">
-                  Manage announcements →
-                </p>
-              </Link>
-            </div>
-          </div>
-
           <button
             onClick={() => setShowMoreAnalytics(!showMoreAnalytics)}
             className="text-sm font-semibold text-zinc-400 hover:text-white"
@@ -549,179 +480,6 @@ export default function DashboardPage() {
         </div>
       ) : (
         <>
-          <div className="grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
-            <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
-              <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <h2 className="mb-1 text-2xl font-bold">
-                    {creator.display_name}
-                  </h2>
-
-                  <p className="mb-3 text-sm text-zinc-400">
-                    @{creator.username}
-                  </p>
-
-                  <div className="mb-5 flex flex-wrap gap-2">
-                    <span
-                      className={`inline-block rounded-full px-3 py-1 text-sm font-semibold ${getAccentBadgeClass(
-                        creator.accent_color
-                      )}`}
-                    >
-                      Accent: {creator.accent_color || "white"}
-                    </span>
-
-                    {creator.niche && (
-                      <span className="inline-block rounded-full bg-zinc-800 px-3 py-1 text-sm text-zinc-300">
-                        {creator.niche}
-                      </span>
-                    )}
-                  </div>
-
-                  <p className="max-w-2xl text-zinc-400">
-                    {creator.bio ||
-                      "Add a bio so visitors understand who you are and what you create."}
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap gap-3 md:justify-end">
-                  <Link
-                    href={`/creator/${creator.username}`}
-                    className="rounded-2xl bg-white px-5 py-3 font-semibold text-black transition hover:bg-zinc-200"
-                  >
-                    View Storefront
-                  </Link>
-
-                  <Link
-                    href="/edit-profile"
-                    className="rounded-2xl border border-zinc-700 px-5 py-3 transition hover:bg-zinc-800"
-                  >
-                    Edit Profile
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
-                <h2 className="mb-2 text-xl font-bold">Verification</h2>
-
-                {creator.is_verified ? (
-                  <>
-                    <p className="font-semibold text-green-400">
-                      ✓ Verified Creator
-                    </p>
-
-                    <p className="mt-2 text-sm text-zinc-400">
-                      Your storefront displays a verified badge and appears more trustworthy to visitors.
-                    </p>
-                  </>
-                ) : verificationRequest ? (
-                  <>
-                    <p className="text-zinc-300">
-                      Current status:{" "}
-                      <span className="font-semibold capitalize">
-                        {verificationRequest.status}
-                      </span>
-                    </p>
-
-                    <p className="mt-2 text-sm text-zinc-400">
-                      Verification requests are reviewed manually. You'll receive a notification when the status changes.
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="mb-4 text-zinc-400">
-                      Request verification to build trust with visitors, improve credibility, and stand out from unverified creators.
-                    </p>
-
-                    <Link
-                      href="/verification-request"
-                      className="inline-block rounded-2xl border border-zinc-700 px-5 py-3 transition hover:bg-zinc-800"
-                    >
-                      Request Verification
-                    </Link>
-                  </>
-                )}
-              </div>
-
-              <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
-                <div className="mb-4 flex items-center justify-between gap-4">
-                  <h2 className="text-xl font-bold">Setup Progress</h2>
-
-                  <span className="text-sm text-zinc-400">
-                    {completedCount}/{checklistItems.length}
-                  </span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setShowSetupSteps(!showSetupSteps)}
-                  className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-left hover:border-zinc-600"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-zinc-400">Setup Completion</span>
-
-                    <span className="font-semibold">
-                      {Math.round(
-                        (completedCount / checklistItems.length) * 100
-                      )}
-                      %
-                    </span>
-                  </div>
-
-                  <div className="mt-3 h-3 overflow-hidden rounded-full bg-zinc-800">
-                    <div
-                      className="h-full bg-white"
-                      style={{
-                        width: `${
-                          (completedCount / checklistItems.length) * 100
-                        }%`,
-                      }}
-                    />
-                  </div>
-
-                  <p className="mt-3 text-xs text-zinc-500">
-                    {showSetupSteps
-                      ? "Hide missing steps ↑"
-                      : "Show missing steps ↓"}
-                  </p>
-                </button>
-
-                {showSetupSteps && (
-                  <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                    <p className="mb-3 text-sm font-semibold text-white">
-                      Missing setup steps:
-                    </p>
-
-                    <div className="space-y-2">
-                      {checklistItems
-                        .filter((item) => !item.complete)
-                        .map((item) => (
-                          <Link
-                            key={item.label}
-                            href={item.href}
-                            className="block text-sm text-zinc-400 hover:text-white"
-                          >
-                            • {item.label}
-                          </Link>
-                        ))}
-
-                      {checklistItems.every((item) => item.complete) && (
-                        <p className="text-sm text-green-400">
-                          Everything is complete.
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                <p className="mt-4 text-sm text-zinc-500">
-                  {completedCount} of {checklistItems.length} setup steps
-                  completed.
-                </p>
-              </div>
-            </div>
-          </div>
 
           <div className="space-y-6">
             <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
@@ -819,6 +577,180 @@ export default function DashboardPage() {
                 </p>
               </Link>
             </div>
+          </div>
+
+          <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold">This Month</h2>
+              <p className="mt-1 text-sm text-zinc-500">
+                Activity snapshot for {currentMonthLabel}.
+              </p>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              <Link
+                href="/dashboard/revenue"
+                className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 transition hover:border-zinc-600 hover:bg-zinc-900"
+              >
+                <p className="text-sm text-zinc-400">Revenue</p>
+
+                <p className="mt-1 text-2xl font-bold">
+                  {formatCurrency(revenueThisMonth)}
+                </p>
+
+                <p className="mt-3 text-xs font-semibold text-zinc-500">
+                  Manage revenue →
+                </p>
+              </Link>
+
+              <Link
+                href="/dashboard/products"
+                className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 transition hover:border-zinc-600 hover:bg-zinc-900"
+              >
+                <p className="text-sm text-zinc-400">New Products</p>
+
+                <p className="mt-1 text-2xl font-bold">
+                  {productsThisMonth}
+                </p>
+
+                <p className="mt-3 text-xs font-semibold text-zinc-500">
+                  Manage products →
+                </p>
+              </Link>
+
+              <Link
+                href="/dashboard/announcements"
+                className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 transition hover:border-zinc-600 hover:bg-zinc-900"
+              >
+                <p className="text-sm text-zinc-400">Announcements</p>
+
+                <p className="mt-1 text-2xl font-bold">
+                  {announcementsThisMonth}
+                </p>
+
+                <p className="mt-3 text-xs font-semibold text-zinc-500">
+                  Manage announcements →
+                </p>
+              </Link>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h2 className="text-2xl font-bold">{creator.display_name}</h2>
+
+                  {creator.is_verified ? (
+                    <span className="rounded-full bg-green-950 px-3 py-1 text-xs font-semibold text-green-400">
+                      ✓ Verified
+                    </span>
+                  ) : verificationRequest ? (
+                    <span className="rounded-full bg-yellow-950 px-3 py-1 text-xs font-semibold text-yellow-400 capitalize">
+                      {verificationRequest.status}
+                    </span>
+                  ) : (
+                    <Link
+                      href="/verification-request"
+                      className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 hover:bg-zinc-800"
+                    >
+                      Request verification
+                    </Link>
+                  )}
+
+                  {creator.niche && (
+                    <span className="rounded-full bg-zinc-800 px-3 py-1 text-xs font-semibold text-zinc-300">
+                      {creator.niche}
+                    </span>
+                  )}
+                </div>
+
+                <p className="mt-1 text-sm text-zinc-400">@{creator.username}</p>
+
+                <p className="mt-3 max-w-2xl text-sm text-zinc-400">
+                  {creator.bio ||
+                    "Add a bio so visitors understand who you are and what you create."}
+                </p>
+              </div>
+
+              <div className="grid shrink-0 gap-3 sm:grid-cols-2 lg:w-[360px]">
+                <Link
+                  href={`/creator/${creator.username}`}
+                  className="rounded-2xl bg-white px-5 py-3 text-center font-semibold text-black transition hover:bg-zinc-200"
+                >
+                  View Storefront
+                </Link>
+
+                <Link
+                  href="/edit-profile"
+                  className="rounded-2xl border border-zinc-700 px-5 py-3 text-center font-semibold transition hover:bg-zinc-800"
+                >
+                  Edit Profile
+                </Link>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-3 md:grid-cols-[1fr_1fr_1.2fr]">
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                <p className="text-sm text-zinc-500">Setup</p>
+                <p className="mt-1 text-xl font-bold">
+                  {completedCount}/{checklistItems.length}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                <p className="text-sm text-zinc-500">Completion</p>
+                <p className="mt-1 text-xl font-bold">
+                  {Math.round((completedCount / checklistItems.length) * 100)}%
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowSetupSteps(!showSetupSteps)}
+                className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-left hover:border-zinc-600"
+              >
+                <p className="text-sm text-zinc-500">Checklist</p>
+                <p className="mt-1 text-sm font-semibold text-white">
+                  {showSetupSteps ? "Hide steps ↑" : "Show steps ↓"}
+                </p>
+              </button>
+            </div>
+
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-zinc-800">
+              <div
+                className="h-full bg-white"
+                style={{
+                  width: `${(completedCount / checklistItems.length) * 100}%`,
+                }}
+              />
+            </div>
+
+            {showSetupSteps && (
+              <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                <p className="mb-3 text-sm font-semibold text-white">
+                  Missing setup steps:
+                </p>
+
+                <div className="grid gap-2 md:grid-cols-2">
+                  {checklistItems
+                    .filter((item) => !item.complete)
+                    .map((item) => (
+                      <Link
+                        key={item.label}
+                        href={item.href}
+                        className="rounded-xl border border-zinc-800 px-3 py-2 text-sm text-zinc-400 hover:border-zinc-600 hover:text-white"
+                      >
+                        {item.label} →
+                      </Link>
+                    ))}
+
+                  {checklistItems.every((item) => item.complete) && (
+                    <p className="text-sm text-green-400">Everything is complete.</p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
@@ -982,54 +914,63 @@ export default function DashboardPage() {
             </div>
 
             <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
-              <div className="mb-5 flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="text-2xl font-bold">Notifications</h2>
-                  <p className="mt-2 text-sm text-zinc-400">
-                    Recent account and storefront activity.
-                  </p>
-                </div>
-
-                <Link
-                  href="/notifications"
-                  className="text-sm font-semibold text-zinc-300 hover:text-white"
-                >
-                  View all →
-                </Link>
+              <div className="mb-5">
+                <h2 className="text-2xl font-bold">Creator Goals</h2>
+                <p className="mt-2 text-sm text-zinc-400">
+                  Milestones that help your creator business grow.
+                </p>
               </div>
 
-              {notifications.length === 0 ? (
-                <p className="text-sm text-zinc-400">No notifications yet.</p>
-              ) : (
-                <div className="space-y-3">
-                  {notifications.slice(0, 3).map((notification) => (
-                    <div
-                      key={notification.id}
-                      className={`rounded-2xl border bg-zinc-950 p-4 ${
-                        notification.is_read
-                          ? "border-zinc-800 opacity-70"
-                          : "border-white"
-                      }`}
-                    >
-                      <p className="font-semibold">{notification.title}</p>
-
+              <div className="space-y-3">
+                {[
+                  {
+                    label: "Publish 1 announcement",
+                    complete: announcements.length >= 1,
+                    progress: `${announcements.length}/1`,
+                  },
+                  {
+                    label: "Reach 10 followers",
+                    complete: totalFollowers >= 10,
+                    progress: `${totalFollowers}/10`,
+                  },
+                  {
+                    label: "Add 10 products",
+                    complete: products.length >= 10,
+                    progress: `${products.length}/10`,
+                  },
+                  {
+                    label: "Track $10,000 revenue",
+                    complete: totalRevenue >= 10000,
+                    progress: `${formatCurrency(totalRevenue)} / $10,000`,
+                  },
+                  {
+                    label: "Complete profile setup",
+                    complete: completedCount === checklistItems.length,
+                    progress: `${completedCount}/${checklistItems.length}`,
+                  },
+                ].map((goal) => (
+                  <div
+                    key={goal.label}
+                    className="flex items-center justify-between gap-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-4"
+                  >
+                    <div className="flex items-center gap-3">
                       <span
-                        className={`mt-2 inline-block rounded-full px-3 py-1 text-xs ${getNotificationTypeClass(
-                          notification.type
-                        )}`}
+                        className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold ${
+                          goal.complete
+                            ? "bg-green-950 text-green-400"
+                            : "bg-zinc-800 text-zinc-400"
+                        }`}
                       >
-                        {notification.type || "general"}
+                        {goal.complete ? "✓" : "•"}
                       </span>
 
-                      {notification.message && (
-                        <p className="mt-2 line-clamp-2 text-sm text-zinc-400">
-                          {notification.message}
-                        </p>
-                      )}
+                      <p className="font-semibold">{goal.label}</p>
                     </div>
-                  ))}
-                </div>
-              )}
+
+                    <p className="shrink-0 text-sm text-zinc-400">{goal.progress}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </>
