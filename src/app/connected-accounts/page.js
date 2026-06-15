@@ -10,27 +10,32 @@ const platforms = [
     name: "YouTube",
     key: "youtube",
     description: "Sync YouTube analytics and revenue data.",
-    status: "Coming soon",
+    available: true,
   },
   {
     name: "Twitch",
     key: "twitch",
     description: "Sync subscriptions, donations, and creator revenue.",
-    status: "Coming soon",
+    available: false,
   },
   {
     name: "Shopify",
     key: "shopify",
     description: "Sync store sales and product revenue.",
-    status: "Coming soon",
+    available: false,
   },
   {
     name: "Patreon",
     key: "patreon",
     description: "Sync memberships and creator income.",
-    status: "Coming soon",
+    available: false,
   },
 ];
+
+function formatDate(value) {
+  if (!value) return "Not synced yet";
+  return new Date(value).toLocaleString();
+}
 
 export default function ConnectedAccountsPage() {
   const router = useRouter();
@@ -120,6 +125,10 @@ export default function ConnectedAccountsPage() {
     }
   }
 
+  const connectedCount = connectedAccounts.length;
+  const availableCount = platforms.filter((platform) => platform.available).length;
+  const errorCount = connectedAccounts.filter((account) => account.sync_error).length;
+
   if (loading) {
     return <p className="text-zinc-400">Loading connected accounts...</p>;
   }
@@ -138,12 +147,33 @@ export default function ConnectedAccountsPage() {
           Integrations
         </p>
 
-        <h1 className="mt-2 text-4xl font-bold">Connected Accounts</h1>
+        <div className="mt-2 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h1 className="text-4xl font-bold">Connected Accounts</h1>
 
-        <p className="mt-4 max-w-3xl text-zinc-400">
-          Connect platforms like YouTube, Twitch, Shopify, and Patreon to sync
-          creator revenue automatically in the future.
-        </p>
+            <p className="mt-4 max-w-3xl text-zinc-400">
+              Connect creator platforms to sync revenue, analytics, and account
+              data into CreatorsHub.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+              <p className="text-xs text-zinc-500">Connected</p>
+              <p className="mt-1 text-xl font-bold">{connectedCount}</p>
+            </div>
+
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+              <p className="text-xs text-zinc-500">Live</p>
+              <p className="mt-1 text-xl font-bold">{availableCount}</p>
+            </div>
+
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+              <p className="text-xs text-zinc-500">Errors</p>
+              <p className="mt-1 text-xl font-bold">{errorCount}</p>
+            </div>
+          </div>
+        </div>
       </section>
 
       {syncMessage && (
@@ -161,6 +191,8 @@ export default function ConnectedAccountsPage() {
       <section className="grid gap-4 md:grid-cols-2">
         {platforms.map((platform) => {
           const account = getAccount(platform.key);
+          const isConnected = Boolean(account);
+          const hasError = Boolean(account?.sync_error);
 
           return (
             <div
@@ -178,42 +210,66 @@ export default function ConnectedAccountsPage() {
 
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                    account
+                    hasError
+                      ? "bg-red-950 text-red-400"
+                      : isConnected
                       ? "bg-green-950 text-green-400"
+                      : platform.available
+                      ? "bg-blue-950 text-blue-400"
                       : "bg-zinc-800 text-zinc-400"
                   }`}
                 >
-                  {account ? "Connected" : platform.status}
+                  {hasError
+                    ? "Error"
+                    : isConnected
+                    ? "Connected"
+                    : platform.available
+                    ? "Available"
+                    : "Coming Soon"}
                 </span>
+              </div>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                  <p className="text-xs text-zinc-500">Status</p>
+                  <p className="mt-1 font-semibold capitalize">
+                    {account?.sync_status || "Not connected"}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                  <p className="text-xs text-zinc-500">Last Sync</p>
+                  <p className="mt-1 text-sm font-semibold">
+                    {formatDate(account?.last_synced_at)}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                  <p className="text-xs text-zinc-500">Last Attempt</p>
+                  <p className="mt-1 text-sm font-semibold">
+                    {account?.last_sync_attempt_at
+                      ? formatDate(account.last_sync_attempt_at)
+                      : "No attempts yet"}
+                  </p>
+                </div>
               </div>
 
               {account && (
                 <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                  <p className="text-sm text-zinc-500">Account</p>
+                  <p className="text-sm text-zinc-500">Connected Account</p>
+
                   <p className="mt-1 font-semibold">
                     {account.account_name || account.account_id || platform.name}
                   </p>
 
-                  <p className="mt-3 text-sm text-zinc-500">
-                    Last synced:{" "}
-                    {account.last_synced_at
-                      ? new Date(account.last_synced_at).toLocaleString()
-                      : "Not synced yet"}
-                  </p>
-
-                  <p className="mt-2 text-sm text-zinc-500">
-                    Last sync attempt:{" "}
-                    {account.last_sync_attempt_at
-                      ? new Date(account.last_sync_attempt_at).toLocaleString()
-                      : "No attempts yet"}
-                  </p>
-
                   <p
-                    className={`mt-2 text-sm ${
+                    className={`mt-3 text-sm ${
                       account.sync_error ? "text-red-400" : "text-green-400"
                     }`}
                   >
-                    {account.sync_error ? `Error: ${account.sync_error}` : "No sync errors"}
+                    {account.sync_error
+                      ? `Error: ${account.sync_error}`
+                      : "No sync errors"}
                   </p>
                 </div>
               )}
@@ -221,9 +277,13 @@ export default function ConnectedAccountsPage() {
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link
                   href={`/connected-accounts/${platform.key}`}
-                  className="rounded-2xl bg-white px-5 py-3 font-semibold text-black hover:bg-zinc-200"
+                  className={`rounded-2xl px-5 py-3 font-semibold ${
+                    platform.available
+                      ? "bg-white text-black hover:bg-zinc-200"
+                      : "border border-zinc-700 text-zinc-500"
+                  }`}
                 >
-                  {account ? "Manage" : "Connect"}
+                  {isConnected ? "Manage" : platform.available ? "Connect" : "Preview"}
                 </Link>
 
                 {account && (
