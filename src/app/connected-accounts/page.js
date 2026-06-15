@@ -85,30 +85,38 @@ export default function ConnectedAccountsPage() {
     setSyncMessage("");
     setSyncError("");
 
-    const response = await fetch(`/api/sync/${platformKey}?user_id=${account.user_id}`);
-    const data = await response.json();
- 
-    if (!response.ok) {
-      setSyncError(data.error || "Sync failed.");
+    try {
+      const response = await fetch(
+        `/api/sync/${platformKey}?user_id=${account.user_id}`
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setSyncError(data.error || "Sync failed.");
+        return;
+      }
+
+      setSyncMessage(`Sync complete. Imported ${data.imported_rows || 0} rows.`);
+
+      setConnectedAccounts((currentAccounts) =>
+        currentAccounts.map((currentAccount) =>
+          currentAccount.platform === platformKey
+            ? {
+                ...currentAccount,
+                last_synced_at: new Date().toISOString(),
+                last_sync_attempt_at: new Date().toISOString(),
+                sync_status: "connected",
+                sync_error: null,
+              }
+            : currentAccount
+        )
+      );
+    } catch (error) {
+      setSyncError(error.message || "Sync failed.");
+    } finally {
       setSyncingPlatform("");
-      return;
     }
- 
-    setSyncMessage(`Sync complete. Imported ${data.imported_rows || 0} rows.`);
- 
-    setConnectedAccounts((currentAccounts) =>
-      currentAccounts.map((currentAccount) =>
-        currentAccount.platform === platformKey
-          ? {
-              ...currentAccount,
-              last_synced_at: new Date().toISOString(),
-              sync_status: "connected",
-            }
-          : currentAccount
-      )
-    );
- 
-    setSyncingPlatform("");
   }
 
   if (loading) {
