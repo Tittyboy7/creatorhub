@@ -38,6 +38,8 @@ export default function ConnectedAccountsPage() {
   const [loading, setLoading] = useState(true);
   const [connectedAccounts, setConnectedAccounts] = useState([]);
   const [syncingPlatform, setSyncingPlatform] = useState("");
+  const [syncMessage, setSyncMessage] = useState("");
+  const [syncError, setSyncError] = useState("");
 
   useEffect(() => {
     async function loadConnectedAccounts() {
@@ -80,17 +82,19 @@ export default function ConnectedAccountsPage() {
     if (!account) return;
 
     setSyncingPlatform(platformKey);
+    setSyncMessage("");
+    setSyncError("");
 
     const response = await fetch(`/api/sync/${platformKey}?user_id=${account.user_id}`);
     const data = await response.json();
  
     if (!response.ok) {
-      alert(data.error || "Sync failed.");
+      setSyncError(data.error || "Sync failed.");
       setSyncingPlatform("");
       return;
     }
  
-    alert(`Sync complete. Imported ${data.imported_rows || 0} rows.`);
+    setSyncMessage(`Sync complete. Imported ${data.imported_rows || 0} rows.`);
  
     setConnectedAccounts((currentAccounts) =>
       currentAccounts.map((currentAccount) =>
@@ -133,6 +137,18 @@ export default function ConnectedAccountsPage() {
         </p>
       </section>
 
+      {syncMessage && (
+        <div className="rounded-2xl border border-green-900 bg-green-950 p-4 text-sm text-green-400">
+          {syncMessage}
+        </div>
+      )}
+
+      {syncError && (
+        <div className="rounded-2xl border border-red-900 bg-red-950 p-4 text-sm text-red-400">
+          {syncError}
+        </div>
+      )}
+
       <section className="grid gap-4 md:grid-cols-2">
         {platforms.map((platform) => {
           const account = getAccount(platform.key);
@@ -174,6 +190,21 @@ export default function ConnectedAccountsPage() {
                     {account.last_synced_at
                       ? new Date(account.last_synced_at).toLocaleString()
                       : "Not synced yet"}
+                  </p>
+
+                  <p className="mt-2 text-sm text-zinc-500">
+                    Last sync attempt:{" "}
+                    {account.last_sync_attempt_at
+                      ? new Date(account.last_sync_attempt_at).toLocaleString()
+                      : "No attempts yet"}
+                  </p>
+
+                  <p
+                    className={`mt-2 text-sm ${
+                      account.sync_error ? "text-red-400" : "text-green-400"
+                    }`}
+                  >
+                    {account.sync_error ? `Error: ${account.sync_error}` : "No sync errors"}
                   </p>
                 </div>
               )}

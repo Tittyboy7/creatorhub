@@ -42,6 +42,17 @@ async function refreshGoogleAccessToken(refreshToken) {
   return data;
 }
 
+async function updateSyncStatus(supabaseAdmin, accountId, updates) {
+  await supabaseAdmin
+    .from("connected_accounts")
+    .update({
+      last_sync_attempt_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      ...updates,
+    })
+    .eq("id", accountId);
+}
+
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("user_id");
@@ -69,7 +80,17 @@ export async function GET(request) {
     );
   }
 
+  await updateSyncStatus(supabaseAdmin, account.id, {
+    sync_status: "syncing",
+    sync_error: null,
+  });
+
   if (!account.refresh_token) {
+    await updateSyncStatus(supabaseAdmin, account.id, {
+      sync_status: "error",
+      sync_error: "No refresh token found. Reconnect YouTube.",
+    });
+
     return NextResponse.json(
       { error: "No refresh token found. Reconnect YouTube." },
       { status: 400 }
@@ -81,6 +102,11 @@ export async function GET(request) {
   try {
     freshTokenData = await refreshGoogleAccessToken(account.refresh_token);
   } catch (error) {
+    await updateSyncStatus(supabaseAdmin, account.id, {
+      sync_status: "error",
+      sync_error: "Failed to refresh Google access token.",
+    });
+
     return NextResponse.json(
       {
         error: "Failed to refresh Google access token.",
@@ -127,6 +153,14 @@ export async function GET(request) {
   const youtubeData = await youtubeResponse.json();
 
   if (!youtubeResponse.ok) {
+    const errorMessage =
+      youtubeData?.error?.message || "YouTube revenue sync failed.";
+
+    await updateSyncStatus(supabaseAdmin, account.id, {
+      sync_status: "error",
+      sync_error: errorMessage,
+    });
+
     return NextResponse.json(
       {
         error: "YouTube revenue sync failed.",
@@ -145,14 +179,25 @@ export async function GET(request) {
     amount: Number(amount || 0),
     entry_month: month.slice(0, 7),
     notes: "Synced from YouTube Analytics",
+    source_platform: "youtube",
+    source_entry_id: `youtube-ads-${month.slice(0, 7)}`,
+    synced_from_api: true,
+    synced_at: new Date().toISOString(),
   }));
 
   if (revenueRows.length > 0) {
     const { error: insertError } = await supabaseAdmin
       .from("revenue_entries")
-      .insert(revenueRows);
+      .upsert(revenueRows, {
+        onConflict: "user_id,source_platform,source_entry_id",
+      });
 
     if (insertError) {
+      await updateSyncStatus(supabaseAdmin, account.id, {
+        sync_status: "error",
+        sync_error: insertError.message,
+      });
+
       return NextResponse.json(
         {
           error: "Failed to insert YouTube revenue entries.",
@@ -163,14 +208,11 @@ export async function GET(request) {
     }
   }
 
-  await supabaseAdmin
-    .from("connected_accounts")
-    .update({
-      last_synced_at: new Date().toISOString(),
-      sync_status: "connected",
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", account.id);
+  await updateSyncStatus(supabaseAdmin, account.id, {
+    last_synced_at: new Date().toISOString(),
+    sync_status: "connected",
+    sync_error: null,
+  });
 
   return NextResponse.json({
     success: true,

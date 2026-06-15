@@ -492,7 +492,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-5">
+              <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-6">
                 <Link
                   href="/add-product"
                   className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-center text-sm font-semibold hover:border-zinc-600 hover:bg-zinc-900"
@@ -526,6 +526,13 @@ export default function DashboardPage() {
                   className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-center text-sm font-semibold hover:border-zinc-600 hover:bg-zinc-900"
                 >
                   Storefront
+                </Link>
+
+                <Link
+                  href="/connected-accounts"
+                  className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-center text-sm font-semibold hover:border-zinc-600 hover:bg-zinc-900"
+                >
+                  Connections
                 </Link>
               </div>
             </div>
