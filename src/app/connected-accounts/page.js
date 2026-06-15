@@ -90,7 +90,8 @@ export default function ConnectedAccountsPage() {
         `/api/sync/${platformKey}?user_id=${account.user_id}`
       );
 
-      const data = await response.json();
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : {};
 
       if (!response.ok) {
         setSyncError(data.error || "Sync failed.");
