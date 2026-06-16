@@ -113,13 +113,29 @@ export default function AdminVerificationRequestsPage() {
 
     setActionLoadingId(request.id);
 
-    const { error: creatorError } = await supabase
-      .from("creators")
-      .update({ is_verified: true })
-      .eq("id", creatorId);
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    if (creatorError) {
-      alert(creatorError.message);
+    const verifyResponse = await fetch(
+      "/api/admin/creators/verification",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({
+          creatorId,
+          verified: true,
+        }),
+      }
+    );
+
+    const verifyData = await verifyResponse.json();
+
+    if (!verifyResponse.ok) {
+      alert(verifyData.error || "Failed to verify creator.");
       setActionLoadingId(null);
       return;
     }
@@ -199,13 +215,29 @@ export default function AdminVerificationRequestsPage() {
 
     setActionLoadingId(request.id);
 
-    const { error: creatorError } = await supabase
-      .from("creators")
-      .update({ is_verified: false })
-      .eq("id", creatorId);
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    if (creatorError) {
-      alert(creatorError.message);
+    const revokeResponse = await fetch(
+      "/api/admin/creators/verification",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({
+          creatorId,
+          verified: false,
+        }),
+      }
+    );
+
+    const revokeData = await revokeResponse.json();
+
+    if (!revokeResponse.ok) {
+      alert(revokeData.error || "Failed to revoke verification.");
       setActionLoadingId(null);
       return;
     }
