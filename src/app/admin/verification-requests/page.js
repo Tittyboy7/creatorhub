@@ -12,6 +12,7 @@ export default function AdminVerificationRequestsPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [requests, setRequests] = useState([]);
   const [actionLoadingId, setActionLoadingId] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     async function loadRequests() {
@@ -152,6 +153,60 @@ export default function AdminVerificationRequestsPage() {
     setActionLoadingId(null);
   }
 
+  async function handleRevoke(request) {
+    const creatorId = request.creator_id || request.creators?.id;
+
+    if (!creatorId) {
+      alert("Missing creator ID.");
+      return;
+    }
+
+    setActionLoadingId(request.id);
+
+    const { error: creatorError } = await supabase
+      .from("creators")
+      .update({ is_verified: false })
+      .eq("id", creatorId);
+
+    if (creatorError) {
+      alert(creatorError.message);
+      setActionLoadingId(null);
+      return;
+    }
+
+    const { error: requestError } = await supabase
+      .from("verification_requests")
+      .update({
+        status: "revoked",
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq("id", request.id);
+
+    if (requestError) {
+      alert(requestError.message);
+      setActionLoadingId(null);
+      return;
+    }
+
+  setRequests((currentRequests) =>
+    currentRequests.map((currentRequest) =>
+      currentRequest.id === request.id
+        ? {
+            ...currentRequest,
+            status: "revoked",
+            reviewed_at: new Date().toISOString(),
+            creators: {
+              ...currentRequest.creators,
+              is_verified: false,
+            },
+          }
+        : currentRequest
+    )
+  );
+
+  setActionLoadingId(null);
+}
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
@@ -183,6 +238,17 @@ export default function AdminVerificationRequestsPage() {
     (request) => request.status === "rejected"
   ).length;
 
+  const revokedCount = requests.filter(
+    (request) => request.status === "revoked"
+  ).length;
+
+  const filteredRequests =
+    statusFilter === "all"
+      ? requests
+      : requests.filter(
+          (request) => request.status === statusFilter
+        );
+
   return (
     <div className="min-h-screen bg-zinc-950 p-10 text-white">
       <div className="mx-auto max-w-6xl">
@@ -206,7 +272,7 @@ export default function AdminVerificationRequestsPage() {
             Review creator verification requests and approve trusted creators.
           </p>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="mt-6 grid gap-3 sm:grid-cols-4">
             <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
               <p className="text-sm text-zinc-500">Pending</p>
               <p className="mt-1 text-2xl font-bold">{pendingCount}</p>
@@ -221,11 +287,32 @@ export default function AdminVerificationRequestsPage() {
               <p className="text-sm text-zinc-500">Rejected</p>
               <p className="mt-1 text-2xl font-bold">{rejectedCount}</p>
             </div>
+
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+              <p className="text-sm text-zinc-500">Revoked</p>
+              <p className="mt-1 text-2xl font-bold">{revokedCount}</p>
+            </div>
           </div>
         </section>
 
+        <div className="mt-6 flex flex-wrap gap-3">
+          {["all", "pending", "approved", "rejected", "revoked"].map((status) => (
+            <button
+              key={status}
+              onClick={() => setStatusFilter(status)}
+              className={`rounded-full border px-4 py-2 text-sm font-semibold capitalize ${
+                statusFilter === status
+                  ? "border-white bg-white text-black"
+                  : "border-zinc-700 text-zinc-300 hover:border-white hover:text-white"
+              }`}
+            >
+              {status}
+            </button>
+          ))}
+        </div>
+
         <section className="mt-6 space-y-4">
-          {requests.length === 0 ? (
+          {filteredRequests.length === 0 ? (
             <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-8 text-center">
               <h2 className="text-2xl font-bold">No verification requests</h2>
               <p className="mt-2 text-zinc-400">
@@ -233,7 +320,7 @@ export default function AdminVerificationRequestsPage() {
               </p>
             </div>
           ) : (
-            requests.map((request) => {
+            filteredRequests.map((request) => {
               const creator = request.creators;
               const isActionLoading = actionLoadingId === request.id;
 
@@ -325,25 +412,37 @@ export default function AdminVerificationRequestsPage() {
                     </div>
 
                     <div className="flex shrink-0 flex-wrap gap-3 lg:justify-end">
-                      <button
-                        onClick={() => handleApprove(request)}
-                        disabled={
-                          isActionLoading || request.status === "approved"
-                        }
-                        className="rounded-2xl bg-white px-5 py-3 font-semibold text-black hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {isActionLoading ? "Working..." : "Approve"}
-                      </button>
+                      {request.status === "pending" ? (
+                        <>
+                          <button
+                            onClick={() => handleApprove(request)}
+                            disabled={isActionLoading}
+                            className="rounded-2xl bg-white px-5 py-3 font-semibold text-black hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {isActionLoading ? "Working..." : "Approve"}
+                          </button>
 
-                      <button
-                        onClick={() => handleReject(request)}
-                        disabled={
-                          isActionLoading || request.status === "rejected"
-                        }
-                        className="rounded-2xl border border-red-900 px-5 py-3 font-semibold text-red-400 hover:bg-red-950 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        Reject
-                      </button>
+                          <button
+                            onClick={() => handleReject(request)}
+                            disabled={isActionLoading}
+                            className="rounded-2xl border border-red-900 px-5 py-3 font-semibold text-red-400 hover:bg-red-950 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            Reject
+                          </button>
+                        </>
+                      ) : request.status === "approved" ? (
+                        <button
+                          onClick={() => handleRevoke(request)}
+                          disabled={isActionLoading}
+                          className="rounded-2xl border border-orange-800 px-5 py-3 font-semibold text-orange-400 hover:bg-orange-950"
+                        >
+                          Revoke Verification
+                        </button>
+                      ) : (
+                        <p className="rounded-2xl border border-zinc-800 bg-zinc-950 px-5 py-3 text-sm font-semibold text-zinc-400">
+                          Reviewed
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
