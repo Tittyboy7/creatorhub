@@ -45,6 +45,7 @@ export default function AdminVerificationRequestsPage() {
           *,
           creators (
             id,
+            user_id,
             display_name,
             username,
             bio,
@@ -58,7 +59,37 @@ export default function AdminVerificationRequestsPage() {
       if (error) {
         alert(error.message);
       } else {
-        setRequests(data || []);
+        const userIds = [
+          ...new Set(
+            (data || [])
+              .map((request) => request.creators?.user_id)
+              .filter(Boolean)
+          ),
+        ];
+
+        const profileResponse = await fetch("/api/admin/profile-emails", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userIds }),
+        });
+
+        const profileData = await profileResponse.json();
+
+        const profiles = profileData.profiles || [];
+
+        const profilesById = Object.fromEntries(
+          (profiles || []).map((profile) => [profile.id, profile])
+        );
+
+        const requestsWithEmails = (data || []).map((request) => ({
+          ...request,
+          requester_email:
+            profilesById[request.creators?.user_id]?.email || "Email unavailable",
+        }));
+
+        setRequests(requestsWithEmails);
       }
 
       setLoading(false);
@@ -368,6 +399,13 @@ export default function AdminVerificationRequestsPage() {
                             @{creator.username}
                           </Link>
                         )}
+
+                        <p className="mt-2 text-sm text-zinc-500">
+                          Email:{" "}
+                          <span className="text-zinc-300">
+                            {request.requester_email || "Email unavailable"}
+                          </span>
+                        </p>
 
                         {creator?.niche && (
                           <p className="mt-2 text-sm text-zinc-500">
