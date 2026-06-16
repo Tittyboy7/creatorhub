@@ -2,197 +2,355 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function AdminVerificationRequestsPage() {
+  const router = useRouter();
+
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [requests, setRequests] = useState([]);
-  const [statusFilter, setStatusFilter] = useState("pending");
-
-  async function loadRequests() {
-    const { data, error } = await supabase
-      .from("verification_requests")
-      .select(`
-        *,
-        creators (
-          id,
-          display_name,
-          username,
-          is_verified
-        )
-      `)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      alert(error.message);
-    } else {
-      setRequests(data || []);
-    }
-
-    setLoading(false);
-  }
+  const [actionLoadingId, setActionLoadingId] = useState(null);
 
   useEffect(() => {
+    async function loadRequests() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", user.id)
+        .single();
+
+      if (!profile?.is_admin) {
+        setIsAdmin(false);
+        setLoading(false);
+        return;
+      }
+
+      setIsAdmin(true);
+
+      const { data, error } = await supabase
+        .from("verification_requests")
+        .select(`
+          *,
+          creators (
+            id,
+            display_name,
+            username,
+            bio,
+            niche,
+            avatar_url,
+            is_verified
+          )
+        `)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        alert(error.message);
+      } else {
+        setRequests(data || []);
+      }
+
+      setLoading(false);
+    }
+
     loadRequests();
-  }, []);
+  }, [router]);
 
   async function handleApprove(request) {
-    if (!request.creators?.id) return;
+    const creatorId = request.creator_id || request.creators?.id;
+
+    if (!creatorId) {
+      alert("Missing creator ID.");
+      return;
+    }
+
+    setActionLoadingId(request.id);
 
     const { error: creatorError } = await supabase
       .from("creators")
       .update({ is_verified: true })
-      .eq("id", request.creators.id);
+      .eq("id", creatorId);
 
     if (creatorError) {
       alert(creatorError.message);
+      setActionLoadingId(null);
       return;
     }
 
     const { error: requestError } = await supabase
       .from("verification_requests")
-      .update({ status: "approved" })
+      .update({
+        status: "approved",
+        reviewed_at: new Date().toISOString(),
+      })
       .eq("id", request.id);
 
     if (requestError) {
       alert(requestError.message);
+      setActionLoadingId(null);
       return;
     }
 
-    await loadRequests();
+    setRequests((currentRequests) =>
+      currentRequests.map((currentRequest) =>
+        currentRequest.id === request.id
+          ? {
+              ...currentRequest,
+              status: "approved",
+              reviewed_at: new Date().toISOString(),
+              creators: {
+                ...currentRequest.creators,
+                is_verified: true,
+              },
+            }
+          : currentRequest
+      )
+    );
+
+    setActionLoadingId(null);
   }
 
   async function handleReject(request) {
+    setActionLoadingId(request.id);
+
     const { error } = await supabase
       .from("verification_requests")
-      .update({ status: "rejected" })
+      .update({
+        status: "rejected",
+        reviewed_at: new Date().toISOString(),
+      })
       .eq("id", request.id);
 
     if (error) {
       alert(error.message);
+      setActionLoadingId(null);
       return;
     }
 
-    await loadRequests();
-  }
+    setRequests((currentRequests) =>
+      currentRequests.map((currentRequest) =>
+        currentRequest.id === request.id
+          ? {
+              ...currentRequest,
+              status: "rejected",
+              reviewed_at: new Date().toISOString(),
+            }
+          : currentRequest
+      )
+    );
 
-  const filteredRequests =
-    statusFilter === "all"
-      ? requests
-      : requests.filter((request) => request.status === statusFilter);
+    setActionLoadingId(null);
+  }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
         Loading...
       </div>
     );
   }
 
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-zinc-950 p-10 text-white">
+        <h1 className="text-4xl font-bold">Access denied</h1>
+        <p className="mt-4 text-zinc-400">
+          You do not have permission to view this page.
+        </p>
+      </div>
+    );
+  }
+
+  const pendingCount = requests.filter(
+    (request) => request.status === "pending"
+  ).length;
+
+  const approvedCount = requests.filter(
+    (request) => request.status === "approved"
+  ).length;
+
+  const rejectedCount = requests.filter(
+    (request) => request.status === "rejected"
+  ).length;
+
   return (
-    <div className="min-h-screen bg-zinc-950 text-white px-5 py-8 md:p-10">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold">
-              Verification Requests
-            </h1>
+    <div className="min-h-screen bg-zinc-950 p-10 text-white">
+      <div className="mx-auto max-w-6xl">
+        <Link
+          href="/admin"
+          className="inline-block rounded-2xl border border-zinc-700 px-5 py-3 hover:bg-zinc-800"
+        >
+          Back to Admin
+        </Link>
 
-            <p className="text-zinc-400 mt-3">
-              Review creator requests and approve verified status.
-            </p>
+        <section className="mt-6 rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 md:p-8">
+          <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+            Admin Review
+          </p>
+
+          <h1 className="mt-2 text-4xl font-bold">
+            Verification Requests
+          </h1>
+
+          <p className="mt-3 max-w-3xl text-zinc-400">
+            Review creator verification requests and approve trusted creators.
+          </p>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+              <p className="text-sm text-zinc-500">Pending</p>
+              <p className="mt-1 text-2xl font-bold">{pendingCount}</p>
+            </div>
+
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+              <p className="text-sm text-zinc-500">Approved</p>
+              <p className="mt-1 text-2xl font-bold">{approvedCount}</p>
+            </div>
+
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+              <p className="text-sm text-zinc-500">Rejected</p>
+              <p className="mt-1 text-2xl font-bold">{rejectedCount}</p>
+            </div>
           </div>
+        </section>
 
-          <Link
-            href="/admin"
-            className="border border-zinc-700 px-5 py-3 rounded-2xl text-center hover:bg-zinc-800 transition"
-          >
-            Back to Admin
-          </Link>
-        </div>
+        <section className="mt-6 space-y-4">
+          {requests.length === 0 ? (
+            <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-8 text-center">
+              <h2 className="text-2xl font-bold">No verification requests</h2>
+              <p className="mt-2 text-zinc-400">
+                New creator verification requests will appear here.
+              </p>
+            </div>
+          ) : (
+            requests.map((request) => {
+              const creator = request.creators;
+              const isActionLoading = actionLoadingId === request.id;
 
-        <div className="flex flex-wrap gap-3 mb-8">
-          {["pending", "approved", "rejected", "all"].map((status) => (
-            <button
-              key={status}
-              onClick={() => setStatusFilter(status)}
-              className={`px-4 py-2 rounded-full border capitalize ${
-                statusFilter === status
-                  ? "bg-white text-black border-white"
-                  : "border-zinc-700 text-zinc-300 hover:bg-zinc-800"
-              }`}
-            >
-              {status}
-            </button>
-          ))}
-        </div>
+              return (
+                <div
+                  key={request.id}
+                  className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5"
+                >
+                  <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="flex gap-4">
+                      {creator?.avatar_url ? (
+                        <img
+                          src={creator.avatar_url}
+                          alt={creator.display_name}
+                          className="h-16 w-16 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-16 w-16 rounded-full bg-zinc-700" />
+                      )}
 
-        {filteredRequests.length === 0 ? (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
-            <p className="text-zinc-400">
-              No {statusFilter === "all" ? "" : statusFilter} verification requests found.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {filteredRequests.map((request) => (
-              <div
-                key={request.id}
-                className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6"
-              >
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                  <div>
-                    <h2 className="text-2xl font-bold">
-                      {request.creators?.display_name || "Unknown creator"}
-                    </h2>
+                      <div>
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h2 className="text-2xl font-bold">
+                            {creator?.display_name || "Unknown Creator"}
+                          </h2>
 
-                    {request.creators && (
-                      <Link
-                        href={`/creator/${request.creators.username}`}
-                        className="text-zinc-400 hover:text-white"
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                              request.status === "approved"
+                                ? "bg-green-950 text-green-400"
+                                : request.status === "rejected"
+                                ? "bg-red-950 text-red-400"
+                                : "bg-yellow-950 text-yellow-400"
+                            }`}
+                          >
+                            {request.status || "pending"}
+                          </span>
+                        </div>
+
+                        {creator?.username && (
+                          <Link
+                            href={`/creator/${creator.username}`}
+                            className="mt-1 inline-block text-sm text-zinc-400 hover:text-white"
+                          >
+                            @{creator.username}
+                          </Link>
+                        )}
+
+                        {creator?.niche && (
+                          <p className="mt-2 text-sm text-zinc-500">
+                            Niche: {creator.niche}
+                          </p>
+                        )}
+
+                        {creator?.bio && (
+                          <p className="mt-3 max-w-3xl text-sm text-zinc-400">
+                            {creator.bio}
+                          </p>
+                        )}
+
+                        {request.message && (
+                          <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                            <p className="text-sm font-semibold text-zinc-300">
+                              Request Message
+                            </p>
+
+                            <p className="mt-2 text-sm text-zinc-400">
+                              {request.message}
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="mt-4 flex flex-wrap gap-3 text-sm text-zinc-500">
+                          <span>
+                            Requested:{" "}
+                            {request.created_at
+                              ? new Date(request.created_at).toLocaleString()
+                              : "Unknown"}
+                          </span>
+
+                          {request.reviewed_at && (
+                            <span>
+                              Reviewed:{" "}
+                              {new Date(request.reviewed_at).toLocaleString()}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex shrink-0 flex-wrap gap-3 lg:justify-end">
+                      <button
+                        onClick={() => handleApprove(request)}
+                        disabled={
+                          isActionLoading || request.status === "approved"
+                        }
+                        className="rounded-2xl bg-white px-5 py-3 font-semibold text-black hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        @{request.creators.username}
-                      </Link>
-                    )}
+                        {isActionLoading ? "Working..." : "Approve"}
+                      </button>
 
-                    <p className="text-zinc-500 mt-3">
-                      Request status: {request.status}
-                    </p>
+                      <button
+                        onClick={() => handleReject(request)}
+                        disabled={
+                          isActionLoading || request.status === "rejected"
+                        }
+                        className="rounded-2xl border border-red-900 px-5 py-3 font-semibold text-red-400 hover:bg-red-950 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        Reject
+                      </button>
+                    </div>
                   </div>
-
-                  <span className="bg-zinc-800 text-zinc-300 px-3 py-1 rounded-full text-sm w-fit">
-                    {request.creators?.is_verified ? "Verified" : "Not Verified"}
-                  </span>
                 </div>
-
-                <p className="text-zinc-400 mt-6 whitespace-pre-wrap">
-                  {request.message}
-                </p>
-
-                <div className="flex flex-wrap gap-3 mt-6">
-                  <button
-                    onClick={() => handleApprove(request)}
-                    disabled={
-                      request.status === "approved" ||
-                      request.creators?.is_verified
-                    }
-                    className="bg-white text-black px-5 py-3 rounded-2xl font-semibold hover:bg-zinc-200 transition disabled:opacity-50"
-                  >
-                    Approve
-                  </button>
-
-                  <button
-                    onClick={() => handleReject(request)}
-                    disabled={request.status === "rejected"}
-                    className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800 transition disabled:opacity-50"
-                  >
-                    Reject
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+              );
+            })
+          )}
+        </section>
       </div>
     </div>
   );

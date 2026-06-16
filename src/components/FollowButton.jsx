@@ -42,10 +42,10 @@ export default function FollowButton({ creatorId }) {
 
   function getButtonClass() {
     if (followId) {
-      return "border border-zinc-700 text-zinc-300 px-5 py-3 rounded-2xl font-semibold hover:bg-zinc-800";
+      return "rounded-2xl border border-white/40 bg-black/50 px-5 py-3 font-semibold text-white backdrop-blur-sm hover:bg-black/70";
     }
 
-    return "bg-blue-500 text-white px-5 py-3 rounded-2xl font-semibold hover:bg-blue-600";
+    return "rounded-2xl bg-blue-500 px-5 py-3 font-semibold text-white hover:bg-blue-600";
   }
 
   async function createFollowNotification() {

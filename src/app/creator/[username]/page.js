@@ -114,18 +114,22 @@ export default async function CreatorProfilePage({ params }) {
   return (
     <div className="min-h-screen bg-zinc-950 px-5 py-8 text-white md:p-10">
       <div className="mx-auto max-w-6xl space-y-10">
-        <section className="relative overflow-hidden rounded-[2rem] border border-zinc-800 bg-zinc-900 shadow-2xl">
+        <section
+          style={{ height: "340px" }}
+          className="relative overflow-hidden rounded-[2rem] border border-zinc-800 bg-zinc-900 shadow-2xl"
+        >
           {creator.banner_url ? (
             <img
               src={creator.banner_url}
               alt={`${creator.display_name} banner`}
-              className="h-[520px] w-full object-cover sm:h-[420px]"
+              style={{ height: "100%" }}
+              className="w-full object-cover"
             />
           ) : (
-            <div className="h-[520px] w-full bg-gradient-to-br from-zinc-800 via-zinc-900 to-black sm:h-[420px]" />
+            <div className="h-full w-full bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/75 to-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/10" />
 
           <div className="absolute inset-x-0 bottom-0 z-10 p-6 md:p-8">
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
@@ -134,17 +138,17 @@ export default async function CreatorProfilePage({ params }) {
                   <img
                     src={creator.avatar_url}
                     alt={`${creator.display_name} avatar`}
-                    className="h-24 w-24 rounded-full border-4 border-zinc-950 object-cover md:h-32 md:w-32"
+                    className="h-24 w-24 rounded-full border-4 border-zinc-950 object-cover md:h-28 md:w-28"
                   />
                 ) : (
-                  <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-zinc-950 bg-zinc-800 text-zinc-500 md:h-32 md:w-32">
+                  <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-zinc-950 bg-zinc-800 text-zinc-500 md:h-28 md:w-28">
                     Avatar
                   </div>
                 )}
 
                 <div>
                   <div className="flex flex-wrap items-center gap-3">
-                    <h1 className="text-3xl font-bold md:text-5xl">
+                    <h1 className="text-3xl font-bold md:text-4xl">
                       {creator.display_name}
                     </h1>
 
@@ -159,12 +163,10 @@ export default async function CreatorProfilePage({ params }) {
                         Verified Creator
                       </span>
                     )}
-                  </div>
 
-                  <div className="mt-4 flex flex-wrap items-center gap-2">
                     {creator.niche && (
                       <span className="rounded-full bg-zinc-950/80 px-3 py-1 text-sm text-zinc-200">
-                        {creator.niche}
+                          {creator.niche}
                       </span>
                     )}
                   </div>
@@ -249,7 +251,7 @@ export default async function CreatorProfilePage({ params }) {
 
         {featuredProduct && (
           <section
-            className={`overflow-hidden rounded-[2rem] border bg-gradient-to-br from-zinc-900 to-zinc-950 shadow-2xl ${getAccentBorderClass(
+            className={`overflow-hidden rounded-[2rem] border bg-gradient-to-br from-zinc-900 to-zinc-950 shadow-2xl shadow-black/50
               creator.accent_color
             )}`}
           >
@@ -406,7 +408,7 @@ export default async function CreatorProfilePage({ params }) {
                 {activeAnnouncements.slice(0, 3).map((announcement) => (
                   <div
                     key={announcement.id}
-                    className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4"
+                    className="rounded-xl border border-zinc-800 bg-zinc-950 p-3"
                   >
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                       <div>
