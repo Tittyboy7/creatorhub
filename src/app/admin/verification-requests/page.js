@@ -67,10 +67,15 @@ export default function AdminVerificationRequestsPage() {
           ),
         ];
 
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
         const profileResponse = await fetch("/api/admin/profile-emails", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${session?.access_token}`,
           },
           body: JSON.stringify({ userIds }),
         });
