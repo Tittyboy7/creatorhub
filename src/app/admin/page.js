@@ -193,6 +193,17 @@ export default function AdminPage() {
               {stats.pendingVerificationRequests === 1 ? "" : "s"}
             </p>
           </Link>
+
+          <Link
+            href="/admin/users"
+            className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-zinc-600 transition"
+          >
+            <h2 className="text-2xl font-bold">Users</h2>
+
+            <p className="text-zinc-400 mt-2">
+              View registered users, emails, creator profiles, and admin status.
+            </p>
+          </Link>
         </div>
       </div>
     </div>
