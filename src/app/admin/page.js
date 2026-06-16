@@ -16,6 +16,7 @@ export default function AdminPage() {
     hiddenProducts: 0,
     totalCreators: 0,
     totalAnnouncements: 0,
+    pendingVerificationRequests: 0,
   });
 
   useEffect(() => {
@@ -65,12 +66,18 @@ export default function AdminPage() {
         .from("announcements")
         .select("*", { count: "exact", head: true });
 
+      const { count: pendingVerificationRequests } = await supabase
+        .from("verification_requests")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending");
+
       setStats({
         totalProducts: totalProducts || 0,
         flaggedProducts: flaggedProducts || 0,
         hiddenProducts: hiddenProducts || 0,
         totalCreators: totalCreators || 0,
         totalAnnouncements: totalAnnouncements || 0,
+        pendingVerificationRequests: pendingVerificationRequests || 0,
       });
 
       setLoading(false);
@@ -175,6 +182,15 @@ export default function AdminPage() {
 
             <p className="text-zinc-400 mt-2">
               Review creator verification requests.
+            </p>
+
+            <p className="mt-4 text-3xl font-bold text-yellow-400">
+              {stats.pendingVerificationRequests}
+            </p>
+
+            <p className="mt-1 text-sm text-zinc-500">
+              pending request
+              {stats.pendingVerificationRequests === 1 ? "" : "s"}
             </p>
           </Link>
         </div>
