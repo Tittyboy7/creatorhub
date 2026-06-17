@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import SuspendedAccountMessage from "@/components/SuspendedAccountMessage";
 
 export default function CreateProfilePage() {
   const router = useRouter();
@@ -14,6 +15,43 @@ export default function CreateProfilePage() {
 
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isSuspended, setIsSuspended] = useState(false);
+
+  useEffect(() => {
+    async function checkSuspension() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_suspended")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.is_suspended) {
+        setIsSuspended(true);
+      }
+
+      setLoading(false);
+    }
+
+    checkSuspension();
+  }, [router]);
+
+  if (loading) {
+    return <p className="text-zinc-400">Loading...</p>;
+  }
+
+  if (isSuspended) {
+    return <SuspendedAccountMessage />;
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
