@@ -101,6 +101,39 @@ export default function AdminUsersPage() {
     );
   }
 
+  async function updateSuspensionStatus(userId, isSuspended) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+ 
+    const response = await fetch("/api/admin/users/suspension", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify({
+        userId,
+        isSuspended,
+      }),
+    });
+ 
+    const data = await response.json();
+ 
+    if (!response.ok) {
+      alert(data.error || "Failed to update suspension status.");
+      return;
+    }
+ 
+    setUsers((currentUsers) =>
+      currentUsers.map((currentUser) =>
+        currentUser.id === userId
+          ? { ...currentUser, is_suspended: isSuspended }
+          : currentUser
+      )
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
@@ -197,6 +230,12 @@ export default function AdminUsersPage() {
                         Verified Creator
                       </span>
                     )}
+
+                    {user.is_suspended && (
+                      <span className="rounded-full bg-red-950 px-3 py-1 text-xs font-semibold text-red-400">
+                        Suspended
+                      </span>
+                    )}
                   </div>
 
                   <p className="mt-2 text-sm text-zinc-500">
@@ -249,6 +288,22 @@ export default function AdminUsersPage() {
                       className="rounded-2xl border border-blue-800 px-5 py-3 text-center font-semibold text-blue-400 hover:bg-blue-950"
                     >
                       Make Admin
+                    </button>
+                  )}
+
+                  {user.is_suspended ? (
+                    <button
+                      onClick={() => updateSuspensionStatus(user.id, false)}
+                      className="rounded-2xl border border-green-900 px-5 py-3 text-center font-semibold text-green-400 hover:bg-green-950"
+                    >
+                      Unsuspend
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => updateSuspensionStatus(user.id, true)}
+                      className="rounded-2xl border border-red-900 px-5 py-3 text-center font-semibold text-red-400 hover:bg-red-950"
+                    >
+                      Suspend
                     </button>
                   )}
                 </div>

@@ -40,6 +40,7 @@ export default function DashboardPage() {
   const [verificationRequest, setVerificationRequest] = useState(null);
   const [showMoreAnalytics, setShowMoreAnalytics] = useState(false);
   const [showSetupSteps, setShowSetupSteps] = useState(false);
+  const [isSuspended, setIsSuspended] = useState(false);
 
   useEffect(() => {
     async function loadDashboard() {
@@ -53,6 +54,18 @@ export default function DashboardPage() {
       }
 
       setUser(user);
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_suspended")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.is_suspended) {
+        setIsSuspended(true);
+        setLoading(false);
+        return;
+      }
 
       const { data: creatorData } = await supabase
         .from("creators")
@@ -285,6 +298,25 @@ export default function DashboardPage() {
 
   if (loading) {
     return <p className="text-zinc-400">Loading dashboard...</p>;
+  }
+
+  if (isSuspended) {
+    return (
+      <div className="rounded-3xl border border-red-900 bg-zinc-900 p-8">
+        <h1 className="text-4xl font-bold text-red-400">
+          Account Suspended
+        </h1>
+
+        <p className="mt-4 text-zinc-400">
+          Your account has been suspended and creator features have been
+          temporarily disabled.
+        </p>
+
+        <p className="mt-2 text-zinc-500">
+          If you believe this was a mistake, please contact support.
+        </p>
+      </div>
+    );
   }
 
   return (
