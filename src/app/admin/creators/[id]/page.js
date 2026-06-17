@@ -355,7 +355,15 @@ export default function AdminSingleCreatorPage() {
                     <p className="font-semibold">{product.title}</p>
                     <p className="text-sm text-zinc-500">
                       ${Number(product.price || 0).toFixed(2)} ·{" "}
-                      {product.is_active ? "Active" : "Inactive"}
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          product.is_active
+                            ? "bg-green-950 text-green-400"
+                            : "bg-red-950 text-red-400"
+                        }`}
+                      >
+                        {product.is_active ? "Active" : "Inactive"}
+                      </span>
                     </p>
                   </div>
 
