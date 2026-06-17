@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import SuspendedAccountMessage from "@/components/SuspendedAccountMessage";
 
 export default function AddAnnouncementPage() {
   const router = useRouter();
@@ -13,6 +14,8 @@ export default function AddAnnouncementPage() {
   const [products, setProducts] = useState([]);
   const [selectedProductId, setSelectedProductId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isSuspended, setIsSuspended] = useState(false);
 
   useEffect(() => {
     async function loadProducts() {
@@ -24,27 +27,51 @@ export default function AddAnnouncementPage() {
         router.push("/login");
         return;
       }
-
+ 
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_suspended")
+        .eq("id", user.id)
+        .single();
+ 
+      if (profile?.is_suspended) {
+        setIsSuspended(true);
+        setLoading(false);
+        return;
+      }
+ 
       const { data: creator } = await supabase
         .from("creators")
         .select("*")
         .eq("user_id", user.id)
         .single();
-
-      if (!creator) return;
-
+ 
+      if (!creator) {
+        setLoading(false);
+        return;
+      }
+ 
       const { data: productData } = await supabase
         .from("products")
         .select("id, title")
         .eq("creator_id", creator.id)
         .eq("is_active", true)
         .order("title", { ascending: true });
-
+ 
       setProducts(productData || []);
+      setLoading(false);
     }
-
+ 
     loadProducts();
   }, [router]);
+
+  if (loading) {
+    return <p className="text-zinc-400">Loading...</p>;
+  }
+
+  if (isSuspended) {
+    return <SuspendedAccountMessage />;
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();

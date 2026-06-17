@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import SuspendedAccountMessage from "@/components/SuspendedAccountMessage";
 
 function formatPreviewPrice(value) {
   if (!value) return "$0";
@@ -31,6 +32,47 @@ export default function AddProductPage() {
   const [externalUrl, setExternalUrl] = useState("");
   const [image, setImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isSuspended, setIsSuspended] = useState(false);
+
+  useEffect(() => {
+    async function checkSuspension() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+ 
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+ 
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_suspended")
+        .eq("id", user.id)
+        .single();
+ 
+      if (profile?.is_suspended) {
+        setIsSuspended(true);
+      }
+ 
+      setLoading(false);
+    }
+ 
+    checkSuspension();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="p-10 text-zinc-400">
+        Loading...
+      </div>
+    );
+  }
+
+  if (isSuspended) {
+    return <SuspendedAccountMessage />;
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();

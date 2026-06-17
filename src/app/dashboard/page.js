@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { getAccentBadgeClass } from "@/lib/accentColors";
+import SuspendedAccountMessage from "@/components/SuspendedAccountMessage";
 
 function getNotificationTypeClass(type) {
   if (type === "follow") return "bg-blue-950 text-blue-400";
@@ -301,22 +302,7 @@ export default function DashboardPage() {
   }
 
   if (isSuspended) {
-    return (
-      <div className="rounded-3xl border border-red-900 bg-zinc-900 p-8">
-        <h1 className="text-4xl font-bold text-red-400">
-          Account Suspended
-        </h1>
-
-        <p className="mt-4 text-zinc-400">
-          Your account has been suspended and creator features have been
-          temporarily disabled.
-        </p>
-
-        <p className="mt-2 text-zinc-500">
-          If you believe this was a mistake, please contact support.
-        </p>
-      </div>
-    );
+    return <SuspendedAccountMessage />;
   }
 
   return (
