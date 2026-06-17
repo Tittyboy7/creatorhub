@@ -39,7 +39,7 @@ function getTargetBadgeClass(targetType) {
 
 function getActionClass(actionType) {
   const action = String(actionType || "");
-  
+
   if (
     actionType.includes("Suspend") ||
     actionType.includes("Hide") ||
@@ -293,10 +293,16 @@ export default function AdminAuditLogsPage() {
                         </h3>
                       </div>
 
-                      {log.details && (
-                        <p className="mt-3 text-sm text-zinc-400">
-                          {log.details}
-                        </p>
+                      {log.reason && (
+                        <div className="mt-3 rounded-2xl border border-zinc-800 bg-zinc-900 p-3">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                            Reason
+                          </p>
+
+                          <p className="mt-1 text-sm text-zinc-300">
+                            {log.reason}
+                          </p>
+                        </div>
                       )}
 
                       {log.target_id && (

@@ -102,6 +102,19 @@ export default function AdminUsersPage() {
   }
 
   async function updateSuspensionStatus(userId, isSuspended) {
+    const reason = prompt(
+      isSuspended
+        ? "Why are you suspending this user?"
+        : "Why are you unsuspending this user?"
+    );
+
+    if (reason === null) return;
+
+    if (isSuspended && !reason.trim()) {
+      alert("Please enter a suspension reason.");
+      return;
+    }
+
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -115,6 +128,7 @@ export default function AdminUsersPage() {
       body: JSON.stringify({
         userId,
         isSuspended,
+        reason,
       }),
     });
  

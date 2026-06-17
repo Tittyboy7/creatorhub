@@ -42,7 +42,7 @@ export async function POST(request) {
       return NextResponse.json({ error: "Forbidden." }, { status: 403 });
     }
 
-    const { userId, isSuspended } = await request.json();
+    const { userId, isSuspended, reason } = await request.json();
 
     if (!userId) {
       return NextResponse.json({ error: "Missing userId." }, { status: 400 });
@@ -80,6 +80,7 @@ export async function POST(request) {
       action_type: isSuspended ? "Suspend User" : "Unsuspend User",
       target_type: "User",
       target_id: userId,
+      reason: reason?.trim() || null,
       details: `${currentProfile.email || "Admin"} ${
         isSuspended ? "suspended" : "unsuspended"
       } ${targetProfile?.email || "a user"}.`,
