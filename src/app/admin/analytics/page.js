@@ -17,6 +17,11 @@ function formatDate(dateString) {
   return new Date(dateString).toLocaleString();
 }
 
+function getPercent(value, total) {
+  if (!total || total <= 0) return 0;
+  return Math.round((Number(value || 0) / Number(total || 0)) * 100);
+}
+
 function StatCard({ label, value }) {
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
@@ -37,6 +42,37 @@ function SectionHeader({ title, href, actionLabel }) {
       >
         {actionLabel}
       </Link>
+    </div>
+  );
+}
+
+function RatioBar({ label, value, total, leftLabel, rightLabel }) {
+  const percent = getPercent(value, total);
+
+  return (
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
+      <div className="mb-3 flex items-center justify-between gap-4">
+        <div>
+          <p className="font-semibold">{label}</p>
+          <p className="mt-1 text-sm text-zinc-500">
+            {value} of {total} · {percent}%
+          </p>
+        </div>
+
+        <p className="text-2xl font-bold">{percent}%</p>
+      </div>
+
+      <div className="h-3 overflow-hidden rounded-full bg-zinc-800">
+        <div
+          className="h-full rounded-full bg-white"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+
+      <div className="mt-3 flex justify-between text-xs text-zinc-500">
+        <span>{leftLabel}</span>
+        <span>{rightLabel}</span>
+      </div>
     </div>
   );
 }
@@ -91,6 +127,12 @@ export default function AdminAnalyticsPage() {
     );
   }
 
+  const totalRequestStatuses =
+    analytics.requests.pendingVerificationRequests +
+    analytics.requests.approvedVerificationRequests +
+    analytics.requests.rejectedVerificationRequests +
+    analytics.requests.revokedVerificationRequests;
+
   return (
     <div className="min-h-screen bg-zinc-950 p-10 text-white">
       <div className="mx-auto max-w-7xl space-y-8">
@@ -133,6 +175,44 @@ export default function AdminAnalyticsPage() {
             <Link href="/admin/verification-requests" className="rounded-2xl border border-zinc-700 px-5 py-3 font-semibold text-zinc-300 hover:bg-zinc-800">
               Verification Requests
             </Link>
+          </div>
+        </section>
+
+        <section>
+          <h2 className="mb-4 text-2xl font-bold">Platform Health</h2>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <RatioBar
+              label="Suspended User Ratio"
+              value={analytics.users.suspended}
+              total={analytics.users.total}
+              leftLabel="Suspended"
+              rightLabel="Total users"
+            />
+
+            <RatioBar
+              label="Creator Verification Ratio"
+              value={analytics.creators.verified}
+              total={analytics.creators.total}
+              leftLabel="Verified"
+              rightLabel="Total creators"
+            />
+
+            <RatioBar
+              label="Active Product Ratio"
+              value={analytics.marketplace.activeProducts}
+              total={analytics.marketplace.totalProducts}
+              leftLabel="Active"
+              rightLabel="Total products"
+            />
+
+            <RatioBar
+              label="Pending Verification Request Ratio"
+              value={analytics.requests.pendingVerificationRequests}
+              total={totalRequestStatuses}
+              leftLabel="Pending"
+              rightLabel="All requests"
+            />
           </div>
         </section>
 
