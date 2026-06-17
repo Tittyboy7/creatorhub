@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import SuspendedAccountMessage from "@/components/SuspendedAccountMessage";
 
 function formatMonth(monthValue) {
   if (!monthValue) return "—";
@@ -34,6 +35,7 @@ export default function DashboardRevenuePage() {
   const [loading, setLoading] = useState(true);
   const [creator, setCreator] = useState(null);
   const [revenueEntries, setRevenueEntries] = useState([]);
+  const [isSuspended, setIsSuspended] = useState(false);
 
   useEffect(() => {
     async function loadRevenue() {
@@ -43,6 +45,18 @@ export default function DashboardRevenuePage() {
 
       if (!user) {
         router.push("/login");
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_suspended")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.is_suspended) {
+        setIsSuspended(true);
+        setLoading(false);
         return;
       }
 
@@ -134,6 +148,10 @@ export default function DashboardRevenuePage() {
 
   if (loading) {
     return <p className="text-zinc-400">Loading revenue...</p>;
+  }
+
+  if (isSuspended) {
+    return <SuspendedAccountMessage />;
   }
 
   return (

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { formatDate } from "@/lib/formatDate";
+import SuspendedAccountMessage from "@/components/SuspendedAccountMessage";
 
 export default function DashboardAnnouncementsPage() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function DashboardAnnouncementsPage() {
   const [creator, setCreator] = useState(null);
   const [announcements, setAnnouncements] = useState([]);
   const [statusFilter, setStatusFilter] = useState("All");
+  const [isSuspended, setIsSuspended] = useState(false);
 
   useEffect(() => {
     async function loadAnnouncements() {
@@ -22,6 +24,18 @@ export default function DashboardAnnouncementsPage() {
 
       if (!user) {
         router.push("/login");
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_suspended")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.is_suspended) {
+        setIsSuspended(true);
+        setLoading(false);
         return;
       }
 
@@ -112,6 +126,10 @@ export default function DashboardAnnouncementsPage() {
 
   if (loading) {
     return <p className="text-zinc-400">Loading announcements...</p>;
+  }
+
+  if (isSuspended) {
+    return <SuspendedAccountMessage />;
   }
 
   return (
