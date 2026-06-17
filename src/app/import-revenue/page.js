@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import SuspendedAccountMessage from "@/components/SuspendedAccountMessage";
 
 export default function ImportRevenuePage() {
   const router = useRouter();
@@ -11,7 +12,36 @@ export default function ImportRevenuePage() {
   const [fileName, setFileName] = useState("");
   const [csvRows, setCsvRows] = useState([]);
   const [isImporting, setIsImporting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isSuspended, setIsSuspended] = useState(false);
   const [headers = [], ...dataRows] = csvRows;
+
+  useEffect(() => {
+    async function checkSuspension() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_suspended")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.is_suspended) {
+        setIsSuspended(true);
+      }
+
+      setLoading(false);
+    }
+
+    checkSuspension();
+  }, [router]);
 
   const normalizedPreviewHeaders = headers.map((header) =>
     normalizeHeader(header)
@@ -108,6 +138,14 @@ export default function ImportRevenuePage() {
       .trim()
       .replace(/\s+/g, "_")
       .replace(/-/g, "_");
+  }
+
+  if (loading) {
+    return <p className="text-zinc-400">Loading...</p>;
+  }
+
+  if (isSuspended) {
+    return <SuspendedAccountMessage />;
   }
 
   async function handleImport() {

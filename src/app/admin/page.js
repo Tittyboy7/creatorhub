@@ -204,6 +204,17 @@ export default function AdminPage() {
               View registered users, emails, creator profiles, and admin status.
             </p>
           </Link>
+
+          <Link
+            href="/admin/analytics"
+            className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-zinc-600 transition"
+          >
+            <h2 className="text-2xl font-bold">Analytics</h2>
+
+            <p className="text-zinc-400 mt-2">
+              View platform-wide users, creators, products, revenue, and request metrics.
+            </p>
+          </Link>
         </div>
       </div>
     </div>
