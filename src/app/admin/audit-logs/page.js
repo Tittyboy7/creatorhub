@@ -11,6 +11,54 @@ function formatDate(dateString) {
   return new Date(dateString).toLocaleString();
 }
 
+function getTargetBadgeClass(targetType) {
+  const type = String(targetType || "").toLowerCase();
+
+  if (type.includes("user")) {
+    return "bg-blue-950 text-blue-400";
+  }
+
+  if (type.includes("creator")) {
+    return "bg-green-950 text-green-400";
+  }
+
+  if (type.includes("product")) {
+    return "bg-purple-950 text-purple-400";
+  }
+
+  if (type.includes("announcement")) {
+  return "bg-pink-950 text-pink-400";
+}
+
+  if (type.includes("verification")) {
+    return "bg-yellow-950 text-yellow-400";
+  }
+
+  return "bg-zinc-800 text-zinc-300";
+}
+
+function getActionClass(actionType) {
+  if (
+    actionType.includes("Suspend") ||
+    actionType.includes("Hide") ||
+    actionType.includes("Reject") ||
+    actionType.includes("Revoke")
+  ) {
+    return "text-red-400";
+  }
+
+  if (
+    actionType.includes("Restore") ||
+    actionType.includes("Approve") ||
+    actionType.includes("Verify") ||
+    actionType.includes("Unsuspend")
+  ) {
+    return "text-green-400";
+  }
+
+  return "text-white";
+}
+
 export default function AdminAuditLogsPage() {
   const router = useRouter();
 
@@ -203,11 +251,19 @@ export default function AdminAuditLogsPage() {
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <div className="flex flex-wrap items-center gap-3">
-                        <span className="rounded-full bg-zinc-800 px-3 py-1 text-xs font-semibold text-zinc-300">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold ${getTargetBadgeClass(
+                            log.target_type
+                          )}`}
+                        >
                           {log.target_type}
                         </span>
 
-                        <h3 className="text-lg font-bold">
+                        <h3
+                          className={`text-lg font-bold ${getActionClass(
+                            log.action_type
+                          )}`}
+                        >
                           {log.action_type}
                         </h3>
                       </div>
