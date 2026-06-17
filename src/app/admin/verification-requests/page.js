@@ -174,36 +174,45 @@ export default function AdminVerificationRequestsPage() {
   }
 
   async function handleReject(request) {
-    setActionLoadingId(request.id);
+  setActionLoadingId(request.id);
 
-    const { error } = await supabase
-      .from("verification_requests")
-      .update({
-        status: "rejected",
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", request.id);
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-    if (error) {
-      alert(error.message);
-      setActionLoadingId(null);
-      return;
-    }
+  const response = await fetch("/api/admin/verification-requests/reject", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session?.access_token}`,
+    },
+    body: JSON.stringify({
+      requestId: request.id,
+    }),
+  });
 
-    setRequests((currentRequests) =>
-      currentRequests.map((currentRequest) =>
-        currentRequest.id === request.id
-          ? {
-              ...currentRequest,
-              status: "rejected",
-              reviewed_at: new Date().toISOString(),
-            }
-          : currentRequest
-      )
-    );
+  const data = await response.json();
 
+  if (!response.ok) {
+    alert(data.error || "Failed to reject verification request.");
     setActionLoadingId(null);
+    return;
   }
+
+  setRequests((currentRequests) =>
+    currentRequests.map((currentRequest) =>
+      currentRequest.id === request.id
+        ? {
+            ...currentRequest,
+            status: "rejected",
+            reviewed_at: new Date().toISOString(),
+          }
+        : currentRequest
+    )
+  );
+
+  setActionLoadingId(null);
+}
 
   async function handleRevoke(request) {
     const creatorId = request.creator_id || request.creators?.id;
