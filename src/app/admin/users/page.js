@@ -68,6 +68,39 @@ export default function AdminUsersPage() {
     );
   });
 
+  async function updateAdminStatus(userId, isAdmin) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+ 
+    const response = await fetch("/api/admin/users/admin-status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify({
+        userId,
+        isAdmin,
+      }),
+    });
+ 
+    const data = await response.json();
+ 
+    if (!response.ok) {
+      alert(data.error || "Failed to update admin status.");
+      return;
+    }
+ 
+    setUsers((currentUsers) =>
+      currentUsers.map((currentUser) =>
+        currentUser.id === userId
+          ? { ...currentUser, is_admin: isAdmin }
+          : currentUser
+      )
+    );
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
@@ -201,6 +234,22 @@ export default function AdminUsersPage() {
                     >
                       Manage Creator
                     </Link>
+                  )}
+
+                  {user.is_admin ? (
+                    <button
+                      onClick={() => updateAdminStatus(user.id, false)}
+                      className="rounded-2xl border border-orange-800 px-5 py-3 text-center font-semibold text-orange-400 hover:bg-orange-950"
+                    >
+                      Remove Admin
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => updateAdminStatus(user.id, true)}
+                      className="rounded-2xl border border-blue-800 px-5 py-3 text-center font-semibold text-blue-400 hover:bg-blue-950"
+                    >
+                      Make Admin
+                    </button>
                   )}
                 </div>
               </div>
