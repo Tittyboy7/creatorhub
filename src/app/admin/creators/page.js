@@ -346,6 +346,13 @@ export default function AdminCreatorsPage() {
 
                     <div className="mt-5 space-y-3">
                       <Link
+                        href={`/admin/creators/${creator.id}`}
+                        className="flex w-full items-center justify-center rounded-2xl border border-zinc-700 px-5 py-3 font-semibold text-zinc-300 hover:bg-zinc-800"
+                      >
+                        Manage Creator
+                      </Link>
+
+                      <Link
                         href={`/creator/${creator.username}`}
                         className="flex w-full items-center justify-center rounded-2xl bg-white py-3 font-semibold text-black hover:bg-zinc-200"
                       >

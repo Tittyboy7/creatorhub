@@ -194,14 +194,14 @@ export default function AdminUsersPage() {
                     </Link>
                   )}
 
-                  <Link
-                    href={`/admin/creators?search=${encodeURIComponent(
-                      user.creator?.username || ""
-                    )}`}
-                    className="rounded-2xl border border-zinc-700 px-5 py-3 text-center font-semibold text-zinc-300 hover:bg-zinc-800"
-                  >
-                    Manage Creator
-                  </Link>
+                  {user.creator && (
+                    <Link
+                      href={`/admin/creators/${user.creator.id}`}
+                      className="rounded-2xl border border-zinc-700 px-5 py-3 text-center font-semibold text-zinc-300 hover:bg-zinc-800"
+                    >
+                      Manage Creator
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
