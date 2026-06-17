@@ -27,8 +27,8 @@ function getTargetBadgeClass(targetType) {
   }
 
   if (type.includes("announcement")) {
-  return "bg-pink-950 text-pink-400";
-}
+      return "bg-pink-950 text-pink-400";
+    }
 
   if (type.includes("verification")) {
     return "bg-yellow-950 text-yellow-400";
@@ -38,6 +38,8 @@ function getTargetBadgeClass(targetType) {
 }
 
 function getActionClass(actionType) {
+  const action = String(actionType || "");
+  
   if (
     actionType.includes("Suspend") ||
     actionType.includes("Hide") ||
@@ -123,6 +125,16 @@ export default function AdminAuditLogsPage() {
 
   const targetTypes = ["All", "User", "Creator", "Product", "Announcement", "Verification"];
 
+  const userLogCount = logs.filter((log) => log.target_type === "User").length;
+  const creatorLogCount = logs.filter((log) => log.target_type === "Creator").length;
+  const productLogCount = logs.filter((log) => log.target_type === "Product").length;
+  const announcementLogCount = logs.filter(
+    (log) => log.target_type === "Announcement"
+  ).length;
+  const verificationLogCount = logs.filter(
+    (log) => log.target_type === "Verification"
+  ).length;
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
@@ -153,22 +165,35 @@ export default function AdminAuditLogsPage() {
             announcements, and verification requests.
           </p>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
             <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
               <p className="text-sm text-zinc-500">Total Logs</p>
               <p className="mt-1 text-2xl font-bold">{logs.length}</p>
             </div>
 
             <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-              <p className="text-sm text-zinc-500">Filtered Logs</p>
-              <p className="mt-1 text-2xl font-bold">{filteredLogs.length}</p>
+              <p className="text-sm text-zinc-500">Users</p>
+              <p className="mt-1 text-2xl font-bold">{userLogCount}</p>
             </div>
 
             <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-              <p className="text-sm text-zinc-500">Latest Action</p>
-              <p className="mt-1 line-clamp-1 text-2xl font-bold">
-                {logs[0]?.action_type || "None"}
-              </p>
+              <p className="text-sm text-zinc-500">Creators</p>
+              <p className="mt-1 text-2xl font-bold">{creatorLogCount}</p>
+            </div>
+
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+              <p className="text-sm text-zinc-500">Products</p>
+              <p className="mt-1 text-2xl font-bold">{productLogCount}</p>
+            </div>
+
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+              <p className="text-sm text-zinc-500">Announcements</p>
+              <p className="mt-1 text-2xl font-bold">{announcementLogCount}</p>
+            </div>
+
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+              <p className="text-sm text-zinc-500">Verification</p>
+              <p className="mt-1 text-2xl font-bold">{verificationLogCount}</p>
             </div>
           </div>
         </section>
