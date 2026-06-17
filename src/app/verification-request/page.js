@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import SuspendedAccountMessage from "@/components/SuspendedAccountMessage";
 
 export default function VerificationRequestPage() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function VerificationRequestPage() {
   const [creator, setCreator] = useState(null);
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [isSuspended, setIsSuspended] = useState(false);
 
   useEffect(() => {
     async function loadCreator() {
@@ -20,6 +22,18 @@ export default function VerificationRequestPage() {
 
       if (!user) {
         router.push("/login");
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_suspended")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.is_suspended) {
+        setIsSuspended(true);
+        setLoading(false);
         return;
       }
 
@@ -70,6 +84,10 @@ export default function VerificationRequestPage() {
         Loading...
       </div>
     );
+  }
+
+  if (isSuspended) {
+    return <SuspendedAccountMessage />;
   }
 
   return (
