@@ -14,7 +14,6 @@ function formatCurrency(value) {
 
 function formatDate(dateString) {
   if (!dateString) return "Unknown";
-
   return new Date(dateString).toLocaleString();
 }
 
@@ -23,6 +22,21 @@ function StatCard({ label, value }) {
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
       <p className="text-sm text-zinc-400">{label}</p>
       <p className="mt-2 text-3xl font-bold">{value}</p>
+    </div>
+  );
+}
+
+function SectionHeader({ title, href, actionLabel }) {
+  return (
+    <div className="mb-4 flex items-center justify-between gap-4">
+      <h2 className="text-2xl font-bold">{title}</h2>
+
+      <Link
+        href={href}
+        className="rounded-xl border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-300 hover:bg-zinc-800"
+      >
+        {actionLabel}
+      </Link>
     </div>
   );
 }
@@ -98,10 +112,32 @@ export default function AdminAnalyticsPage() {
             Monitor users, creators, marketplace activity, revenue records,
             verification requests, and recent platform activity.
           </p>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="/admin/users" className="rounded-2xl bg-white px-5 py-3 font-semibold text-black hover:bg-zinc-200">
+              Users
+            </Link>
+
+            <Link href="/admin/creators" className="rounded-2xl border border-zinc-700 px-5 py-3 font-semibold text-zinc-300 hover:bg-zinc-800">
+              Creators
+            </Link>
+
+            <Link href="/admin/products" className="rounded-2xl border border-zinc-700 px-5 py-3 font-semibold text-zinc-300 hover:bg-zinc-800">
+              Products
+            </Link>
+
+            <Link href="/admin/announcements" className="rounded-2xl border border-zinc-700 px-5 py-3 font-semibold text-zinc-300 hover:bg-zinc-800">
+              Announcements
+            </Link>
+
+            <Link href="/admin/verification-requests" className="rounded-2xl border border-zinc-700 px-5 py-3 font-semibold text-zinc-300 hover:bg-zinc-800">
+              Verification Requests
+            </Link>
+          </div>
         </section>
 
         <section>
-          <h2 className="mb-4 text-2xl font-bold">Users</h2>
+          <SectionHeader title="Users" href="/admin/users" actionLabel="Manage Users" />
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard label="Total Users" value={analytics.users.total} />
@@ -112,7 +148,7 @@ export default function AdminAnalyticsPage() {
         </section>
 
         <section>
-          <h2 className="mb-4 text-2xl font-bold">Creators</h2>
+          <SectionHeader title="Creators" href="/admin/creators" actionLabel="Manage Creators" />
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard label="Total Creators" value={analytics.creators.total} />
@@ -122,7 +158,7 @@ export default function AdminAnalyticsPage() {
         </section>
 
         <section>
-          <h2 className="mb-4 text-2xl font-bold">Marketplace</h2>
+          <SectionHeader title="Marketplace" href="/admin/products" actionLabel="Manage Products" />
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard label="Total Products" value={analytics.marketplace.totalProducts} />
@@ -132,7 +168,7 @@ export default function AdminAnalyticsPage() {
         </section>
 
         <section>
-          <h2 className="mb-4 text-2xl font-bold">Announcements</h2>
+          <SectionHeader title="Announcements" href="/admin/announcements" actionLabel="Manage Announcements" />
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard label="Total Announcements" value={analytics.announcements.total} />
@@ -143,7 +179,7 @@ export default function AdminAnalyticsPage() {
         </section>
 
         <section>
-          <h2 className="mb-4 text-2xl font-bold">Revenue</h2>
+          <SectionHeader title="Revenue" href="/revenue" actionLabel="View Revenue" />
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard
@@ -156,7 +192,11 @@ export default function AdminAnalyticsPage() {
         </section>
 
         <section>
-          <h2 className="mb-4 text-2xl font-bold">Verification Requests</h2>
+          <SectionHeader
+            title="Verification Requests"
+            href="/admin/verification-requests"
+            actionLabel="Review Requests"
+          />
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <StatCard label="Total Requests" value={analytics.requests.totalVerificationRequests} />
@@ -175,6 +215,13 @@ export default function AdminAnalyticsPage() {
                 Latest users, products, and verification activity.
               </p>
             </div>
+
+            <Link
+              href="/admin/users"
+              className="rounded-xl border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-300 hover:bg-zinc-800"
+            >
+              View Users
+            </Link>
           </div>
 
           {analytics.recentActivity.length === 0 ? (
