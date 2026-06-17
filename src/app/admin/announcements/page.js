@@ -67,15 +67,28 @@ export default function AdminAnnouncementsPage() {
   }, [router]);
 
   async function handleToggleAnnouncement(announcement) {
-    const { error } = await supabase
-      .from("announcements")
-      .update({
-        admin_hidden: !announcement.admin_hidden,
-      })
-      .eq("id", announcement.id);
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    if (error) {
-      alert(error.message);
+    const newAdminHiddenStatus = !announcement.admin_hidden;
+
+    const response = await fetch("/api/admin/announcements/status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify({
+        announcementId: announcement.id,
+        adminHidden: newAdminHiddenStatus,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || "Failed to update announcement.");
       return;
     }
 
@@ -84,7 +97,7 @@ export default function AdminAnnouncementsPage() {
         currentAnnouncement.id === announcement.id
           ? {
               ...currentAnnouncement,
-              admin_hidden: !currentAnnouncement.admin_hidden,
+              admin_hidden: newAdminHiddenStatus,
             }
           : currentAnnouncement
       )

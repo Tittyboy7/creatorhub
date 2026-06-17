@@ -215,6 +215,17 @@ export default function AdminPage() {
               View platform-wide users, creators, products, revenue, and request metrics.
             </p>
           </Link>
+
+          <Link
+            href="/admin/audit-logs"
+            className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-zinc-600 transition"
+          >
+            <h2 className="text-2xl font-bold">Audit Logs</h2>
+
+            <p className="text-zinc-400 mt-2">
+              Review admin actions, moderation history, and platform changes.
+            </p>
+          </Link>
         </div>
       </div>
     </div>

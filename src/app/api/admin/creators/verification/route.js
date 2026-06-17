@@ -40,7 +40,7 @@ export async function POST(request) {
 
     const { data: profile } = await supabaseUserClient
       .from("profiles")
-      .select("is_admin")
+      .select("is_admin, email")
       .eq("id", user.id)
       .single();
 
@@ -65,6 +65,12 @@ export async function POST(request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
+    const { data: creator } = await supabaseAdmin
+      .from("creators")
+      .select("display_name, username")
+      .eq("id", creatorId)
+      .maybeSingle();
+
     const { error } = await supabaseAdmin
       .from("creators")
       .update({
@@ -78,6 +84,16 @@ export async function POST(request) {
         { status: 500 }
       );
     }
+
+    await supabaseAdmin.from("audit_logs").insert({
+      admin_id: user.id,
+      action_type: verified ? "Verify Creator" : "Revoke Creator Verification",
+      target_type: "Creator",
+      target_id: creatorId,
+      details: `${profile.email || "Admin"} ${
+        verified ? "verified" : "revoked verification for"
+      } ${creator?.display_name || creator?.username || "a creator"}.`,
+    });
 
     return NextResponse.json({
       success: true,

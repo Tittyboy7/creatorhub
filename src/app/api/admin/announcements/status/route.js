@@ -32,25 +32,21 @@ export async function POST(request) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
-    const { data: currentProfile } = await supabaseUserClient
+    const { data: profile } = await supabaseUserClient
       .from("profiles")
       .select("is_admin, email")
       .eq("id", user.id)
       .single();
 
-    if (!currentProfile?.is_admin) {
+    if (!profile?.is_admin) {
       return NextResponse.json({ error: "Forbidden." }, { status: 403 });
     }
 
-    const { userId, isSuspended } = await request.json();
+    const { announcementId, adminHidden } = await request.json();
 
-    if (!userId) {
-      return NextResponse.json({ error: "Missing userId." }, { status: 400 });
-    }
-
-    if (userId === user.id && isSuspended === true) {
+    if (!announcementId) {
       return NextResponse.json(
-        { error: "You cannot suspend your own account." },
+        { error: "Missing announcementId." },
         { status: 400 }
       );
     }
@@ -60,16 +56,16 @@ export async function POST(request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
-    const { data: targetProfile } = await supabaseAdmin
-      .from("profiles")
-      .select("email")
-      .eq("id", userId)
+    const { data: announcement } = await supabaseAdmin
+      .from("announcements")
+      .select("title")
+      .eq("id", announcementId)
       .maybeSingle();
 
     const { error } = await supabaseAdmin
-      .from("profiles")
-      .update({ is_suspended: isSuspended })
-      .eq("id", userId);
+      .from("announcements")
+      .update({ admin_hidden: adminHidden })
+      .eq("id", announcementId);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
@@ -77,18 +73,18 @@ export async function POST(request) {
 
     await supabaseAdmin.from("audit_logs").insert({
       admin_id: user.id,
-      action_type: isSuspended ? "Suspend User" : "Unsuspend User",
-      target_type: "User",
-      target_id: userId,
-      details: `${currentProfile.email || "Admin"} ${
-        isSuspended ? "suspended" : "unsuspended"
-      } ${targetProfile?.email || "a user"}.`,
+      action_type: adminHidden ? "Hide Announcement" : "Restore Announcement",
+      target_type: "Announcement",
+      target_id: announcementId,
+      details: `${profile.email || "Admin"} ${
+        adminHidden ? "hid" : "restored"
+      } announcement: ${announcement?.title || "Unknown announcement"}.`,
     });
 
     return NextResponse.json({
       success: true,
-      userId,
-      isSuspended,
+      announcementId,
+      adminHidden,
     });
   } catch (error) {
     return NextResponse.json(

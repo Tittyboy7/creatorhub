@@ -34,7 +34,7 @@ export async function POST(request) {
 
     const { data: profile } = await supabaseUserClient
       .from("profiles")
-      .select("is_admin")
+      .select("is_admin, email")
       .eq("id", user.id)
       .single();
 
@@ -53,6 +53,12 @@ export async function POST(request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
+    const { data: product } = await supabaseAdmin
+      .from("products")
+      .select("title")
+      .eq("id", productId)
+      .maybeSingle();
+
     const { error } = await supabaseAdmin
       .from("products")
       .update({
@@ -63,6 +69,16 @@ export async function POST(request) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    await supabaseAdmin.from("audit_logs").insert({
+      admin_id: user.id,
+      action_type: isActive ? "Restore Product" : "Hide Product",
+      target_type: "Product",
+      target_id: productId,
+      details: `${profile.email || "Admin"} ${
+        isActive ? "restored" : "hid"
+      } product: ${product?.title || "Unknown product"}.`,
+    });
 
     return NextResponse.json({
       success: true,

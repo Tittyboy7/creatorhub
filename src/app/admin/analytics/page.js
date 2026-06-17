@@ -82,6 +82,8 @@ export default function AdminAnalyticsPage() {
 
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState(null);
+  const [activityFilter, setActivityFilter] = useState("All");
+  const [activitySearch, setActivitySearch] = useState("");
 
   useEffect(() => {
     async function loadAnalytics() {
@@ -132,6 +134,30 @@ export default function AdminAnalyticsPage() {
     analytics.requests.approvedVerificationRequests +
     analytics.requests.rejectedVerificationRequests +
     analytics.requests.revokedVerificationRequests;
+
+  const filteredActivity = analytics.recentActivity.filter((activity) => {
+    const typeMatches =
+      activityFilter === "All" ||
+      activity.type === activityFilter;
+ 
+    const searchMatches = activity.title
+      .toLowerCase()
+      .includes(activitySearch.toLowerCase());
+ 
+    return typeMatches && searchMatches;
+  });
+ 
+  const userActivityCount = analytics.recentActivity.filter(
+    (item) => item.type === "User"
+  ).length;
+ 
+  const productActivityCount = analytics.recentActivity.filter(
+    (item) => item.type === "Product"
+  ).length;
+ 
+  const verificationActivityCount = analytics.recentActivity.filter(
+    (item) => item.type === "Verification"
+  ).length;
 
   return (
     <div className="min-h-screen bg-zinc-950 p-10 text-white">
@@ -288,30 +314,74 @@ export default function AdminAnalyticsPage() {
         </section>
 
         <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
-          <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 className="text-2xl font-bold">Recent Activity</h2>
-              <p className="mt-1 text-sm text-zinc-500">
-                Latest users, products, and verification activity.
-              </p>
+          <div className="mb-6 space-y-5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Recent Activity</h2>
+
+                <p className="mt-1 text-sm text-zinc-500">
+                  Latest users, products, and verification activity.
+                </p>
+              </div>
+
+              <Link
+                href="/admin/users"
+                className="rounded-xl border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-300 hover:bg-zinc-800"
+              >
+                View Users
+              </Link>
             </div>
 
-            <Link
-              href="/admin/users"
-              className="rounded-xl border border-zinc-700 px-4 py-2 text-sm font-semibold text-zinc-300 hover:bg-zinc-800"
-            >
-              View Users
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => setActivityFilter("All")}
+                className="rounded-xl border border-zinc-700 px-4 py-2 hover:bg-zinc-800"
+              >
+                All ({analytics.recentActivity.length})
+              </button>
+
+              <button
+                onClick={() => setActivityFilter("User")}
+                className="rounded-xl border border-zinc-700 px-4 py-2 hover:bg-zinc-800"
+              >
+                Users ({userActivityCount})
+              </button>
+
+              <button
+                onClick={() => setActivityFilter("Product")}
+                className="rounded-xl border border-zinc-700 px-4 py-2 hover:bg-zinc-800"
+              >
+                Products ({productActivityCount})
+              </button>
+
+              <button
+                onClick={() => setActivityFilter("Verification")}
+                className="rounded-xl border border-zinc-700 px-4 py-2 hover:bg-zinc-800"
+              >
+                Verification ({verificationActivityCount})
+              </button>
+            </div>
+
+            <input
+              type="text"
+              placeholder="Search activity..."
+              value={activitySearch}
+              onChange={(e) => setActivitySearch(e.target.value)}
+              className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 p-4"
+            />
           </div>
 
-          {analytics.recentActivity.length === 0 ? (
-            <p className="text-zinc-400">No recent activity found.</p>
+          {filteredActivity.length === 0 ? (
+            <p className="text-zinc-400">
+              No activity matches your filters.
+            </p>
           ) : (
             <div className="space-y-3">
-              {analytics.recentActivity.map((activity) => (
-                <div
+              {filteredActivity.map((activity) => (
+                <Link
                   key={activity.id}
-                  className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4"
+                  href={activity.href || "/admin"}
+                  className="block rounded-2xl border border-zinc-800 bg-zinc-950 p-4 transition hover:border-zinc-600 hover:bg-zinc-900"
                 >
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -326,7 +396,7 @@ export default function AdminAnalyticsPage() {
                       {formatDate(activity.date)}
                     </p>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}

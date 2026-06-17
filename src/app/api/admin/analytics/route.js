@@ -98,24 +98,27 @@ export async function GET(request) {
         type: "User",
         title: item.email || "New user",
         date: item.created_at,
+        href: "/admin/users",
       })),
       ...products.slice(0, 5).map((item) => ({
         id: `product-${item.id}`,
         type: "Product",
         title: item.title || "New product",
         date: item.created_at,
+        href: "/admin/products",
       })),
       ...verificationRequests.slice(0, 5).map((item) => ({
         id: `verification-${item.id}`,
         type: "Verification",
         title: `${item.status || "pending"} verification request`,
         date: item.created_at,
+        href: "/admin/verification-requests",
       })),
     ]
       .filter((item) => item.date)
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 10);
-
+    
     return NextResponse.json({
       analytics: {
         users: {
