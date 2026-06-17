@@ -42,10 +42,10 @@ export default async function ProductPage({ params }) {
     `)
     .eq("id", id)
     .eq("is_active", true)
-    .single();
+    .maybeSingle();
 
     if (productError) {
-      console.error("Product page Supabase error:", productError);
+      console.error("Product page Supabase error:", productError.message);
     }
 
   if (!product) {

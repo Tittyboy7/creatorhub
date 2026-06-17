@@ -116,12 +116,80 @@ export default function AdminSingleCreatorPage() {
       return;
     }
 
+    async function updateProductStatus(productId, isActive) {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const response = await fetch("/api/admin/products/status", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({
+          productId,
+          isActive,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "Failed to update product.");
+        return;
+      }
+
+      setCreator((current) => ({
+        ...current,
+        products: (current.products || []).map((product) =>
+          product.id === productId
+            ? { ...product, is_active: isActive }
+            : product
+        ),
+      }));
+    }
+
     setCreator((current) => ({
       ...current,
       is_verified: verified,
     }));
 
     setActionLoading(false);
+  }
+
+  async function updateProductStatus(productId, isActive) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+ 
+    const response = await fetch("/api/admin/products/status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify({
+        productId,
+        isActive,
+      }),
+    });
+ 
+    const data = await response.json();
+ 
+    if (!response.ok) {
+      alert(data.error || "Failed to update product.");
+      return;
+    }
+ 
+    setCreator((current) => ({
+      ...current,
+      products: (current.products || []).map((product) =>
+        product.id === productId
+          ? { ...product, is_active: isActive }
+          : product
+      ),
+    }));
   }
 
   if (loading) {
@@ -291,12 +359,30 @@ export default function AdminSingleCreatorPage() {
                     </p>
                   </div>
 
-                  <Link
-                    href={`/product/${product.id}`}
-                    className="text-sm font-semibold text-zinc-300 hover:text-white"
-                  >
-                    View
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href={`/product/${product.id}`}
+                      className="text-sm font-semibold text-zinc-300 hover:text-white"
+                    >
+                      View
+                    </Link>
+
+                    {product.is_active ? (
+                      <button
+                        onClick={() => updateProductStatus(product.id, false)}
+                        className="rounded-xl border border-red-900 px-3 py-2 text-sm font-semibold text-red-400 hover:bg-red-950"
+                      >
+                        Hide
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => updateProductStatus(product.id, true)}
+                        className="rounded-xl border border-green-900 px-3 py-2 text-sm font-semibold text-green-400 hover:bg-green-950"
+                      >
+                        Restore
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
