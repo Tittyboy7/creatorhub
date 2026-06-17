@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import SuspendedAccountMessage from "@/components/SuspendedAccountMessage";
 
 function formatPreviewPrice(value) {
   if (!value) return "$0";
@@ -32,9 +33,31 @@ export default function EditProductPage() {
   const [externalUrl, setExternalUrl] = useState("");
   const [image, setImage] = useState(null);
   const [currentImageUrl, setCurrentImageUrl] = useState("");
+  const [isSuspended, setIsSuspended] = useState(false);
 
   useEffect(() => {
     async function loadProduct() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_suspended")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.is_suspended) {
+        setIsSuspended(true);
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from("products")
         .select("*")
@@ -132,6 +155,10 @@ export default function EditProductPage() {
         Loading product...
       </div>
     );
+  }
+
+  if (isSuspended) {
+    return <SuspendedAccountMessage />;
   }
 
   return (

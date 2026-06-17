@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { getAccentBadgeClass } from "@/lib/accentColors";
+import SuspendedAccountMessage from "@/components/SuspendedAccountMessage";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function EditProfilePage() {
   const [shopify, setShopify] = useState("");
   const [patreon, setPatreon] = useState("");
   const [accentColor, setAccentColor] = useState("white");
+  const [isSuspended, setIsSuspended] = useState(false);
 
   useEffect(() => {
     async function loadProfile() {
@@ -34,6 +36,18 @@ export default function EditProfilePage() {
 
       if (!user) {
         router.push("/login");
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_suspended")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.is_suspended) {
+        setIsSuspended(true);
+        setLoading(false);
         return;
       }
 
@@ -158,6 +172,11 @@ export default function EditProfilePage() {
       </div>
     );
   }
+
+    if (isSuspended) {
+      return <SuspendedAccountMessage />;
+    }
+
     return (
     <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-6">
       <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-10 w-full max-w-xl">
