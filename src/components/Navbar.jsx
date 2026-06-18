@@ -274,8 +274,18 @@ export default function Navbar() {
                 Dashboard
               </Link>
 
-              <Link href="/notifications" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
-                {notificationLabel}
+              <Link
+                href="/notifications"
+                onClick={closeMenu}
+                className="flex items-center justify-between border border-zinc-800 rounded-2xl p-4"
+              >
+                <span>Notifications</span>
+
+                {notificationCount > 0 && (
+                  <span className="rounded-full bg-red-500 px-3 py-1 text-xs font-bold text-white">
+                    {notificationCount}
+                  </span>
+                )}
               </Link>
 
               <Link href="/revenue" onClick={closeMenu} className="block border border-zinc-800 rounded-2xl p-4">
