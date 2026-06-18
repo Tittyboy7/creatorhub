@@ -57,31 +57,60 @@ export default function AdminProductsPage() {
   }, [router]);
 
   async function handleToggleProduct(product) {
-    const { error } = await supabase
-      .from("products")
-      .update({
-        is_active: !product.is_active,
-      })
-      .eq("id", product.id);
+  const newActiveStatus = !product.is_active;
 
-    if (error) {
-      alert(error.message);
-      return;
-    }
+  const reason = window.prompt(
+    newActiveStatus
+      ? "Why are you restoring this product?"
+      : "Why are you hiding this product?"
+  );
 
-    setProducts((currentProducts) =>
-      currentProducts.map((currentProduct) =>
-        currentProduct.id === product.id
-          ? {
-              ...currentProduct,
-              is_active: !currentProduct.is_active,
-            }
-          : currentProduct
-      )
-    );
-
-    window.dispatchEvent(new Event("cartUpdated"));
+  if (reason === null) {
+    return;
   }
+
+  if (!reason.trim()) {
+    alert("Please enter a reason.");
+    return;
+  }
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const response = await fetch("/api/admin/products/status", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session?.access_token}`,
+    },
+    body: JSON.stringify({
+      productId: product.id,
+      isActive: newActiveStatus,
+      reason: reason.trim(),
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    alert(data.error || "Failed to update product.");
+    return;
+  }
+
+  setProducts((currentProducts) =>
+    currentProducts.map((currentProduct) =>
+      currentProduct.id === product.id
+        ? {
+            ...currentProduct,
+            is_active: newActiveStatus,
+          }
+        : currentProduct
+    )
+  );
+
+  window.dispatchEvent(new Event("cartUpdated"));
+}
 
   async function handleToggleFlag(product) {
     const { error } = await supabase

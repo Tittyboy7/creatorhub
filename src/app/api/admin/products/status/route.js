@@ -42,7 +42,7 @@ export async function POST(request) {
       return NextResponse.json({ error: "Forbidden." }, { status: 403 });
     }
 
-    const { productId, isActive } = await request.json();
+    const { productId, isActive, reason } = await request.json();
 
     if (!productId) {
       return NextResponse.json({ error: "Missing productId." }, { status: 400 });
@@ -75,6 +75,7 @@ export async function POST(request) {
       action_type: isActive ? "Restore Product" : "Hide Product",
       target_type: "Product",
       target_id: productId,
+      reason: reason?.trim() || null,
       details: `${profile.email || "Admin"} ${
         isActive ? "restored" : "hid"
       } product: ${product?.title || "Unknown product"}.`,

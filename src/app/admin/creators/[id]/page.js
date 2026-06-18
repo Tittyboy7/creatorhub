@@ -85,112 +85,92 @@ export default function AdminSingleCreatorPage() {
   }, [creatorId, router]);
 
   async function updateVerification(verified) {
-    if (!creator?.id) {
-      alert("Creator has not loaded yet.");
-      return;
-    }
+  if (!creator?.id) {
+    alert("Creator has not loaded yet.");
+    return;
+  }
 
-    setActionLoading(true);
+  setActionLoading(true);
 
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-    const response = await fetch("/api/admin/creators/verification", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.access_token}`,
-      },
-      body: JSON.stringify({
-        creatorId: creator?.id,
-        verified,
-      }),
-    });
+  const response = await fetch("/api/admin/creators/verification", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session?.access_token}`,
+    },
+    body: JSON.stringify({
+      creatorId: creator?.id,
+      verified,
+    }),
+  });
 
-    const data = await response.json();
+  const data = await response.json();
 
-    if (!response.ok) {
-      alert(data.error || "Failed to update verification.");
-      setActionLoading(false);
-      return;
-    }
-
-    async function updateProductStatus(productId, isActive) {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      const response = await fetch("/api/admin/products/status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.access_token}`,
-        },
-        body: JSON.stringify({
-          productId,
-          isActive,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        alert(data.error || "Failed to update product.");
-        return;
-      }
-
-      setCreator((current) => ({
-        ...current,
-        products: (current.products || []).map((product) =>
-          product.id === productId
-            ? { ...product, is_active: isActive }
-            : product
-        ),
-      }));
-    }
-
-    setCreator((current) => ({
-      ...current,
-      is_verified: verified,
-    }));
-
+  if (!response.ok) {
+    alert(data.error || "Failed to update verification.");
     setActionLoading(false);
+    return;
   }
 
-  async function updateProductStatus(productId, isActive) {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
- 
-    const response = await fetch("/api/admin/products/status", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.access_token}`,
-      },
-      body: JSON.stringify({
-        productId,
-        isActive,
-      }),
-    });
- 
-    const data = await response.json();
- 
-    if (!response.ok) {
-      alert(data.error || "Failed to update product.");
-      return;
-    }
- 
-    setCreator((current) => ({
-      ...current,
-      products: (current.products || []).map((product) =>
-        product.id === productId
-          ? { ...product, is_active: isActive }
-          : product
-      ),
-    }));
+  setCreator((current) => ({
+    ...current,
+    is_verified: verified,
+  }));
+
+  setActionLoading(false);
+}
+
+async function updateProductStatus(productId, isActive) {
+  const reason = window.prompt(
+    isActive
+      ? "Why are you restoring this product?"
+      : "Why are you hiding this product?"
+  );
+
+  if (reason === null) return;
+
+  if (!reason.trim()) {
+    alert("Please enter a reason.");
+    return;
   }
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const response = await fetch("/api/admin/products/status", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session?.access_token}`,
+    },
+    body: JSON.stringify({
+      productId,
+      isActive,
+      reason: reason.trim(),
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    alert(data.error || "Failed to update product.");
+    return;
+  }
+
+  setCreator((current) => ({
+    ...current,
+    products: (current.products || []).map((product) =>
+      product.id === productId
+        ? { ...product, is_active: isActive }
+        : product
+    ),
+  }));
+}
 
   if (loading) {
     return (
