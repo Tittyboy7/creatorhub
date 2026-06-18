@@ -14,6 +14,7 @@ export default function AdminSingleCreatorPage() {
   const [creator, setCreator] = useState(null);
   const [email, setEmail] = useState("Email unavailable");
   const [actionLoading, setActionLoading] = useState(false);
+  const [warnings, setWarnings] = useState([]);
 
   useEffect(() => {
     async function loadCreator() {
@@ -61,6 +62,14 @@ export default function AdminSingleCreatorPage() {
       }
 
       setCreator(data);
+
+      const { data: warningData } = await supabase
+        .from("creator_warnings")
+        .select("*")
+        .eq("creator_id", creatorId)
+        .order("created_at", { ascending: false });
+
+      setWarnings(warningData || []);
 
       const {
         data: { session },
@@ -170,6 +179,55 @@ export default function AdminSingleCreatorPage() {
           : product
       ),
     }));
+  }
+
+  async function warnCreator() {
+    if (!creator?.id) {
+      alert("Creator has not loaded yet.");
+      return;
+    }
+
+    const reason = window.prompt("Why are you warning this creator?");
+
+    if (reason === null) return;
+
+    if (!reason.trim()) {
+      alert("Please enter a warning reason.");
+      return;
+    }
+
+    const severity = window.prompt(
+      "Severity? Type: warning, serious, or final",
+      "warning"
+    );
+
+    if (severity === null) return;
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    const response = await fetch("/api/admin/creators/warning", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify({
+        creatorId: creator.id,
+        reason: reason.trim(),
+        severity: severity.trim() || "warning",
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || "Failed to warn creator.");
+      return;
+    }
+
+    alert("Creator warning saved.");
   }
 
   if (loading) {
@@ -282,6 +340,13 @@ export default function AdminSingleCreatorPage() {
                     {actionLoading ? "Working..." : "Verify Creator"}
                   </button>
                 )}
+
+                <button
+                  onClick={warnCreator}
+                  className="rounded-2xl border border-yellow-900 px-5 py-3 font-semibold text-yellow-400 hover:bg-yellow-950"
+                >
+                  Warn Creator
+                </button>
               </div>
             </div>
 
@@ -295,7 +360,7 @@ export default function AdminSingleCreatorPage() {
           </div>
         </section>
 
-        <section className="mt-6 grid gap-4 sm:grid-cols-3">
+        <section className="mt-6 grid gap-4 sm:grid-cols-4">
           <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
             <p className="text-sm text-zinc-500">Products</p>
             <p className="mt-1 text-3xl font-bold">
@@ -315,6 +380,14 @@ export default function AdminSingleCreatorPage() {
             <p className="mt-1 text-3xl font-bold">
               {(creator.products || []).filter((product) => product.is_active)
                 .length}
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-yellow-900 bg-zinc-900 p-5">
+            <p className="text-sm text-zinc-500">Warnings</p>
+
+            <p className="mt-1 text-3xl font-bold text-yellow-400">
+              {warnings.length}
             </p>
           </div>
         </section>
@@ -371,6 +444,37 @@ export default function AdminSingleCreatorPage() {
                       </button>
                     )}
                   </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="mt-6 rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
+          <h2 className="text-2xl font-bold">Warning History</h2>
+
+          {warnings.length === 0 ? (
+            <p className="mt-4 text-zinc-400">
+              No warnings have been issued.
+            </p>
+          ) : (
+            <div className="mt-4 space-y-3">
+              {warnings.map((warning) => (
+                <div
+                  key={warning.id}
+                  className="rounded-2xl border border-yellow-900 bg-zinc-950 p-4"
+                >
+                  <p className="text-yellow-400 font-semibold">
+                    {warning.severity?.toUpperCase() || "WARNING"}
+                  </p>
+
+                  <p className="mt-2 text-zinc-300">
+                    {warning.reason}
+                  </p>
+
+                  <p className="mt-2 text-xs text-zinc-500">
+                    {new Date(warning.created_at).toLocaleString()}
+                  </p>
                 </div>
               ))}
             </div>
