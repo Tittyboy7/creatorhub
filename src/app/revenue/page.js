@@ -214,6 +214,92 @@ export default function RevenuePage() {
   const hasActiveFilters =
     selectedPlatform !== "All" || selectedRevenueType !== "All";
 
+  const topPlatformPercent =
+    totalRevenue === 0 || !bestPlatform
+      ? 0
+      : Math.round((bestPlatform.revenue / totalRevenue) * 100);
+
+  const bestMonth = monthlyChartData.reduce(
+    (best, month) => (month.revenue > best.revenue ? month : best),
+    { month: "", revenue: 0 }
+  );
+
+  const revenueStreak = [...monthlyChartData]
+    .reverse()
+    .reduce((streak, month) => {
+      if (streak.stopped) return streak;
+      if (month.revenue > 0) {
+        return { count: streak.count + 1, stopped: false };
+      }
+      return { count: streak.count, stopped: true };
+    }, { count: 0, stopped: false }).count;
+
+  const businessInsights = [
+    {
+      title: "Revenue Concentration",
+      value:
+        topPlatformPercent >= 70
+          ? "High Dependency"
+          : topPlatformPercent >= 40
+          ? "Moderate Dependency"
+          : "Healthy Mix",
+      description: bestPlatform
+        ? `${topPlatformPercent}% of your revenue comes from ${bestPlatform.platform}. ${
+            topPlatformPercent >= 70
+              ? "Consider building additional revenue streams to reduce risk."
+              : "Your platform mix is moving in a healthy direction."
+          }`
+        : "Add revenue entries to see platform dependency insights.",
+    },
+    {
+      title: "Growth Momentum",
+      value:
+        monthlyGrowthPercent > 0
+          ? `+${monthlyGrowthPercent}%`
+          : `${monthlyGrowthPercent}%`,
+      description:
+        monthlyGrowthPercent > 0
+          ? "Revenue increased compared to your previous tracked month."
+          : monthlyGrowthPercent < 0
+          ? "Revenue decreased compared to your previous tracked month."
+          : "Revenue is currently flat compared to your previous tracked month.",
+    },
+    {
+      title: "Revenue Streak",
+      value: `${revenueStreak} month${revenueStreak === 1 ? "" : "s"}`,
+      description:
+        revenueStreak >= 3
+          ? "You are building consistent revenue momentum."
+          : "Keep adding monthly revenue to build a stronger tracking streak.",
+    },
+    {
+      title: "Best Month",
+      value: bestMonth.month ? formatMonth(bestMonth.month) : "—",
+      description: bestMonth.month
+        ? `${formatCurrency(bestMonth.revenue)} was your strongest tracked month.`
+        : "Your best month will appear once revenue is added.",
+    },
+  ];  
+
+  const revenueGoal = 10000;
+  const goalProgressPercent =
+    revenueGoal === 0
+      ? 0
+      : Math.min(Math.round((totalRevenue / revenueGoal) * 100), 100);
+
+  const revenueGoalRemaining = Math.max(revenueGoal - totalRevenue, 0);
+
+  const entriesByMonth = filteredEntries.reduce((groups, entry) => {
+    const month = entry.entry_month || "Unknown";
+
+    if (!groups[month]) {
+      groups[month] = [];
+    }
+
+    groups[month].push(entry);
+    return groups;
+  }, {});
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
@@ -521,6 +607,100 @@ export default function RevenuePage() {
           </div>
         </section>
 
+        <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5 md:p-6">
+          <div className="mb-5">
+            <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+              Business Intelligence
+            </p>
+
+            <h2 className="mt-2 text-2xl font-bold md:text-3xl">
+              Revenue Insights
+            </h2>
+
+            <p className="mt-1 text-sm text-zinc-500">
+              Smart observations based on your tracked creator income.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {businessInsights.map((insight) => (
+              <div
+                key={insight.title}
+                className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5"
+              >
+                <p className="text-sm text-zinc-500">{insight.title}</p>
+
+                <p className="mt-2 text-2xl font-bold">{insight.value}</p>
+
+                <p className="mt-3 text-sm leading-relaxed text-zinc-400">
+                  {insight.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-5 md:p-6">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+                Revenue Goal
+              </p>
+
+              <h2 className="mt-2 text-2xl font-bold md:text-3xl">
+                Creator Revenue Goal
+              </h2>
+
+              <p className="mt-2 text-zinc-400">
+                {formatCurrency(totalRevenue)} tracked toward your{" "}
+                {formatCurrency(revenueGoal)} goal.
+              </p>
+            </div>
+
+            <div className="text-left lg:text-right">
+              <p className="text-4xl font-bold">{goalProgressPercent}%</p>
+              <p className="mt-1 text-sm text-zinc-500">
+                {formatCurrency(revenueGoalRemaining)} remaining
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 h-4 overflow-hidden rounded-full bg-zinc-800">
+            <div
+              className="h-full rounded-full bg-white"
+              style={{ width: `${goalProgressPercent}%` }}
+            />
+          </div>
+        </section>
+
+        <section
+          className={`rounded-3xl border p-5 md:p-6 ${
+            topPlatformPercent >= 80
+              ? "border-red-900 bg-red-950/20"
+              : topPlatformPercent >= 60
+              ? "border-yellow-900 bg-yellow-950/20"
+              : "border-zinc-800 bg-zinc-900"
+          }`}
+        >
+          <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+            Dependency Risk
+          </p>
+
+          <h2 className="mt-2 text-2xl font-bold">
+            {topPlatformPercent >= 80
+              ? "High Platform Risk"
+              : topPlatformPercent >= 60
+              ? "Moderate Platform Risk"
+              : "Healthy Revenue Spread"}
+          </h2>
+
+          <p className="mt-3 max-w-3xl text-zinc-400">
+            {bestPlatform
+              ? `${topPlatformPercent}% of your tracked revenue comes from ${bestPlatform.platform}.`
+              : "Add revenue entries to calculate platform risk."}
+          </p>
+        </section>
+
         <section className="grid gap-6 xl:grid-cols-2">
           <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5 md:p-6">
             <div className="mb-5">
@@ -744,50 +924,69 @@ export default function RevenuePage() {
               </Link>
             </div>
           ) : (
-            <div className="space-y-3">
-              {filteredEntries.map((entry) => (
-                <div
-                  key={entry.id}
-                  className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4"
-                >
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <h3 className="text-xl font-semibold">
-                        {entry.platform}
-                      </h3>
+            <div className="space-y-6">
+              {Object.entries(entriesByMonth).map(([month, monthEntries]) => (
+                <div key={month} className="rounded-3xl border border-zinc-800 bg-zinc-950 p-4">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h3 className="text-xl font-bold">
+                      {month === "Unknown" ? "Unknown Month" : formatMonth(month)}
+                    </h3>
 
-                      <p className="mt-1 text-sm text-zinc-400">
-                        {entry.revenue_type} · {formatMonth(entry.entry_month)}
-                      </p>
-
-                      {entry.notes && (
-                        <p className="mt-3 text-sm text-zinc-500">
-                          {entry.notes}
-                        </p>
+                    <p className="text-sm text-zinc-500">
+                      {formatCurrency(
+                        monthEntries.reduce(
+                          (sum, entry) => sum + Number(entry.amount || 0),
+                          0
+                        )
                       )}
-                    </div>
+                    </p>
+                  </div>
 
-                    <div className="sm:text-right">
-                      <p className="text-2xl font-bold">
-                        {formatCurrency(entry.amount)}
-                      </p>
+                  <div className="space-y-3">
+                    {monthEntries.map((entry) => (
+                      <div
+                        key={entry.id}
+                        className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4"
+                      >
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                          <div>
+                            <h4 className="text-lg font-semibold">{entry.platform}</h4>
 
-                      <div className="mt-3 flex flex-wrap gap-2 sm:justify-end">
-                        <Link
-                          href={`/edit-revenue/${entry.id}`}
-                          className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-200"
-                        >
-                          Edit
-                        </Link>
+                            <p className="mt-1 text-sm text-zinc-400">
+                              {entry.revenue_type}
+                            </p>
 
-                        <button
-                          onClick={() => handleDeleteEntry(entry.id)}
-                          className="rounded-xl border border-red-900 px-4 py-2 text-sm text-red-400 hover:bg-red-950"
-                        >
-                          Delete
-                        </button>
+                            {entry.notes && (
+                              <p className="mt-3 text-sm text-zinc-500">
+                                {entry.notes}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="sm:text-right">
+                            <p className="text-2xl font-bold">
+                              {formatCurrency(entry.amount)}
+                            </p>
+
+                            <div className="mt-3 flex flex-wrap gap-2 sm:justify-end">
+                              <Link
+                                href={`/edit-revenue/${entry.id}`}
+                                className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-200"
+                              >
+                                Edit
+                              </Link>
+
+                              <button
+                                onClick={() => handleDeleteEntry(entry.id)}
+                                className="rounded-xl border border-red-900 px-4 py-2 text-sm text-red-400 hover:bg-red-950"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
               ))}
