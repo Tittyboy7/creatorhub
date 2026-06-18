@@ -42,13 +42,10 @@ export async function POST(request) {
       return NextResponse.json({ error: "Forbidden." }, { status: 403 });
     }
 
-    const { announcementId, adminHidden, reason } = await request.json();
+    const { productId, isFlagged, reason } = await request.json();
 
-    if (!announcementId) {
-      return NextResponse.json(
-        { error: "Missing announcementId." },
-        { status: 400 }
-      );
+    if (!productId) {
+      return NextResponse.json({ error: "Missing productId." }, { status: 400 });
     }
 
     const supabaseAdmin = createClient(
@@ -56,36 +53,44 @@ export async function POST(request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
-    const { data: announcement } = await supabaseAdmin
-      .from("announcements")
+    const { data: product } = await supabaseAdmin
+      .from("products")
       .select("title")
-      .eq("id", announcementId)
+      .eq("id", productId)
       .maybeSingle();
 
-    const { error } = await supabaseAdmin
-      .from("announcements")
-      .update({ admin_hidden: adminHidden })
-      .eq("id", announcementId);
+    const { error: productError } = await supabaseAdmin
+      .from("products")
+      .update({ is_flagged: isFlagged })
+      .eq("id", productId);
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (productError) {
+      return NextResponse.json({ error: productError.message }, { status: 500 });
+    }
+
+    if (isFlagged) {
+      await supabaseAdmin.from("product_flags").insert({
+        product_id: productId,
+        admin_id: user.id,
+        reason: reason?.trim() || null,
+      });
     }
 
     await supabaseAdmin.from("audit_logs").insert({
       admin_id: user.id,
-      action_type: adminHidden ? "Hide Announcement" : "Restore Announcement",
-      target_type: "Announcement",
-      target_id: announcementId,
+      action_type: isFlagged ? "Flag Product" : "Unflag Product",
+      target_type: "Product",
+      target_id: productId,
       reason: reason?.trim() || null,
       details: `${profile.email || "Admin"} ${
-        adminHidden ? "hid" : "restored"
-      } announcement: ${announcement?.title || "Unknown announcement"}.`,
+        isFlagged ? "flagged" : "unflagged"
+      } product: ${product?.title || "Unknown product"}.`,
     });
 
     return NextResponse.json({
       success: true,
-      announcementId,
-      adminHidden,
+      productId,
+      isFlagged,
     });
   } catch (error) {
     return NextResponse.json(

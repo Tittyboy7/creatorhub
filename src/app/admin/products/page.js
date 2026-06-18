@@ -113,15 +113,42 @@ export default function AdminProductsPage() {
 }
 
   async function handleToggleFlag(product) {
-    const { error } = await supabase
-      .from("products")
-      .update({
-        is_flagged: !product.is_flagged,
-      })
-      .eq("id", product.id);
+    const newFlagStatus = !product.is_flagged;
 
-    if (error) {
-      alert(error.message);
+    const reason = window.prompt(
+      newFlagStatus
+        ? "Why are you flagging this product?"
+        : "Why are you unflagging this product?"
+    );
+
+    if (reason === null) return;
+
+    if (!reason.trim()) {
+      alert("Please enter a reason.");
+      return;
+    }
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    const response = await fetch("/api/admin/products/flag", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify({
+        productId: product.id,
+        isFlagged: newFlagStatus,
+        reason: reason.trim(),
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || "Failed to update product flag.");
       return;
     }
 
@@ -130,7 +157,7 @@ export default function AdminProductsPage() {
         currentProduct.id === product.id
           ? {
               ...currentProduct,
-              is_flagged: !currentProduct.is_flagged,
+              is_flagged: newFlagStatus,
             }
           : currentProduct
       )

@@ -67,42 +67,56 @@ export default function AdminAnnouncementsPage() {
   }, [router]);
 
   async function handleToggleAnnouncement(announcement) {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+  const newAdminHiddenStatus = !announcement.admin_hidden;
 
-    const newAdminHiddenStatus = !announcement.admin_hidden;
+  const reason = window.prompt(
+    newAdminHiddenStatus
+      ? "Why are you hiding this announcement?"
+      : "Why are you restoring this announcement?"
+  );
 
-    const response = await fetch("/api/admin/announcements/status", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.access_token}`,
-      },
-      body: JSON.stringify({
-        announcementId: announcement.id,
-        adminHidden: newAdminHiddenStatus,
-      }),
-    });
+  if (reason === null) return;
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      alert(data.error || "Failed to update announcement.");
-      return;
-    }
-
-    setAnnouncements((currentAnnouncements) =>
-      currentAnnouncements.map((currentAnnouncement) =>
-        currentAnnouncement.id === announcement.id
-          ? {
-              ...currentAnnouncement,
-              admin_hidden: newAdminHiddenStatus,
-            }
-          : currentAnnouncement
-      )
-    );
+  if (!reason.trim()) {
+    alert("Please enter a reason.");
+    return;
   }
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const response = await fetch("/api/admin/announcements/status", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session?.access_token}`,
+    },
+    body: JSON.stringify({
+      announcementId: announcement.id,
+      adminHidden: newAdminHiddenStatus,
+      reason: reason.trim(),
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    alert(data.error || "Failed to update announcement.");
+    return;
+  }
+
+  setAnnouncements((currentAnnouncements) =>
+    currentAnnouncements.map((currentAnnouncement) =>
+      currentAnnouncement.id === announcement.id
+        ? {
+            ...currentAnnouncement,
+            admin_hidden: newAdminHiddenStatus,
+          }
+        : currentAnnouncement
+    )
+  );
+}
 
   const filteredAnnouncements = announcements.filter((announcement) => {
     const searchText = search.toLowerCase();
