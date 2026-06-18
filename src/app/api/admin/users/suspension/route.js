@@ -75,6 +75,15 @@ export async function POST(request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    await supabaseAdmin.from("notifications").insert({
+      user_id: userId,
+      type: "moderation",
+      title: isSuspended ? "Account Suspended" : "Account Restored",
+      message: isSuspended
+        ? `Your account has been suspended. Reason: ${reason?.trim() || "No reason provided."}`
+        : `Your account access has been restored. Reason: ${reason?.trim() || "No reason provided."}`,
+    });
+
     await supabaseAdmin.from("audit_logs").insert({
       admin_id: user.id,
       action_type: isSuspended ? "Suspend User" : "Unsuspend User",
