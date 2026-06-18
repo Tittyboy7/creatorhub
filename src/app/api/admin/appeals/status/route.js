@@ -99,6 +99,18 @@ export async function POST(request) {
       }
     }
 
+    if (appeal.creators?.user_id) {
+      await supabaseAdmin.from("notifications").insert({
+        user_id: appeal.creators.user_id,
+        type: "appeal",
+        title: status === "approved" ? "Appeal Approved" : "Appeal Denied",
+        message:
+          status === "approved"
+            ? `Your appeal was approved and your account access has been restored. Reason: ${reason?.trim() || "No reason provided."}`
+            : `Your appeal was denied. Reason: ${reason?.trim() || "No reason provided."}`,
+      });
+    }
+
     await supabaseAdmin.from("audit_logs").insert({
       admin_id: user.id,
       action_type:

@@ -22,7 +22,7 @@ export function getNotificationTypeClass(type) {
       return "bg-red-950 text-red-400 border border-red-800";
 
     case "appeal":
-      return "bg-cyan-950 text-cyan-400 border border-cyan-800";
+      return "bg-pink-950 text-pink-400 border border-pink-800";
 
     case "verification":
       return "bg-green-950 text-green-400 border border-green-800";

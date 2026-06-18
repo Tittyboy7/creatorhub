@@ -55,9 +55,10 @@ export async function POST(request) {
       .select(`
         id,
         creators (
-          display_name,
-          username
-        )
+        display_name,
+        username,
+        user_id
+      )
       `)
       .eq("id", requestId)
       .single();
@@ -75,6 +76,15 @@ export async function POST(request) {
         { error: error.message },
         { status: 500 }
       );
+    }
+
+    if (verificationRequest?.creators?.user_id) {
+      await supabaseAdmin.from("notifications").insert({
+        user_id: verificationRequest.creators.user_id,
+        type: "verification",
+        title: "Verification Request Rejected",
+        message: "Your creator verification request was rejected.",
+      });
     }
 
     await supabaseAdmin.from("audit_logs").insert({
