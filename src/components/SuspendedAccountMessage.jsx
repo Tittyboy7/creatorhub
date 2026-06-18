@@ -17,6 +17,13 @@ export default function SuspendedAccountMessage() {
       </p>
 
       <Link
+        href="/appeal"
+        className="mt-6 inline-block rounded-2xl bg-white px-5 py-3 font-semibold text-black hover:bg-zinc-200"
+      >
+        Submit Appeal
+      </Link>
+
+      <Link
         href="/"
         className="mt-6 inline-block rounded-2xl border border-zinc-700 px-5 py-3 font-semibold text-zinc-300 hover:bg-zinc-800"
       >

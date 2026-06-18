@@ -42,10 +42,14 @@ export async function POST(request) {
       return NextResponse.json({ error: "Forbidden." }, { status: 403 });
     }
 
-    const { productId, isActive, reason } = await request.json();
+    const { appealId, status, reason } = await request.json();
 
-    if (!productId) {
-      return NextResponse.json({ error: "Missing productId." }, { status: 400 });
+    if (!appealId) {
+      return NextResponse.json({ error: "Missing appealId." }, { status: 400 });
+    }
+
+    if (!["approved", "denied"].includes(status)) {
+      return NextResponse.json({ error: "Invalid status." }, { status: 400 });
     }
 
     const supabaseAdmin = createClient(
@@ -53,49 +57,68 @@ export async function POST(request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
-    const { data: product } = await supabaseAdmin
-      .from("products")
-      .select("title, creator_id, creators ( user_id )")
-      .eq("id", productId)
+    const { data: appeal } = await supabaseAdmin
+      .from("creator_appeals")
+      .select(`
+        id,
+        creator_id,
+        creators (
+          id,
+          user_id,
+          display_name,
+          username
+        )
+      `)
+      .eq("id", appealId)
       .maybeSingle();
 
-    const { error } = await supabaseAdmin
-      .from("products")
-      .update({
-        is_active: isActive,
-      })
-      .eq("id", productId);
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!appeal) {
+      return NextResponse.json({ error: "Appeal not found." }, { status: 404 });
     }
 
-    if (product?.creators?.user_id) {
-      await supabaseAdmin.from("notifications").insert({
-        user_id: product.creators.user_id,
-        type: "product",
-        title: isActive ? "Product Restored" : "Product Hidden",
-        message: isActive
-          ? `Your product "${product?.title || "Unknown product"}" has been restored.`
-          : `Your product "${product?.title || "Unknown product"}" has been hidden. Reason: ${reason?.trim() || "No reason provided."}`,
-      });
+    const { error: appealError } = await supabaseAdmin
+      .from("creator_appeals")
+      .update({ status })
+      .eq("id", appealId);
+
+    if (appealError) {
+      return NextResponse.json({ error: appealError.message }, { status: 500 });
+    }
+
+    if (status === "approved" && appeal.creators?.user_id) {
+      const { error: unsuspendError } = await supabaseAdmin
+        .from("profiles")
+        .update({ is_suspended: false })
+        .eq("id", appeal.creators.user_id);
+
+      if (unsuspendError) {
+        return NextResponse.json(
+          { error: unsuspendError.message },
+          { status: 500 }
+        );
+      }
     }
 
     await supabaseAdmin.from("audit_logs").insert({
       admin_id: user.id,
-      action_type: isActive ? "Restore Product" : "Hide Product",
-      target_type: "Product",
-      target_id: productId,
+      action_type:
+        status === "approved" ? "Approve Appeal" : "Deny Appeal",
+      target_type: "Creator",
+      target_id: appeal.creator_id,
       reason: reason?.trim() || null,
       details: `${profile.email || "Admin"} ${
-        isActive ? "restored" : "hid"
-      } product: ${product?.title || "Unknown product"}.`,
+        status === "approved" ? "approved" : "denied"
+      } appeal for ${
+        appeal.creators?.display_name ||
+        appeal.creators?.username ||
+        "a creator"
+      }.`,
     });
 
     return NextResponse.json({
       success: true,
-      productId,
-      isActive,
+      appealId,
+      status,
     });
   } catch (error) {
     return NextResponse.json(

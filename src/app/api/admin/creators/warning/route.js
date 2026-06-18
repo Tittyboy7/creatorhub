@@ -61,7 +61,7 @@ export async function POST(request) {
 
     const { data: creator } = await supabaseAdmin
       .from("creators")
-      .select("display_name, username")
+      .select("display_name, username, user_id")
       .eq("id", creatorId)
       .maybeSingle();
 
@@ -74,9 +74,18 @@ export async function POST(request) {
         severity: cleanSeverity,
       });
 
-    if (warningError) {
+      if (warningError) {
       return NextResponse.json({ error: warningError.message }, { status: 500 });
     }
+
+      if (creator?.user_id) {
+        await supabaseAdmin.from("notifications").insert({
+          user_id: creator.user_id,
+          type: "warning",
+          title: "Creator Warning",
+          message: `Your creator profile received a warning. Reason: ${reason.trim()}`,
+        });
+      }
 
     await supabaseAdmin.from("audit_logs").insert({
       admin_id: user.id,

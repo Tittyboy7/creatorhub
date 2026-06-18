@@ -226,6 +226,17 @@ export default function AdminPage() {
               Review admin actions, moderation history, and platform changes.
             </p>
           </Link>
+
+          <Link
+            href="/admin/appeals"
+            className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 hover:border-zinc-600 transition"
+          >
+            <h2 className="text-2xl font-bold">Appeals</h2>
+
+            <p className="text-zinc-400 mt-2">
+              Review suspended creator appeals and restore access when appropriate.
+            </p>
+          </Link>
         </div>
       </div>
     </div>

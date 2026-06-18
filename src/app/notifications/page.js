@@ -64,17 +64,7 @@ export default function NotificationsPage() {
       )
     );
 
-    window.dispatchEvent(
-      new Event("notificationsUpdated")
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
-        Loading...
-      </div>
-    );
+    window.dispatchEvent(new Event("notificationsUpdated"));
   }
 
   async function markAllAsRead() {
@@ -142,186 +132,200 @@ export default function NotificationsPage() {
     }
 
     setNotifications((currentNotifications) =>
-      currentNotifications.filter(
-        (notification) => !notification.is_read
-      )
+      currentNotifications.filter((notification) => !notification.is_read)
     );
 
     window.dispatchEvent(new Event("notificationsUpdated"));
   }
 
-  const filteredNotifications = notifications.filter(
-    (notification) => {
-      const statusMatches =
-        filter === "All" ||
-        (filter === "Unread" &&
-          !notification.is_read) ||
-        (filter === "Read" &&
-          notification.is_read);
+  const filteredNotifications = notifications.filter((notification) => {
+    const statusMatches =
+      filter === "All" ||
+      (filter === "Unread" && !notification.is_read) ||
+      (filter === "Read" && notification.is_read);
 
-      const typeMatches =
-        typeFilter === "All" ||
-        notification.type === typeFilter;
+    const typeMatches =
+      typeFilter === "All" || notification.type === typeFilter;
 
-      const searchText = search.toLowerCase();
+    const searchText = search.toLowerCase();
 
-      const searchMatches =
-        notification.title
-          ?.toLowerCase()
-          .includes(searchText) ||
-        notification.message
-          ?.toLowerCase()
-          .includes(searchText);
+    const searchMatches =
+      notification.title?.toLowerCase().includes(searchText) ||
+      notification.message?.toLowerCase().includes(searchText);
 
-      return (
-        statusMatches &&
-        typeMatches &&
-        searchMatches
-      );
-    }
-  );
+    return statusMatches && typeMatches && searchMatches;
+  });
 
   const unreadCount = notifications.filter(
     (notification) => !notification.is_read
   ).length;
 
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
+        Loading notifications...
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-zinc-950 px-5 py-8 text-white md:p-10">
-      <div className="max-w-4xl mx-auto">
+      <div className="mx-auto max-w-5xl space-y-8">
         <Link
           href="/dashboard"
-          className="inline-block mb-8 border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
+          className="inline-block rounded-2xl border border-zinc-700 px-5 py-3 hover:bg-zinc-800"
         >
           Back to Dashboard
         </Link>
 
-        <h1 className="mb-4 text-4xl font-bold md:text-5xl">Notifications</h1>
-
-        <div className="mb-6 grid grid-cols-3 gap-3">
-          <button
-            onClick={() => setFilter("All")}
-            className={`rounded-2xl border p-4 text-left transition ${
-              filter === "All"
-                ? "border-white bg-zinc-800"
-                : "border-zinc-800 bg-zinc-900 hover:border-zinc-600 hover:bg-zinc-800"
-            }`}
-          >
-            <p className="text-xs text-zinc-500">All</p>
-            <p className="mt-1 text-2xl font-bold">{notifications.length}</p>
-          </button>
-
-          <button
-            onClick={() => setFilter("Unread")}
-            className={`rounded-2xl border p-4 text-left transition ${
-              filter === "Unread"
-                ? "border-white bg-zinc-800"
-                : "border-zinc-800 bg-zinc-900 hover:border-zinc-600 hover:bg-zinc-800"
-            }`}
-          >
-            <p className="text-xs text-zinc-500">Unread</p>
-            <p className="mt-1 text-2xl font-bold">{unreadCount}</p>
-          </button>
-
-          <button
-            onClick={() => setFilter("Read")}
-            className={`rounded-2xl border p-4 text-left transition ${
-              filter === "Read"
-                ? "border-white bg-zinc-800"
-                : "border-zinc-800 bg-zinc-900 hover:border-zinc-600 hover:bg-zinc-800"
-            }`}
-          >
-            <p className="text-xs text-zinc-500">Read</p>
-            <p className="mt-1 text-2xl font-bold">
-              {notifications.length - unreadCount}
-            </p>
-          </button>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-10">
-          <p className="text-zinc-400 text-lg">
-            You have {unreadCount} unread notification
-            {unreadCount === 1 ? "" : "s"}.
+        <section className="rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 md:p-8">
+          <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+            Account Inbox
           </p>
 
-          <div className="flex gap-4 flex-wrap">
-            {unreadCount > 0 && (
-              <button
-                onClick={markAllAsRead}
-                className="rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-black"
-              >
-                Mark All Read
-              </button>
-            )}
+          <h1 className="mt-2 text-4xl font-bold md:text-5xl">
+            Notifications
+          </h1>
 
+          <p className="mt-4 max-w-3xl text-zinc-400">
+            View creator updates, moderation notices, revenue activity, and
+            important account messages.
+          </p>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <button
-              onClick={clearReadNotifications}
-              className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
+              onClick={() => setFilter("All")}
+              className={`rounded-2xl border p-4 text-left transition ${
+                filter === "All"
+                  ? "border-white bg-zinc-800"
+                  : "border-zinc-800 bg-zinc-950 hover:border-zinc-600"
+              }`}
             >
-              Clear Read
+              <p className="text-xs text-zinc-500">All</p>
+              <p className="mt-1 text-2xl font-bold">{notifications.length}</p>
             </button>
 
-            <Link
-              href="/notification-preferences"
-              className="border border-zinc-700 px-5 py-3 rounded-2xl hover:bg-zinc-800"
+            <button
+              onClick={() => setFilter("Unread")}
+              className={`rounded-2xl border p-4 text-left transition ${
+                filter === "Unread"
+                  ? "border-white bg-zinc-800"
+                  : "border-zinc-800 bg-zinc-950 hover:border-zinc-600"
+              }`}
             >
-              Preferences
-            </Link>
+              <p className="text-xs text-zinc-500">Unread</p>
+              <p className="mt-1 text-2xl font-bold">{unreadCount}</p>
+            </button>
+
+            <button
+              onClick={() => setFilter("Read")}
+              className={`rounded-2xl border p-4 text-left transition ${
+                filter === "Read"
+                  ? "border-white bg-zinc-800"
+                  : "border-zinc-800 bg-zinc-950 hover:border-zinc-600"
+              }`}
+            >
+              <p className="text-xs text-zinc-500">Read</p>
+              <p className="mt-1 text-2xl font-bold">
+                {notifications.length - unreadCount}
+              </p>
+            </button>
           </div>
-        </div>
+        </section>
 
-        <div className="mb-6 grid gap-3 md:grid-cols-[1fr_220px]">
-          <input
-            type="text"
-            placeholder="Search notifications..."
-            className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-
-          <select
-            className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-          >
-            <option value="All">All Types</option>
-            <option value="follow">Follow</option>
-            <option value="favorite">Favorite</option>
-            <option value="review">Review</option>
-            <option value="cart">Cart</option>
-            <option value="revenue">Revenue</option>
-          </select>
-        </div>
-
-        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+        <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <p className="text-zinc-400">
-              Showing {filteredNotifications.length} notification
-              {filteredNotifications.length === 1 ? "" : "s"}
+              You have {unreadCount} unread notification
+              {unreadCount === 1 ? "" : "s"}.
             </p>
 
-            {(search || filter !== "All" || typeFilter !== "All") && (
-              <p className="mt-1 text-sm text-zinc-500">
-                Filters active
-                {search ? ` · Search: "${search}"` : ""}
-                {filter !== "All" ? ` · Status: ${filter}` : ""}
-                {typeFilter !== "All" ? ` · Type: ${typeFilter}` : ""}
-              </p>
-            )}
+            <div className="flex flex-wrap gap-3">
+              {unreadCount > 0 && (
+                <button
+                  onClick={markAllAsRead}
+                  className="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-zinc-200"
+                >
+                  Mark All Read
+                </button>
+              )}
+
+              <button
+                onClick={clearReadNotifications}
+                className="rounded-2xl border border-zinc-700 px-5 py-3 text-sm font-semibold hover:bg-zinc-800"
+              >
+                Clear Read
+              </button>
+
+              <Link
+                href="/notification-preferences"
+                className="rounded-2xl border border-zinc-700 px-5 py-3 text-sm font-semibold hover:bg-zinc-800"
+              >
+                Preferences
+              </Link>
+            </div>
           </div>
 
-          {(search || filter !== "All" || typeFilter !== "All") && (
-            <button
-              onClick={() => {
-                setSearch("");
-                setFilter("All");
-                setTypeFilter("All");
-              }}
-              className="w-fit text-sm font-semibold text-zinc-400 hover:text-white"
+          <div className="mt-5 grid gap-3 md:grid-cols-[1fr_240px]">
+            <input
+              type="text"
+              placeholder="Search notifications..."
+              className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 p-4 outline-none focus:border-zinc-600"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+
+            <select
+              className="w-full rounded-2xl border border-zinc-800 bg-zinc-950 p-4 outline-none focus:border-zinc-600"
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
             >
-              Clear filters
-            </button>
-          )}
-        </div>
+              <option value="All">All Types</option>
+              <option value="moderation">Moderation</option>
+              <option value="warning">Warning</option>
+              <option value="appeal">Appeal</option>
+              <option value="verification">Verification</option>
+              <option value="product">Product</option>
+              <option value="follow">Follow</option>
+              <option value="favorite">Favorite</option>
+              <option value="review">Review</option>
+              <option value="cart">Cart</option>
+              <option value="revenue">Revenue</option>
+              <option value="general">General</option>
+            </select>
+          </div>
+
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-zinc-400">
+                Showing {filteredNotifications.length} notification
+                {filteredNotifications.length === 1 ? "" : "s"}
+              </p>
+
+              {(search || filter !== "All" || typeFilter !== "All") && (
+                <p className="mt-1 text-sm text-zinc-500">
+                  Filters active
+                  {search ? ` · Search: "${search}"` : ""}
+                  {filter !== "All" ? ` · Status: ${filter}` : ""}
+                  {typeFilter !== "All" ? ` · Type: ${typeFilter}` : ""}
+                </p>
+              )}
+            </div>
+
+            {(search || filter !== "All" || typeFilter !== "All") && (
+              <button
+                onClick={() => {
+                  setSearch("");
+                  setFilter("All");
+                  setTypeFilter("All");
+                }}
+                className="w-fit text-sm font-semibold text-zinc-400 hover:text-white"
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
+        </section>
 
         {filteredNotifications.length === 0 ? (
           <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-8 text-center">
@@ -333,47 +337,33 @@ export default function NotificationsPage() {
 
             <p className="mx-auto mt-2 max-w-xl text-zinc-400">
               {notifications.length === 0
-                ? "Product saves, reviews, follows, revenue updates, and other important activity will appear here."
+                ? "Warnings, appeals, verification updates, product changes, and other account activity will appear here."
                 : "Try clearing your filters or changing your search."}
             </p>
-
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <Link
-                href="/dashboard"
-                className="rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
-              >
-                Back to Dashboard
-              </Link>
-
-              <Link
-                href="/notification-preferences"
-                className="rounded-2xl border border-zinc-700 px-6 py-3 font-semibold hover:bg-zinc-800"
-              >
-                Notification Preferences
-              </Link>
-            </div>
           </div>
         ) : (
           <div className="space-y-4">
             {filteredNotifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`rounded-2xl border p-4 ${
+                className={`rounded-3xl border p-5 transition ${
                   notification.is_read
-                    ? "bg-zinc-900 border-zinc-800 opacity-70"
-                    : "bg-zinc-900 border-white"
+                    ? "border-zinc-800 bg-zinc-900 opacity-75"
+                    : "border-white bg-zinc-900"
                 }`}
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <h2 className="text-xl font-semibold">
-                      {notification.title}
-                    </h2>
+                    <div className="flex flex-wrap items-center gap-3">
+                      {!notification.is_read && (
+                        <span className="rounded-full bg-white px-2 py-1 text-xs font-bold text-black">
+                          New
+                        </span>
+                      )}
 
-                    <div className="mt-3 flex flex-wrap items-center gap-3">
                       <span
-                        className={`inline-block rounded-full px-3 py-1 text-sm ${getNotificationTypeClass(
-                          notification.type
+                        className={`rounded-full px-3 py-1 text-sm font-semibold ${getNotificationTypeClass(
+                          notification.type || "general"
                         )}`}
                       >
                         {notification.type || "general"}
@@ -384,28 +374,30 @@ export default function NotificationsPage() {
                       </span>
                     </div>
 
+                    <h2 className="mt-3 text-xl font-semibold">
+                      {notification.title}
+                    </h2>
+
                     {notification.message && (
-                      <p className="text-zinc-400 mt-3">
+                      <p className="mt-3 text-zinc-400">
                         {notification.message}
                       </p>
                     )}
                   </div>
 
-                  <div className="flex flex-wrap gap-3 sm:justify-end">
+                  <div className="flex shrink-0 flex-wrap gap-3 sm:justify-end">
                     {!notification.is_read && (
                       <button
                         onClick={() => markAsRead(notification.id)}
-                        className="rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-black"
+                        className="rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-200"
                       >
                         Mark Read
                       </button>
                     )}
 
                     <button
-                      onClick={() =>
-                        deleteNotification(notification.id)
-                      }
-                      className="rounded-2xl border border-red-900 px-4 py-2 text-sm text-red-400 hover:bg-red-950"
+                      onClick={() => deleteNotification(notification.id)}
+                      className="rounded-2xl border border-red-900 px-4 py-2 text-sm font-semibold text-red-400 hover:bg-red-950"
                     >
                       Delete
                     </button>

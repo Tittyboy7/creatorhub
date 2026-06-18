@@ -67,7 +67,7 @@ export async function POST(request) {
 
     const { data: creator } = await supabaseAdmin
       .from("creators")
-      .select("display_name, username")
+      .select("display_name, username, user_id")
       .eq("id", creatorId)
       .maybeSingle();
 
@@ -83,6 +83,19 @@ export async function POST(request) {
         { error: error.message },
         { status: 500 }
       );
+    }
+
+    if (creator?.user_id) {
+      await supabaseAdmin.from("notifications").insert({
+        user_id: creator.user_id,
+        type: "verification",
+        title: verified
+          ? "Creator Verified"
+          : "Verification Revoked",
+        message: verified
+          ? "Congratulations! Your creator profile has been verified."
+          : "Your creator verification has been revoked.",
+      });
     }
 
     await supabaseAdmin.from("audit_logs").insert({

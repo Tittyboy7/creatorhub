@@ -230,6 +230,50 @@ export default function AdminSingleCreatorPage() {
     alert("Creator warning saved.");
   }
 
+  async function suspendCreatorUser() {
+    if (!creator?.user_id) {
+      alert("User not found.");
+      return;
+    }
+
+    const reason = window.prompt(
+      "Why are you suspending this creator?"
+    );
+
+    if (reason === null) return;
+
+    if (!reason.trim()) {
+      alert("Please enter a suspension reason.");
+      return;
+    }
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    const response = await fetch("/api/admin/users/suspension", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.access_token}`,
+      },
+      body: JSON.stringify({
+        userId: creator.user_id,
+        isSuspended: true,
+        reason: reason.trim(),
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || "Failed to suspend creator.");
+      return;
+    }
+
+    alert("Creator account suspended.");
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
@@ -347,6 +391,15 @@ export default function AdminSingleCreatorPage() {
                 >
                   Warn Creator
                 </button>
+
+                {warnings.length >= 3 && (
+                  <button
+                    onClick={suspendCreatorUser}
+                    className="rounded-2xl border border-red-900 px-5 py-3 font-semibold text-red-400 hover:bg-red-950"
+                  >
+                    Suspend User
+                  </button>
+                )}
               </div>
             </div>
 
