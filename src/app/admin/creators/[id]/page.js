@@ -360,7 +360,7 @@ export default function AdminSingleCreatorPage() {
           </div>
         </section>
 
-        <section className="mt-6 grid gap-4 sm:grid-cols-4">
+        <section className="mt-6 grid gap-4 sm:grid-cols-5">
           <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5">
             <p className="text-sm text-zinc-500">Products</p>
             <p className="mt-1 text-3xl font-bold">
@@ -388,6 +388,34 @@ export default function AdminSingleCreatorPage() {
 
             <p className="mt-1 text-3xl font-bold text-yellow-400">
               {warnings.length}
+            </p>
+          </div>
+
+          <div
+            className={`rounded-2xl border p-5 ${
+              warnings.length >= 3
+                ? "border-red-900 bg-red-950/20"
+                : warnings.length === 2
+                ? "border-orange-900 bg-orange-950/20"
+                : "border-zinc-800 bg-zinc-900"
+            }`}
+          >
+            <p className="text-sm text-zinc-500">Escalation Status</p>
+
+            <p
+              className={`mt-1 text-xl font-bold ${
+                warnings.length >= 3
+                  ? "text-red-400"
+                  : warnings.length === 2
+                  ? "text-orange-400"
+                  : "text-zinc-300"
+              }`}
+            >
+              {warnings.length >= 3
+                ? "Recommend Suspension"
+                : warnings.length === 2
+                ? "Serious Review"
+                : "Normal"}
             </p>
           </div>
         </section>
