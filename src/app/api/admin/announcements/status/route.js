@@ -58,7 +58,7 @@ export async function POST(request) {
 
     const { data: announcement } = await supabaseAdmin
       .from("announcements")
-      .select("title")
+      .select("title, creator_id, creators ( user_id")
       .eq("id", announcementId)
       .maybeSingle();
 
@@ -69,6 +69,19 @@ export async function POST(request) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (announcement?.creators?.user_id) {
+      await supabaseAdmin.from("notifications").insert({
+        user_id: announcement.creators.user_id,
+        type: "moderation",
+        title: adminHidden
+          ? "Announcement Hidden"
+          : "Announcement Restored",
+        message: adminHidden
+          ? `Your announcement "${announcement?.title || "Unknown announcement"}" has been hidden. Reason: ${reason?.trim() || "No reason provided."}`
+          : `Your announcement "${announcement?.title || "Unknown announcement"}" has been restored. Reason: ${reason?.trim() || "No reason provided."}`,
+      });
     }
 
     await supabaseAdmin.from("audit_logs").insert({
