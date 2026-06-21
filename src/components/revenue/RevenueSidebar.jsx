@@ -31,7 +31,7 @@ export default function RevenueSidebar({
   aiInsights,
 }) {
   return (
-    <aside className="space-y-5 lg:col-span-4 xl:col-span-3">
+    <aside className="space-y-5">
       <section className="grid grid-cols-2 gap-3">
         <KpiCard label="Total Revenue" value={formatCurrency(totalRevenue)} />
         <KpiCard label="This Month" value={formatCurrency(thisMonthRevenue)} />
@@ -150,7 +150,7 @@ export default function RevenueSidebar({
               value={`${connectedPlatformCount} connected`}
               description={`${syncedEntriesCount} synced API entries. ${dashboardWidgets.length} dashboard widgets are API-ready.`}
             />
-            
+
             <AiInsightsSection insights={aiInsights} />
           </div>
         )}

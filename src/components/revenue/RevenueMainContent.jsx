@@ -20,7 +20,7 @@ export default function RevenueMainContent({
   upcomingPayouts,
 }) {
   return (
-    <main className="min-w-0 space-y-5 lg:col-span-8 xl:col-span-9">
+    <main className="min-w-0 space-y-5">
       <section className="grid gap-5 xl:grid-cols-2">
         <RevenueDonutCard
           title="Revenue Share"
