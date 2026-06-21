@@ -2,31 +2,62 @@ function formatNumber(value) {
   return new Intl.NumberFormat("en-US").format(Number(value || 0));
 }
 
-function getYouTubeAccount(connectedAccounts) {
-  return connectedAccounts.find((account) => account.platform === "youtube");
+function getConnectedAccount(connectedAccounts, platformKey) {
+  return connectedAccounts.find((account) => account.platform === platformKey);
 }
 
-function buildYouTubeCard({ youtubeAccount, revenue, monthlyGrowthPercent }) {
-  const youtubeMetadata = youtubeAccount?.metadata?.youtube || null;
+function formatGrowth(monthlyGrowthPercent) {
+  return monthlyGrowthPercent >= 0
+    ? `+${monthlyGrowthPercent}%`
+    : `${monthlyGrowthPercent}%`;
+}
+
+function buildYouTubeCard({ account, revenue, monthlyGrowthPercent }) {
+  const metadata = account?.metadata?.youtube || null;
 
   return {
     platform: "YouTube",
     revenue,
-    audience: youtubeMetadata
-      ? `${formatNumber(youtubeMetadata.subscriber_count)} subscribers`
+    audience: metadata
+      ? `${formatNumber(metadata.subscriber_count)} subscribers`
       : "Coming soon",
     orders: "Coming soon",
-    productsSold: youtubeMetadata
-      ? `${formatNumber(youtubeMetadata.video_count)} videos`
+    productsSold: metadata
+      ? `${formatNumber(metadata.video_count)} videos`
       : "Coming soon",
-    views: youtubeMetadata
-      ? `${formatNumber(youtubeMetadata.view_count)} views`
-      : "Coming soon",
-    growth:
-      monthlyGrowthPercent >= 0
-        ? `+${monthlyGrowthPercent}%`
-        : `${monthlyGrowthPercent}%`,
-    status: youtubeMetadata ? "YouTube synced" : "Connected",
+    views: metadata ? `${formatNumber(metadata.view_count)} views` : "Coming soon",
+    growth: formatGrowth(monthlyGrowthPercent),
+    status: metadata ? "YouTube synced" : "Connected",
+  };
+}
+
+function buildTwitchCard({ account, revenue, monthlyGrowthPercent }) {
+  const metadata = account?.metadata?.twitch || null;
+
+  return {
+    platform: "Twitch",
+    revenue,
+    audience: metadata?.broadcaster_type
+      ? metadata.broadcaster_type
+      : "Connected",
+    orders: "Coming soon",
+    productsSold: metadata?.profile_image_url ? "Profile connected" : "Coming soon",
+    views: metadata ? `${formatNumber(metadata.view_count)} views` : "Coming soon",
+    growth: formatGrowth(monthlyGrowthPercent),
+    status: metadata ? "Twitch synced" : "Connected",
+  };
+}
+
+function buildManualCard({ platform, monthlyGrowthPercent }) {
+  return {
+    platform: platform.platform,
+    revenue: platform.revenue,
+    audience: "Coming soon",
+    orders: "Coming soon",
+    productsSold: "Coming soon",
+    views: "Coming soon",
+    growth: formatGrowth(monthlyGrowthPercent),
+    status: "Manual data",
   };
 }
 
@@ -35,42 +66,56 @@ export function buildPlatformHealthCards({
   monthlyGrowthPercent,
   connectedAccounts = [],
 }) {
-  const youtubeAccount = getYouTubeAccount(connectedAccounts);
+  const youtubeAccount = getConnectedAccount(connectedAccounts, "youtube");
+  const twitchAccount = getConnectedAccount(connectedAccounts, "twitch");
 
   const cards = platformChartData.map((platform) => {
-    const isYouTube = platform.platform.toLowerCase() === "youtube";
+    const platformKey = platform.platform.toLowerCase();
 
-    if (isYouTube) {
+    if (platformKey === "youtube") {
       return buildYouTubeCard({
-        youtubeAccount,
+        account: youtubeAccount,
         revenue: platform.revenue,
         monthlyGrowthPercent,
       });
     }
 
-    return {
-      platform: platform.platform,
-      revenue: platform.revenue,
-      audience: "Coming soon",
-      orders: "Coming soon",
-      productsSold: "Coming soon",
-      views: "Coming soon",
-      growth:
-        monthlyGrowthPercent >= 0
-          ? `+${monthlyGrowthPercent}%`
-          : `${monthlyGrowthPercent}%`,
-      status: "Manual data",
-    };
+    if (platformKey === "twitch") {
+      return buildTwitchCard({
+        account: twitchAccount,
+        revenue: platform.revenue,
+        monthlyGrowthPercent,
+      });
+    }
+
+    return buildManualCard({
+      platform,
+      monthlyGrowthPercent,
+    });
   });
 
   const alreadyHasYouTubeCard = cards.some(
     (card) => card.platform.toLowerCase() === "youtube"
   );
 
+  const alreadyHasTwitchCard = cards.some(
+    (card) => card.platform.toLowerCase() === "twitch"
+  );
+
   if (youtubeAccount && !alreadyHasYouTubeCard) {
     cards.unshift(
       buildYouTubeCard({
-        youtubeAccount,
+        account: youtubeAccount,
+        revenue: 0,
+        monthlyGrowthPercent,
+      })
+    );
+  }
+
+  if (twitchAccount && !alreadyHasTwitchCard) {
+    cards.unshift(
+      buildTwitchCard({
+        account: twitchAccount,
         revenue: 0,
         monthlyGrowthPercent,
       })
