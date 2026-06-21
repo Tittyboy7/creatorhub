@@ -53,6 +53,37 @@ async function updateSyncStatus(supabaseAdmin, accountId, updates) {
     .eq("id", accountId);
 }
 
+async function fetchYouTubeChannelStats(accessToken) {
+  const response = await fetch(
+    "https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&mine=true",
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(JSON.stringify(data));
+  }
+
+  const channel = data.items?.[0];
+
+  if (!channel) {
+    return null;
+  }
+
+  return {
+    channel_id: channel.id,
+    channel_title: channel.snippet?.title || "YouTube",
+    subscriber_count: Number(channel.statistics?.subscriberCount || 0),
+    view_count: Number(channel.statistics?.viewCount || 0),
+    video_count: Number(channel.statistics?.videoCount || 0),
+  };
+}
+
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("user_id");
@@ -122,11 +153,36 @@ export async function GET(request) {
     Date.now() + Number(freshTokenData.expires_in || 3600) * 1000
   ).toISOString();
 
+  let channelStats = null;
+
+  try {
+    channelStats = await fetchYouTubeChannelStats(freshAccessToken);
+  } catch (error) {
+    await updateSyncStatus(supabaseAdmin, account.id, {
+      sync_status: "error",
+      sync_error: "Failed to fetch YouTube channel stats.",
+    });
+
+    return NextResponse.json(
+      {
+        error: "Failed to fetch YouTube channel stats.",
+        details: error.message,
+      },
+      { status: 500 }
+    );
+  }
+
   await supabaseAdmin
     .from("connected_accounts")
     .update({
       access_token: freshAccessToken,
       expires_at: expiresAt,
+      account_id: channelStats?.channel_id || account.account_id,
+      account_name: channelStats?.channel_title || account.account_name,
+      metadata: {
+        ...(account.metadata || {}),
+        youtube: channelStats,
+      },
       updated_at: new Date().toISOString(),
     })
     .eq("id", account.id);
@@ -216,8 +272,9 @@ export async function GET(request) {
 
   return NextResponse.json({
     success: true,
-    message: "YouTube revenue sync completed.",
+    message: "YouTube revenue and channel stats sync completed.",
     imported_rows: revenueRows.length,
+    channel_stats: channelStats,
     date_range: {
       startDate,
       endDate,

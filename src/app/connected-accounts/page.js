@@ -4,33 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-
-const platforms = [
-  {
-    name: "YouTube",
-    key: "youtube",
-    description: "Sync YouTube analytics and revenue data.",
-    available: true,
-  },
-  {
-    name: "Twitch",
-    key: "twitch",
-    description: "Sync subscriptions, donations, and creator revenue.",
-    available: false,
-  },
-  {
-    name: "Shopify",
-    key: "shopify",
-    description: "Sync store sales and product revenue.",
-    available: false,
-  },
-  {
-    name: "Patreon",
-    key: "patreon",
-    description: "Sync memberships and creator income.",
-    available: false,
-  },
-];
+import { platforms } from "@/lib/platforms";
 
 function formatDate(value) {
   if (!value) return "Not synced yet";
