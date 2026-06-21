@@ -32,7 +32,7 @@ export default function RevenueDonutCard({
       {data.length === 0 ? (
         <p className="text-zinc-400">No chart data yet.</p>
       ) : (
-        <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] md:items-center">
+        <div className="grid gap-4">
           <div className="flex justify-center">
             <PieChart width={220} height={220}>
               <Pie
