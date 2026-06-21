@@ -110,6 +110,13 @@ export default function PlatformConnectionPage() {
               >
                 Connect YouTube
               </Link>
+            ) : platform === "twitch" ? (
+              <Link
+                href={`/api/auth/twitch/start?user_id=${user.id}`}
+                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
+              >
+                Connect Twitch
+              </Link>
             ) : (
               <button
                 disabled

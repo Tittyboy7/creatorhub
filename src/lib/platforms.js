@@ -11,7 +11,7 @@ export const platforms = [
     key: "twitch",
     category: "Streaming",
     description: "Sync followers, subscriptions, stream activity, and revenue.",
-    available: false,
+    available: true,
   },
   {
     name: "Kick",
