@@ -52,6 +52,26 @@ async function fetchShopifyProductsCount(shopDomain, accessToken) {
   return Number(data.count || 0);
 }
 
+async function fetchShopifyProducts(shopDomain, accessToken) {
+  const response = await fetch(
+    `https://${shopDomain}/admin/api/2025-10/products.json?limit=10`,
+    {
+      headers: {
+        "X-Shopify-Access-Token": accessToken,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(JSON.stringify(data));
+  }
+
+  return data.products || [];
+}
+
 async function fetchShopifyOrders(shopDomain, accessToken) {
   const response = await fetch(
     `https://${shopDomain}/admin/api/2025-10/orders.json?status=any&limit=250`,
@@ -70,6 +90,30 @@ async function fetchShopifyOrders(shopDomain, accessToken) {
   }
 
   return data.orders || [];
+}
+
+function buildTopProducts(products) {
+  return products.map((product) => {
+    const firstVariant = product.variants?.[0] || null;
+    const totalInventory = (product.variants || []).reduce(
+      (sum, variant) => sum + Number(variant.inventory_quantity || 0),
+      0
+    );
+
+    return {
+      id: product.id,
+      title: product.title,
+      handle: product.handle,
+      status: product.status,
+      vendor: product.vendor,
+      product_type: product.product_type,
+      image_url: product.image?.src || null,
+      price: firstVariant ? Number(firstVariant.price || 0) : 0,
+      inventory_quantity: totalInventory,
+      created_at: product.created_at,
+      updated_at: product.updated_at,
+    };
+  });
 }
 
 export async function GET(request) {
@@ -109,10 +153,17 @@ export async function GET(request) {
       account.metadata?.shopify?.shop_domain || account.account_id;
 
     const shop = await fetchShopifyShop(shopDomain, account.access_token);
+
     const productsCount = await fetchShopifyProductsCount(
       shopDomain,
       account.access_token
     );
+
+    const products = await fetchShopifyProducts(
+      shopDomain,
+      account.access_token
+    );
+
     const orders = await fetchShopifyOrders(shopDomain, account.access_token);
 
     const ordersCount = orders.length;
@@ -124,6 +175,8 @@ export async function GET(request) {
 
     const averageOrderValue =
       ordersCount === 0 ? 0 : totalOrderRevenue / ordersCount;
+
+    const topProducts = buildTopProducts(products);
 
     await supabaseAdmin
       .from("connected_accounts")
@@ -144,6 +197,7 @@ export async function GET(request) {
             orders_count: ordersCount,
             total_order_revenue: Number(totalOrderRevenue.toFixed(2)),
             average_order_value: Number(averageOrderValue.toFixed(2)),
+            top_products: topProducts,
           },
         },
         last_synced_at: new Date().toISOString(),
@@ -164,6 +218,7 @@ export async function GET(request) {
         orders_count: ordersCount,
         total_order_revenue: Number(totalOrderRevenue.toFixed(2)),
         average_order_value: Number(averageOrderValue.toFixed(2)),
+        top_products: topProducts,
       },
     });
   } catch (error) {

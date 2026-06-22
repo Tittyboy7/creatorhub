@@ -284,13 +284,45 @@ export default function PlatformRevenuePage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
-                <p className="font-semibold">No top content synced yet</p>
-                <p className="mt-1 text-sm text-zinc-500">
-                  This section will show top videos, products, clips, or posts
-                  once deeper platform analytics are connected.
-                </p>
-              </div>
+              {platformSlug === "shopify" &&
+                account?.metadata?.shopify?.top_products?.length > 0 ? (
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {account.metadata.shopify.top_products.map((product) => (
+                      <div
+                        key={product.id}
+                        className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5"
+                      >
+                        <div className="flex gap-4">
+                          {product.image_url && (
+                            <img
+                              src={product.image_url}
+                              alt={product.title}
+                              className="h-16 w-16 rounded-xl object-cover"
+                            />
+                          )}
+
+                          <div>
+                            <p className="font-semibold">{product.title}</p>
+                            <p className="mt-1 text-sm text-zinc-500">
+                              {formatCurrency(product.price)}
+                            </p>
+                            <p className="mt-1 text-sm text-zinc-500">
+                              Inventory: {formatNumber(product.inventory_quantity)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
+                    <p className="font-semibold">No top content synced yet</p>
+                    <p className="mt-1 text-sm text-zinc-500">
+                      This section will show top videos, products, clips, or posts once deeper
+                      platform analytics are connected.
+                    </p>
+                  </div>
+                )}
             </section>
 
             <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
