@@ -64,6 +64,45 @@ function buildDetailCards({ platformSlug, account, revenueEntries }) {
     ];
   }
 
+  if (platformSlug === "kick") {
+    const kick = account?.metadata?.kick || null;
+
+    return [
+      {
+        label: "Synced Revenue",
+        value: formatCurrency(syncedRevenueTotal),
+      },
+      {
+        label: "Account",
+        value:
+          kick?.username ||
+          kick?.name ||
+          kick?.display_name ||
+          account.account_name ||
+          "Connected",
+      },
+      {
+        label: "Email",
+        value: kick?.email || "Not provided",
+      },
+      {
+        label: "Profile",
+        value:
+          kick?.profile_picture || kick?.profile_pic
+            ? "Connected"
+            : "Coming soon",
+      },
+      {
+        label: "API Status",
+        value: account.sync_status || "Unknown",
+      },
+      {
+        label: "Last Synced",
+        value: formatDate(account.last_synced_at),
+      },
+    ];
+  }
+
   if (platformSlug === "twitch") {
     return [
       {
