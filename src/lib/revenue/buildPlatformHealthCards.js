@@ -37,14 +37,27 @@ function buildTwitchCard({ account, revenue, monthlyGrowthPercent }) {
   return {
     platform: "Twitch",
     revenue,
-    audience: metadata?.broadcaster_type
-      ? metadata.broadcaster_type
-      : "Connected",
+    audience: metadata?.broadcaster_type || "Connected",
     orders: "Coming soon",
     productsSold: metadata?.profile_image_url ? "Profile connected" : "Coming soon",
     views: metadata ? `${formatNumber(metadata.view_count)} views` : "Coming soon",
     growth: formatGrowth(monthlyGrowthPercent),
     status: metadata ? "Twitch synced" : "Connected",
+  };
+}
+
+function buildShopifyCard({ account, revenue, monthlyGrowthPercent }) {
+  const metadata = account?.metadata?.shopify || null;
+
+  return {
+    platform: "Shopify",
+    revenue,
+    audience: metadata?.plan_name || "Store connected",
+    orders: "Coming soon",
+    productsSold: "Coming soon",
+    views: metadata?.currency ? `Currency: ${metadata.currency}` : "Coming soon",
+    growth: formatGrowth(monthlyGrowthPercent),
+    status: metadata ? "Shopify synced" : "Connected",
   };
 }
 
@@ -68,6 +81,7 @@ export function buildPlatformHealthCards({
 }) {
   const youtubeAccount = getConnectedAccount(connectedAccounts, "youtube");
   const twitchAccount = getConnectedAccount(connectedAccounts, "twitch");
+  const shopifyAccount = getConnectedAccount(connectedAccounts, "shopify");
 
   const cards = platformChartData.map((platform) => {
     const platformKey = platform.platform.toLowerCase();
@@ -88,6 +102,14 @@ export function buildPlatformHealthCards({
       });
     }
 
+    if (platformKey === "shopify") {
+      return buildShopifyCard({
+        account: shopifyAccount,
+        revenue: platform.revenue,
+        monthlyGrowthPercent,
+      });
+    }
+
     return buildManualCard({
       platform,
       monthlyGrowthPercent,
@@ -100,6 +122,10 @@ export function buildPlatformHealthCards({
 
   const alreadyHasTwitchCard = cards.some(
     (card) => card.platform.toLowerCase() === "twitch"
+  );
+
+  const alreadyHasShopifyCard = cards.some(
+    (card) => card.platform.toLowerCase() === "shopify"
   );
 
   if (youtubeAccount && !alreadyHasYouTubeCard) {
@@ -116,6 +142,16 @@ export function buildPlatformHealthCards({
     cards.unshift(
       buildTwitchCard({
         account: twitchAccount,
+        revenue: 0,
+        monthlyGrowthPercent,
+      })
+    );
+  }
+
+  if (shopifyAccount && !alreadyHasShopifyCard) {
+    cards.unshift(
+      buildShopifyCard({
+        account: shopifyAccount,
         revenue: 0,
         monthlyGrowthPercent,
       })
