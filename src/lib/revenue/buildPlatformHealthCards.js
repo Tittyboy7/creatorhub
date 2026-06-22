@@ -48,6 +48,26 @@ function buildTwitchCard({ account, revenue, monthlyGrowthPercent }) {
   };
 }
 
+function buildKickCard({ account, revenue, monthlyGrowthPercent }) {
+  const metadata = account?.metadata?.kick || null;
+
+  return {
+    platform: "Kick",
+    revenue,
+    audience:
+      metadata?.email || metadata?.username || metadata?.name
+        ? "Account connected"
+        : "Connected",
+    orders: "Coming soon",
+    productsSold: metadata?.profile_picture || metadata?.profile_pic
+      ? "Profile connected"
+      : "Coming soon",
+    views: "Coming soon",
+    growth: formatGrowth(monthlyGrowthPercent),
+    status: metadata ? "Kick synced" : "Connected",
+  };
+}
+
 function buildShopifyCard({ account, revenue, monthlyGrowthPercent }) {
   const metadata = account?.metadata?.shopify || null;
 
@@ -89,6 +109,7 @@ export function buildPlatformHealthCards({
 }) {
   const youtubeAccount = getConnectedAccount(connectedAccounts, "youtube");
   const twitchAccount = getConnectedAccount(connectedAccounts, "twitch");
+  const kickAccount = getConnectedAccount(connectedAccounts, "kick");
   const shopifyAccount = getConnectedAccount(connectedAccounts, "shopify");
 
   const cards = platformChartData.map((platform) => {
@@ -105,6 +126,14 @@ export function buildPlatformHealthCards({
     if (platformKey === "twitch") {
       return buildTwitchCard({
         account: twitchAccount,
+        revenue: platform.revenue,
+        monthlyGrowthPercent,
+      });
+    }
+
+    if (platformKey === "kick") {
+      return buildKickCard({
+        account: kickAccount,
         revenue: platform.revenue,
         monthlyGrowthPercent,
       });
@@ -132,6 +161,10 @@ export function buildPlatformHealthCards({
     (card) => card.platform.toLowerCase() === "twitch"
   );
 
+  const alreadyHasKickCard = cards.some(
+    (card) => card.platform.toLowerCase() === "kick"
+  );
+
   const alreadyHasShopifyCard = cards.some(
     (card) => card.platform.toLowerCase() === "shopify"
   );
@@ -150,6 +183,16 @@ export function buildPlatformHealthCards({
     cards.unshift(
       buildTwitchCard({
         account: twitchAccount,
+        revenue: 0,
+        monthlyGrowthPercent,
+      })
+    );
+  }
+
+  if (kickAccount && !alreadyHasKickCard) {
+    cards.unshift(
+      buildKickCard({
+        account: kickAccount,
         revenue: 0,
         monthlyGrowthPercent,
       })
