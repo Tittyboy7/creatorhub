@@ -25,6 +25,110 @@ function formatDate(value) {
   return new Date(value).toLocaleString();
 }
 
+function buildDetailCards({ platformSlug, account, revenueEntries }) {
+  const youtube = account?.metadata?.youtube || null;
+  const twitch = account?.metadata?.twitch || null;
+  const shopify = account?.metadata?.shopify || null;
+
+  const syncedRevenueTotal = revenueEntries.reduce(
+    (sum, entry) => sum + Number(entry.amount || 0),
+    0
+  );
+
+  if (platformSlug === "shopify") {
+    return [
+      {
+        label: "Synced Revenue",
+        value: formatCurrency(shopify?.total_order_revenue || 0),
+      },
+      {
+        label: "Orders",
+        value: shopify ? formatNumber(shopify.orders_count) : "Coming soon",
+      },
+      {
+        label: "Products",
+        value: shopify ? formatNumber(shopify.products_count) : "Coming soon",
+      },
+      {
+        label: "Average Order",
+        value: formatCurrency(shopify?.average_order_value || 0),
+      },
+      {
+        label: "API Status",
+        value: account.sync_status || "Unknown",
+      },
+      {
+        label: "Last Synced",
+        value: formatDate(account.last_synced_at),
+      },
+    ];
+  }
+
+  if (platformSlug === "twitch") {
+    return [
+      {
+        label: "Synced Revenue",
+        value: formatCurrency(syncedRevenueTotal),
+      },
+      {
+        label: "Broadcaster Type",
+        value: twitch?.broadcaster_type || "Connected",
+      },
+      {
+        label: "Views",
+        value: twitch ? formatNumber(twitch.view_count) : "Coming soon",
+      },
+      {
+        label: "Profile",
+        value: twitch?.profile_image_url ? "Connected" : "Coming soon",
+      },
+      {
+        label: "API Status",
+        value: account.sync_status || "Unknown",
+      },
+      {
+        label: "Last Synced",
+        value: formatDate(account.last_synced_at),
+      },
+    ];
+  }
+
+  return [
+    {
+      label: "Synced Revenue",
+      value: formatCurrency(syncedRevenueTotal),
+    },
+    {
+      label: "Subscribers",
+      value: youtube ? formatNumber(youtube.subscriber_count) : "Coming soon",
+    },
+    {
+      label: "Views",
+      value: youtube ? formatNumber(youtube.view_count) : "Coming soon",
+    },
+    {
+      label: "Videos",
+      value: youtube ? formatNumber(youtube.video_count) : "Coming soon",
+    },
+    {
+      label: "API Status",
+      value: account.sync_status || "Unknown",
+    },
+    {
+      label: "Last Synced",
+      value: formatDate(account.last_synced_at),
+    },
+  ];
+}
+
+function getHistoryTitle(platformName) {
+  return `${platformName} Revenue History`;
+}
+
+function getHistoryDescription(platformName) {
+  return `Monthly revenue synced from ${platformName}.`;
+}
+
 export default function PlatformRevenuePage() {
   const params = useParams();
 
@@ -41,17 +145,14 @@ export default function PlatformRevenuePage() {
     handleSyncNow,
   } = usePlatformRevenueData(platformSlug);
 
-  const youtubeMetadata = account?.metadata?.youtube || null;
-
   const roadmap = platformRoadmaps[platformSlug] || {
     connectedNow: [],
     comingNext: [],
   };
 
-  const syncedRevenueTotal = revenueEntries.reduce(
-    (sum, entry) => sum + Number(entry.amount || 0),
-    0
-  );
+  const detailCards = account
+    ? buildDetailCards({ platformSlug, account, revenueEntries })
+    : [];
 
   if (loading) {
     return (
@@ -130,47 +231,13 @@ export default function PlatformRevenuePage() {
         ) : (
           <>
             <section className="grid gap-4 md:grid-cols-3">
-              <DetailCard
-                label="Synced Revenue"
-                value={formatCurrency(syncedRevenueTotal)}
-              />
-
-              <DetailCard
-                label="Subscribers"
-                value={
-                  youtubeMetadata
-                    ? formatNumber(youtubeMetadata.subscriber_count)
-                    : "Coming soon"
-                }
-              />
-
-              <DetailCard
-                label="Views"
-                value={
-                  youtubeMetadata
-                    ? formatNumber(youtubeMetadata.view_count)
-                    : "Coming soon"
-                }
-              />
-
-              <DetailCard
-                label="Videos"
-                value={
-                  youtubeMetadata
-                    ? formatNumber(youtubeMetadata.video_count)
-                    : "Coming soon"
-                }
-              />
-
-              <DetailCard
-                label="API Status"
-                value={account.sync_status || "Unknown"}
-              />
-
-              <DetailCard
-                label="Last Synced"
-                value={formatDate(account.last_synced_at)}
-              />
+              {detailCards.map((card) => (
+                <DetailCard
+                  key={card.label}
+                  label={card.label}
+                  value={card.value}
+                />
+              ))}
             </section>
 
             <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
@@ -189,7 +256,9 @@ export default function PlatformRevenuePage() {
                     {roadmap.connectedNow.length === 0 ? (
                       <p className="text-zinc-500">Nothing connected yet</p>
                     ) : (
-                      roadmap.connectedNow.map((item) => <p key={item}>✓ {item}</p>)
+                      roadmap.connectedNow.map((item) => (
+                        <p key={item}>✓ {item}</p>
+                      ))
                     )}
                   </div>
                 </div>
@@ -210,31 +279,34 @@ export default function PlatformRevenuePage() {
               <div className="mb-5">
                 <h2 className="text-2xl font-bold">Top Content</h2>
                 <p className="mt-2 text-zinc-400">
-                  Future API data for top-performing videos, clips, products, or posts.
+                  Future API data for top-performing videos, clips, products, or
+                  posts.
                 </p>
               </div>
 
               <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
                 <p className="font-semibold">No top content synced yet</p>
                 <p className="mt-1 text-sm text-zinc-500">
-                  This section will show top videos, products, clips, or posts once deeper
-                  platform analytics are connected.
+                  This section will show top videos, products, clips, or posts
+                  once deeper platform analytics are connected.
                 </p>
               </div>
             </section>
 
             <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
-              <h2 className="text-2xl font-bold">YouTube Revenue History</h2>
+              <h2 className="text-2xl font-bold">
+                {getHistoryTitle(platformName)}
+              </h2>
 
               <p className="mt-2 text-zinc-400">
-                Monthly revenue synced from YouTube Analytics.
+                {getHistoryDescription(platformName)}
               </p>
 
               {revenueEntries.length === 0 ? (
                 <div className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
                   <p className="font-semibold">No synced revenue yet</p>
                   <p className="mt-1 text-sm text-zinc-500">
-                    Run a YouTube sync to import monthly revenue data.
+                    Run a {platformName} sync to import monthly revenue data.
                   </p>
                 </div>
               ) : (

@@ -1,3 +1,5 @@
+import { formatCurrency } from "@/lib/formatCurrency";
+
 function formatNumber(value) {
   return new Intl.NumberFormat("en-US").format(Number(value || 0));
 }
@@ -51,11 +53,17 @@ function buildShopifyCard({ account, revenue, monthlyGrowthPercent }) {
 
   return {
     platform: "Shopify",
-    revenue,
-    audience: metadata?.plan_name || "Store connected",
-    orders: "Coming soon",
-    productsSold: "Coming soon",
-    views: metadata?.currency ? `Currency: ${metadata.currency}` : "Coming soon",
+    revenue: metadata?.total_order_revenue ?? revenue,
+    audience: metadata
+      ? `${formatNumber(metadata.orders_count)} orders`
+      : "Coming soon",
+    orders: metadata
+      ? formatCurrency(metadata.average_order_value || 0)
+      : "Coming soon",
+    productsSold: metadata
+      ? `${formatNumber(metadata.products_count)} products`
+      : "Coming soon",
+    views: metadata?.currency || "Coming soon",
     growth: formatGrowth(monthlyGrowthPercent),
     status: metadata ? "Shopify synced" : "Connected",
   };

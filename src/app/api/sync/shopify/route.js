@@ -32,6 +32,46 @@ async function fetchShopifyShop(shopDomain, accessToken) {
   return data.shop;
 }
 
+async function fetchShopifyProductsCount(shopDomain, accessToken) {
+  const response = await fetch(
+    `https://${shopDomain}/admin/api/2025-10/products/count.json`,
+    {
+      headers: {
+        "X-Shopify-Access-Token": accessToken,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(JSON.stringify(data));
+  }
+
+  return Number(data.count || 0);
+}
+
+async function fetchShopifyOrders(shopDomain, accessToken) {
+  const response = await fetch(
+    `https://${shopDomain}/admin/api/2025-10/orders.json?status=any&limit=250`,
+    {
+      headers: {
+        "X-Shopify-Access-Token": accessToken,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(JSON.stringify(data));
+  }
+
+  return data.orders || [];
+}
+
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("user_id");
@@ -69,6 +109,21 @@ export async function GET(request) {
       account.metadata?.shopify?.shop_domain || account.account_id;
 
     const shop = await fetchShopifyShop(shopDomain, account.access_token);
+    const productsCount = await fetchShopifyProductsCount(
+      shopDomain,
+      account.access_token
+    );
+    const orders = await fetchShopifyOrders(shopDomain, account.access_token);
+
+    const ordersCount = orders.length;
+
+    const totalOrderRevenue = orders.reduce(
+      (sum, order) => sum + Number(order.total_price || 0),
+      0
+    );
+
+    const averageOrderValue =
+      ordersCount === 0 ? 0 : totalOrderRevenue / ordersCount;
 
     await supabaseAdmin
       .from("connected_accounts")
@@ -85,6 +140,10 @@ export async function GET(request) {
             currency: shop?.currency || null,
             plan_name: shop?.plan_name || null,
             country_name: shop?.country_name || null,
+            products_count: productsCount,
+            orders_count: ordersCount,
+            total_order_revenue: Number(totalOrderRevenue.toFixed(2)),
+            average_order_value: Number(averageOrderValue.toFixed(2)),
           },
         },
         last_synced_at: new Date().toISOString(),
@@ -98,8 +157,14 @@ export async function GET(request) {
     return NextResponse.json({
       success: true,
       message: "Shopify sync completed.",
-      imported_rows: 0,
+      imported_rows: ordersCount,
       shop,
+      metrics: {
+        products_count: productsCount,
+        orders_count: ordersCount,
+        total_order_revenue: Number(totalOrderRevenue.toFixed(2)),
+        average_order_value: Number(averageOrderValue.toFixed(2)),
+      },
     });
   } catch (error) {
     await updateSyncStatus(supabaseAdmin, account.id, {

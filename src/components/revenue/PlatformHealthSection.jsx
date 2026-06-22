@@ -62,8 +62,9 @@ export default function PlatformHealthSection({ platformHealthCards }) {
                   </>
                 ) : platform.platform.toLowerCase() === "shopify" ? (
                   <>
-                    <PlatformMetric label="Currency" value={platform.views} />
+                    <PlatformMetric label="Avg Order" value={platform.orders} />
                     <PlatformMetric label="Products" value={platform.productsSold} />
+                    <PlatformMetric label="Currency" value={platform.views} />
                   </>
                 ) : (
                   <>
