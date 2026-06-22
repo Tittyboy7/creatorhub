@@ -34,6 +34,7 @@ export default function PlatformConnectionPage() {
 
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [shopDomain, setShopDomain] = useState("");
 
   const platform = params.platform;
   const details = platformInfo[platform];
@@ -58,6 +59,19 @@ export default function PlatformConnectionPage() {
 
   if (loading) {
     return <p className="text-zinc-400">Loading integration...</p>;
+  }
+
+  function getShopifyOAuthUrl() {
+    const cleanedDomain = shopDomain
+      .trim()
+      .replace("https://", "")
+      .replace("http://", "");
+
+    if (!cleanedDomain) return "";
+
+    return `/api/auth/shopify/start?user_id=${user.id}&shop=${encodeURIComponent(
+      cleanedDomain
+    )}`;
   }
 
   if (!details) {
@@ -117,6 +131,27 @@ export default function PlatformConnectionPage() {
               >
                 Connect Twitch
               </Link>
+            ) : platform === "shopify" ? (
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  value={shopDomain}
+                  onChange={(e) => setShopDomain(e.target.value)}
+                  placeholder="your-store.myshopify.com"
+                  className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white placeholder:text-zinc-500"
+                />
+
+                <Link
+                  href={getShopifyOAuthUrl() || "#"}
+                  className={`inline-block rounded-2xl px-6 py-3 font-semibold ${
+                    shopDomain.trim()
+                      ? "bg-white text-black hover:bg-zinc-200"
+                      : "cursor-not-allowed border border-zinc-700 text-zinc-500"
+                  }`}
+                >
+                  Connect Shopify
+                </Link>
+              </div>
             ) : (
               <button
                 disabled

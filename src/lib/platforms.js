@@ -25,7 +25,7 @@ export const platforms = [
     key: "shopify",
     category: "Commerce",
     description: "Sync orders, products sold, store revenue, and top products.",
-    available: false,
+    available: true,
   },
   {
     name: "Patreon",
