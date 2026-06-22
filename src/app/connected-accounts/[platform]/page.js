@@ -143,6 +143,13 @@ export default function PlatformConnectionPage() {
               >
                 Connect Kick
               </Link>
+            ) : platform === "patreon" ? (
+              <Link
+                href={`/api/auth/patreon/start?user_id=${user.id}`}
+                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
+              >
+                Connect Patreon
+              </Link>  
             ) : platform === "shopify" ? (
               <div className="space-y-4">
                 <input

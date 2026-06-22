@@ -32,7 +32,7 @@ export const platforms = [
     key: "patreon",
     category: "Memberships",
     description: "Sync members, tiers, monthly revenue, and member growth.",
-    available: false,
+    available: true,
   },
   {
     name: "Stripe",
