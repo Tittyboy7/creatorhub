@@ -16,6 +16,11 @@ const platformInfo = {
     description:
       "Connect Twitch to sync subscriptions, donations, and creator revenue.",
   },
+  kick: {
+    name: "Kick",
+    description:
+      "Connect Kick to sync followers, subscribers, stream activity, and revenue.",
+  },
   shopify: {
     name: "Shopify",
     description:
@@ -130,6 +135,13 @@ export default function PlatformConnectionPage() {
                 className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
               >
                 Connect Twitch
+              </Link>
+            ) : platform === "kick" ? (
+              <Link
+                href={`/api/auth/kick/start?user_id=${user.id}`}
+                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
+              >
+                Connect Kick
               </Link>
             ) : platform === "shopify" ? (
               <div className="space-y-4">

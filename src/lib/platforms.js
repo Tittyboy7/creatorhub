@@ -18,7 +18,7 @@ export const platforms = [
     key: "kick",
     category: "Streaming",
     description: "Sync followers, subscribers, stream activity, and revenue.",
-    available: false,
+    available: true,
   },
   {
     name: "Shopify",
