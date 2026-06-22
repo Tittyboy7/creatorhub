@@ -167,6 +167,7 @@ export default function ConnectedAccountsPage() {
           const account = getAccount(platform.key);
           const isConnected = Boolean(account);
           const hasError = Boolean(account?.sync_error);
+          const isSynced = Boolean(account?.last_synced_at);
 
           return (
             <div
@@ -195,6 +196,8 @@ export default function ConnectedAccountsPage() {
                 >
                   {hasError
                     ? "Error"
+                    : isSynced
+                    ? "Synced"
                     : isConnected
                     ? "Connected"
                     : platform.available
