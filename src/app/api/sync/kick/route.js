@@ -12,6 +12,29 @@ async function updateSyncStatus(supabaseAdmin, accountId, updates) {
     .eq("id", accountId);
 }
 
+async function refreshKickAccessToken(refreshToken) {
+  const response = await fetch("https://id.kick.com/oauth/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      client_id: process.env.KICK_CLIENT_ID,
+      client_secret: process.env.KICK_CLIENT_SECRET,
+      refresh_token: refreshToken,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(JSON.stringify(data));
+  }
+
+  return data;
+}
+
 async function fetchKickUser(accessToken) {
   const response = await fetch("https://api.kick.com/public/v1/users", {
     headers: {
@@ -61,8 +84,30 @@ export async function GET(request) {
     sync_error: null,
   });
 
+  if (!account.refresh_token) {
+    await updateSyncStatus(supabaseAdmin, account.id, {
+      sync_status: "error",
+      sync_error: "No Kick refresh token found. Reconnect Kick.",
+    });
+
+    return NextResponse.json(
+      { error: "No Kick refresh token found. Reconnect Kick." },
+      { status: 400 }
+    );
+  }
+
   try {
-    const kickUser = await fetchKickUser(account.access_token);
+    const freshTokenData = await refreshKickAccessToken(account.refresh_token);
+
+    const freshAccessToken = freshTokenData.access_token;
+    const freshRefreshToken =
+      freshTokenData.refresh_token || account.refresh_token;
+
+    const expiresAt = new Date(
+      Date.now() + Number(freshTokenData.expires_in || 3600) * 1000
+    ).toISOString();
+
+    const kickUser = await fetchKickUser(freshAccessToken);
 
     if (!kickUser) {
       throw new Error("No Kick user returned.");
@@ -82,6 +127,9 @@ export async function GET(request) {
     const { error: updateError } = await supabaseAdmin
       .from("connected_accounts")
       .update({
+        access_token: freshAccessToken,
+        refresh_token: freshRefreshToken,
+        expires_at: expiresAt,
         account_id: String(kickUserId),
         account_name: kickDisplayName,
         metadata: {
