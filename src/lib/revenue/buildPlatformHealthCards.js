@@ -130,6 +130,22 @@ function buildStripeCard({ account, revenue, monthlyGrowthPercent }) {
   };
 }
 
+function buildPayPalCard({ account, revenue, monthlyGrowthPercent }) {
+  const metadata = account?.metadata?.paypal || null;
+  const user = metadata?.user || null;
+
+  return {
+    platform: "PayPal",
+    revenue,
+    audience: user?.email || account?.account_name || "Connected",
+    orders: metadata?.environment || "sandbox",
+    productsSold: metadata?.connected ? "Connection active" : "Connected",
+    views: "OpenID connected",
+    growth: formatGrowth(monthlyGrowthPercent),
+    status: metadata ? "PayPal synced" : "Connected",
+  };
+}
+
 function buildManualCard({ platform, monthlyGrowthPercent }) {
   return {
     platform: platform.platform,
@@ -154,6 +170,7 @@ export function buildPlatformHealthCards({
   const shopifyAccount = getConnectedAccount(connectedAccounts, "shopify");
   const patreonAccount = getConnectedAccount(connectedAccounts, "patreon");
   const stripeAccount = getConnectedAccount(connectedAccounts, "stripe");
+  const paypalAccount = getConnectedAccount(connectedAccounts, "paypal");
 
   const cards = platformChartData.map((platform) => {
     const platformKey = platform.platform.toLowerCase();
@@ -206,6 +223,14 @@ export function buildPlatformHealthCards({
       });
     }
 
+    if (platformKey === "paypal") {
+      return buildPayPalCard({
+        account: paypalAccount,
+        revenue: platform.revenue,
+        monthlyGrowthPercent,
+      });
+    }
+
     return buildManualCard({
       platform,
       monthlyGrowthPercent,
@@ -234,6 +259,10 @@ export function buildPlatformHealthCards({
 
   const alreadyHasStripeCard = cards.some(
     (card) => card.platform.toLowerCase() === "stripe"
+  );
+
+  const alreadyHasPayPalCard = cards.some(
+    (card) => card.platform.toLowerCase() === "paypal"
   );
 
   if (youtubeAccount && !alreadyHasYouTubeCard) {
@@ -290,6 +319,16 @@ export function buildPlatformHealthCards({
     cards.unshift(
       buildStripeCard({
         account: stripeAccount,
+        revenue: 0,
+        monthlyGrowthPercent,
+      })
+    );
+  }
+
+  if (paypalAccount && !alreadyHasPayPalCard) {
+    cards.unshift(
+      buildPayPalCard({
+        account: paypalAccount,
         revenue: 0,
         monthlyGrowthPercent,
       })
