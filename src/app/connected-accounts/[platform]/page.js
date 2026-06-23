@@ -31,6 +31,16 @@ const platformInfo = {
     description:
       "Connect Shopify to sync product sales and store revenue.",
   },
+  streamlabs: {
+    name: "Streamlabs",
+    description:
+      "Connect Streamlabs to sync donations, tips, donor activity, and creator support revenue.",
+  },
+  paypal: {
+    name: "PayPal",
+    description:
+      "Connect PayPal to sync direct payments, sponsor payments, refunds, and creator income.",
+  },
   patreon: {
     name: "Patreon",
     description:
@@ -161,7 +171,21 @@ export default function PlatformConnectionPage() {
                 className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
               >
                 Connect Stripe
-              </Link>  
+              </Link> 
+            ) : platform === "streamlabs" ? (
+              <Link
+                href={`/api/auth/streamlabs/start?user_id=${user.id}`}
+                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
+              >
+                Connect Streamlabs
+              </Link>
+            ) : platform === "paypal" ? (
+              <Link
+                href={`/api/auth/paypal/start?user_id=${user.id}`}
+                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
+              >
+                Connect PayPal
+              </Link>   
             ) : platform === "shopify" ? (
               <div className="space-y-4">
                 <input

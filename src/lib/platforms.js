@@ -42,11 +42,18 @@ export const platforms = [
     available: true,
   },
   {
+    name: "PayPal",
+    key: "paypal",
+    category: "Payments",
+    description: "Sync direct payments, sponsor payments, refunds, and creator income.",
+    available: true,
+  },
+  {
     name: "Streamlabs",
     key: "streamlabs",
     category: "Donations",
     description: "Sync donations, tips, top donors, and creator support.",
-    available: false,
+    available: true,
   },
   {
     name: "StreamElements",
