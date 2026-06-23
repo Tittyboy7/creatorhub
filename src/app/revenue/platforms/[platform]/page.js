@@ -68,6 +68,38 @@ function buildDetailCards({ platformSlug, account, revenueEntries }) {
     ];
   }
 
+  if (platformSlug === "paypal") {
+    const paypal = account?.metadata?.paypal || null;
+    const user = paypal?.user || null;
+
+    return [
+      {
+        label: "Account",
+        value: account.account_name || "PayPal",
+      },
+      {
+        label: "Email",
+        value: user?.email || "Connected",
+      },
+      {
+        label: "Environment",
+        value: paypal?.environment || "sandbox",
+      },
+      {
+        label: "Connection",
+        value: paypal?.connected ? "Active" : "Connected",
+      },
+      {
+        label: "API Status",
+        value: account.sync_status || "Unknown",
+      },
+      {
+        label: "Last Synced",
+        value: formatDate(account.last_synced_at),
+      },
+    ];
+  }
+
   if (platformSlug === "shopify") {
     return [
       {
