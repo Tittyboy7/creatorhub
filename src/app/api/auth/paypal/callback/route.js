@@ -45,7 +45,9 @@ async function exchangePayPalCodeForToken(code) {
 }
 
 async function fetchPayPalUser(accessToken) {
-  const response = await fetch(`${getPayPalBaseUrl()}/v1/identity/oauth2/userinfo`, {
+  const response = await fetch(
+    `${getPayPalBaseUrl()}/v1/identity/openidconnect/userinfo?schema=openid`,
+    {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/json",
