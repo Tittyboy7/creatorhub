@@ -46,11 +46,12 @@ async function exchangePayPalCodeForToken(code) {
 
 async function fetchPayPalUser(accessToken) {
   const response = await fetch(
-    `${getPayPalBaseUrl()}/v1/identity/openidconnect/userinfo?schema=openid`,
+    `${getPayPalBaseUrl()}/v1/identity/oauth2/userinfo?schema=paypalv1.1`,
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
       },
     }
   );
