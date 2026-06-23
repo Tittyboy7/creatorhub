@@ -65,6 +65,11 @@ export default function PlatformHealthSection({ platformHealthCards }) {
                     <PlatformMetric label="Channel" value={platform.audience} />
                     <PlatformMetric label="Profile" value={platform.productsSold} />
                   </>
+                ) : platform.platform.toLowerCase() === "patreon" ? (
+                  <>
+                    <PlatformMetric label="Patrons" value={platform.audience} />
+                    <PlatformMetric label="Campaign" value={platform.productsSold} />
+                  </>
                 ) : platform.platform.toLowerCase() === "shopify" ? (
                   <>
                     <PlatformMetric label="Avg Order" value={platform.orders} />

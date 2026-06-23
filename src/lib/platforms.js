@@ -39,7 +39,7 @@ export const platforms = [
     key: "stripe",
     category: "Payments",
     description: "Sync payments, refunds, net revenue, and payout history.",
-    available: false,
+    available: true,
   },
   {
     name: "Streamlabs",

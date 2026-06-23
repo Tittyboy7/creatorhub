@@ -21,6 +21,11 @@ const platformInfo = {
     description:
       "Connect Kick to sync followers, subscribers, stream activity, and revenue.",
   },
+  stripe: {
+    name: "Stripe",
+    description:
+      "Connect Stripe to sync payments, customers, subscriptions, payouts, and revenue.",
+  },
   shopify: {
     name: "Shopify",
     description:
@@ -149,6 +154,13 @@ export default function PlatformConnectionPage() {
                 className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
               >
                 Connect Patreon
+              </Link>
+            ) : platform === "stripe" ? (
+              <Link
+                href={`/api/auth/stripe/start?user_id=${user.id}`}
+                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
+              >
+                Connect Stripe
               </Link>  
             ) : platform === "shopify" ? (
               <div className="space-y-4">

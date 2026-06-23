@@ -59,9 +59,10 @@ function buildKickCard({ account, revenue, monthlyGrowthPercent }) {
         ? "Account connected"
         : "Connected",
     orders: "Coming soon",
-    productsSold: metadata?.profile_picture || metadata?.profile_pic
-      ? "Profile connected"
-      : "Coming soon",
+    productsSold:
+      metadata?.profile_picture || metadata?.profile_pic
+        ? "Profile connected"
+        : "Coming soon",
     views: "Coming soon",
     growth: formatGrowth(monthlyGrowthPercent),
     status: metadata ? "Kick synced" : "Connected",
@@ -89,6 +90,23 @@ function buildShopifyCard({ account, revenue, monthlyGrowthPercent }) {
   };
 }
 
+function buildPatreonCard({ account, revenue, monthlyGrowthPercent }) {
+  const metadata = account?.metadata?.patreon || null;
+
+  return {
+    platform: "Patreon",
+    revenue,
+    audience: metadata
+      ? `${formatNumber(metadata.patron_count)} patrons`
+      : "Coming soon",
+    orders: "Coming soon",
+    productsSold: metadata?.campaign_name || metadata?.creation_name || "Coming soon",
+    views: metadata?.url ? "Campaign connected" : "Coming soon",
+    growth: formatGrowth(monthlyGrowthPercent),
+    status: metadata ? "Patreon synced" : "Connected",
+  };
+}
+
 function buildManualCard({ platform, monthlyGrowthPercent }) {
   return {
     platform: platform.platform,
@@ -111,6 +129,7 @@ export function buildPlatformHealthCards({
   const twitchAccount = getConnectedAccount(connectedAccounts, "twitch");
   const kickAccount = getConnectedAccount(connectedAccounts, "kick");
   const shopifyAccount = getConnectedAccount(connectedAccounts, "shopify");
+  const patreonAccount = getConnectedAccount(connectedAccounts, "patreon");
 
   const cards = platformChartData.map((platform) => {
     const platformKey = platform.platform.toLowerCase();
@@ -147,6 +166,14 @@ export function buildPlatformHealthCards({
       });
     }
 
+    if (platformKey === "patreon") {
+      return buildPatreonCard({
+        account: patreonAccount,
+        revenue: platform.revenue,
+        monthlyGrowthPercent,
+      });
+    }
+
     return buildManualCard({
       platform,
       monthlyGrowthPercent,
@@ -167,6 +194,10 @@ export function buildPlatformHealthCards({
 
   const alreadyHasShopifyCard = cards.some(
     (card) => card.platform.toLowerCase() === "shopify"
+  );
+
+  const alreadyHasPatreonCard = cards.some(
+    (card) => card.platform.toLowerCase() === "patreon"
   );
 
   if (youtubeAccount && !alreadyHasYouTubeCard) {
@@ -203,6 +234,16 @@ export function buildPlatformHealthCards({
     cards.unshift(
       buildShopifyCard({
         account: shopifyAccount,
+        revenue: 0,
+        monthlyGrowthPercent,
+      })
+    );
+  }
+
+  if (patreonAccount && !alreadyHasPatreonCard) {
+    cards.unshift(
+      buildPatreonCard({
+        account: patreonAccount,
         revenue: 0,
         monthlyGrowthPercent,
       })
