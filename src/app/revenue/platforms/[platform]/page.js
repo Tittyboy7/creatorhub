@@ -35,6 +35,39 @@ function buildDetailCards({ platformSlug, account, revenueEntries }) {
     0
   );
 
+  if (platformSlug === "stripe") {
+    const stripe = account?.metadata?.stripe || null;
+
+    return [
+      {
+        label: "Net Revenue",
+        value: formatCurrency(stripe?.net_revenue || 0),
+      },
+      {
+        label: "Customers",
+        value: stripe ? formatNumber(stripe.customers_count) : "Coming soon",
+      },
+      {
+        label: "Payments",
+        value: stripe
+          ? formatNumber(stripe.successful_payments_count)
+          : "Coming soon",
+      },
+      {
+          label: "Charges",
+          value: stripe ? formatNumber(stripe.charges_count) : "Coming soon",
+      },
+      {
+        label: "API Status",
+        value: account.sync_status || "Unknown",
+      },
+      {
+        label: "Last Synced",
+        value: formatDate(account.last_synced_at),
+      },
+    ];
+  }
+
   if (platformSlug === "shopify") {
     return [
       {
