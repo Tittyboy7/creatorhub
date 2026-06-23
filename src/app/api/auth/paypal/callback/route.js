@@ -21,7 +21,6 @@ async function exchangePayPalCodeForToken(code) {
     body: new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: process.env.PAYPAL_REDIRECT_URI,
     }),
   });
 
