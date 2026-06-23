@@ -107,6 +107,29 @@ function buildPatreonCard({ account, revenue, monthlyGrowthPercent }) {
   };
 }
 
+function buildStripeCard({ account, revenue, monthlyGrowthPercent }) {
+  const metadata = account?.metadata?.stripe || null;
+
+  return {
+    platform: "Stripe",
+    revenue: metadata?.net_revenue ?? revenue,
+    audience: metadata
+      ? `${formatNumber(metadata.customers_count)} customers`
+      : "Coming soon",
+    orders: metadata
+      ? `${formatNumber(metadata.successful_payments_count)} payments`
+      : "Coming soon",
+    productsSold: metadata
+      ? `${formatNumber(metadata.charges_count)} charges`
+      : "Coming soon",
+    views: metadata?.default_currency
+      ? metadata.default_currency.toUpperCase()
+      : "Coming soon",
+    growth: formatGrowth(monthlyGrowthPercent),
+    status: metadata ? "Stripe synced" : "Connected",
+  };
+}
+
 function buildManualCard({ platform, monthlyGrowthPercent }) {
   return {
     platform: platform.platform,
@@ -130,6 +153,7 @@ export function buildPlatformHealthCards({
   const kickAccount = getConnectedAccount(connectedAccounts, "kick");
   const shopifyAccount = getConnectedAccount(connectedAccounts, "shopify");
   const patreonAccount = getConnectedAccount(connectedAccounts, "patreon");
+  const stripeAccount = getConnectedAccount(connectedAccounts, "stripe");
 
   const cards = platformChartData.map((platform) => {
     const platformKey = platform.platform.toLowerCase();
@@ -174,6 +198,14 @@ export function buildPlatformHealthCards({
       });
     }
 
+    if (platformKey === "stripe") {
+      return buildStripeCard({
+        account: stripeAccount,
+        revenue: platform.revenue,
+        monthlyGrowthPercent,
+      });
+    }
+
     return buildManualCard({
       platform,
       monthlyGrowthPercent,
@@ -198,6 +230,10 @@ export function buildPlatformHealthCards({
 
   const alreadyHasPatreonCard = cards.some(
     (card) => card.platform.toLowerCase() === "patreon"
+  );
+
+  const alreadyHasStripeCard = cards.some(
+    (card) => card.platform.toLowerCase() === "stripe"
   );
 
   if (youtubeAccount && !alreadyHasYouTubeCard) {
@@ -244,6 +280,16 @@ export function buildPlatformHealthCards({
     cards.unshift(
       buildPatreonCard({
         account: patreonAccount,
+        revenue: 0,
+        monthlyGrowthPercent,
+      })
+    );
+  }
+
+  if (stripeAccount && !alreadyHasStripeCard) {
+    cards.unshift(
+      buildStripeCard({
+        account: stripeAccount,
         revenue: 0,
         monthlyGrowthPercent,
       })
