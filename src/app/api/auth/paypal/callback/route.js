@@ -48,16 +48,47 @@ async function fetchPayPalUser(accessToken) {
   const response = await fetch(
     `${getPayPalBaseUrl()}/v1/identity/openidconnect/userinfo?schema=openid`,
     {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: "application/json",
-    },
-  });
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+      },
+    }
+  );
 
-  const data = await response.json();
+  const rawText = await response.text();
+
+  let data = null;
+
+  try {
+    data = rawText ? JSON.parse(rawText) : null;
+  } catch {
+    throw new Error(
+      JSON.stringify({
+        error: "PayPal returned non-JSON user info response.",
+        status: response.status,
+        rawText,
+      })
+    );
+  }
 
   if (!response.ok) {
-    throw new Error(JSON.stringify(data));
+    throw new Error(
+      JSON.stringify({
+        paypalError: data,
+        status: response.status,
+        paypalDebugId: response.headers.get("paypal-debug-id"),
+      })
+    );
+  }
+
+  if (!data) {
+    throw new Error(
+      JSON.stringify({
+        error: "PayPal returned empty user info response.",
+        status: response.status,
+        paypalDebugId: response.headers.get("paypal-debug-id"),
+      })
+    );
   }
 
   return data;
