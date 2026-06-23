@@ -27,19 +27,22 @@ async function exchangePayPalCodeForToken(code) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(
-      JSON.stringify({
-        paypalError: data,
-        paypalDebugId: response.headers.get("paypal-debug-id"),
-        status: response.status,
-        environment: process.env.PAYPAL_ENVIRONMENT,
-        redirectUri: process.env.PAYPAL_REDIRECT_URI,
-        clientIdStartsWith: process.env.PAYPAL_CLIENT_ID?.slice(0, 8),
-        clientIdEndsWith: process.env.PAYPAL_CLIENT_ID?.slice(-8),
-        hasClientSecret: !!process.env.PAYPAL_CLIENT_SECRET,
-      })
-    );
-  }
+  throw new Error(
+    JSON.stringify({
+      paypalError: data,
+      paypalDebugId: response.headers.get("paypal-debug-id"),
+      status: response.status,
+      environment: process.env.PAYPAL_ENVIRONMENT,
+      redirectUri: process.env.PAYPAL_REDIRECT_URI,
+      clientIdStartsWith: process.env.PAYPAL_CLIENT_ID?.slice(0, 8),
+      clientIdEndsWith: process.env.PAYPAL_CLIENT_ID?.slice(-8),
+      hasClientSecret: !!process.env.PAYPAL_CLIENT_SECRET,
+    })
+  );
+}
+
+  return data;
+}
 
 async function fetchPayPalUser(accessToken) {
   const response = await fetch(`${getPayPalBaseUrl()}/v1/identity/oauth2/userinfo`, {
