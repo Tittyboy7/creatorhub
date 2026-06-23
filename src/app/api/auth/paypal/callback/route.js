@@ -7,6 +7,15 @@ function getPayPalBaseUrl() {
     : "https://api-m.sandbox.paypal.com";
 }
 
+function decodeJwtPayload(token) {
+  if (!token) return null;
+
+  const payload = token.split(".")[1];
+  if (!payload) return null;
+
+  return JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+}
+
 async function exchangePayPalCodeForToken(code) {
   const credentials = Buffer.from(
     `${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`
@@ -27,69 +36,7 @@ async function exchangePayPalCodeForToken(code) {
   const data = await response.json();
 
   if (!response.ok) {
-  throw new Error(
-    JSON.stringify({
-      paypalError: data,
-      paypalDebugId: response.headers.get("paypal-debug-id"),
-      status: response.status,
-      environment: process.env.PAYPAL_ENVIRONMENT,
-      redirectUri: process.env.PAYPAL_REDIRECT_URI,
-      clientIdStartsWith: process.env.PAYPAL_CLIENT_ID?.slice(0, 8),
-      clientIdEndsWith: process.env.PAYPAL_CLIENT_ID?.slice(-8),
-      hasClientSecret: !!process.env.PAYPAL_CLIENT_SECRET,
-    })
-  );
-}
-
-  return data;
-}
-
-async function fetchPayPalUser(accessToken) {
-  const response = await fetch(
-    `${getPayPalBaseUrl()}/v1/identity/oauth2/userinfo?schema=paypalv1.1`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: "application/json",
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    }
-  );
-
-  const rawText = await response.text();
-
-  let data = null;
-
-  try {
-    data = rawText ? JSON.parse(rawText) : null;
-  } catch {
-    throw new Error(
-      JSON.stringify({
-        error: "PayPal returned non-JSON user info response.",
-        status: response.status,
-        rawText,
-      })
-    );
-  }
-
-  if (!response.ok) {
-    throw new Error(
-      JSON.stringify({
-        paypalError: data,
-        status: response.status,
-        paypalDebugId: response.headers.get("paypal-debug-id"),
-      })
-    );
-  }
-
-  if (!data) {
-    throw new Error(
-      JSON.stringify({
-        error: "PayPal returned empty user info response.",
-        status: response.status,
-        paypalDebugId: response.headers.get("paypal-debug-id"),
-      })
-    );
+    throw new Error(JSON.stringify(data));
   }
 
   return data;
@@ -122,7 +69,7 @@ export async function GET(request) {
 
   try {
     const tokenData = await exchangePayPalCodeForToken(code);
-    const paypalUser = await fetchPayPalUser(tokenData.access_token);
+    const paypalUser = decodeJwtPayload(tokenData.id_token) || {};
 
     const expiresAt = new Date(
       Date.now() + Number(tokenData.expires_in || 3600) * 1000
@@ -130,7 +77,6 @@ export async function GET(request) {
 
     const accountId =
       paypalUser.payer_id ||
-      paypalUser.user_id ||
       paypalUser.sub ||
       paypalUser.email ||
       "paypal";
@@ -155,6 +101,7 @@ export async function GET(request) {
         metadata: {
           paypal: {
             user: paypalUser,
+            scope: tokenData.scope || null,
           },
         },
         updated_at: new Date().toISOString(),
