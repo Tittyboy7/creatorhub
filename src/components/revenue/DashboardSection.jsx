@@ -13,7 +13,7 @@ export default function DashboardSection({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
+    <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5 transition hover:border-zinc-700">
       <SectionHeader
         title={title}
         description={description}
@@ -22,7 +22,7 @@ export default function DashboardSection({
           <button
             type="button"
             onClick={() => setOpen((current) => !current)}
-            className="rounded-full border border-zinc-700 px-3 py-1 text-sm text-zinc-400 hover:bg-zinc-900"
+            className="rounded-full border border-zinc-700 px-3 py-1 text-sm font-medium text-zinc-400 transition hover:bg-zinc-900 hover:text-white"
           >
             {open ? "Hide" : "Show"}
           </button>
