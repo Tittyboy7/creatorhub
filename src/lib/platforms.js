@@ -60,7 +60,7 @@ export const platforms = [
     key: "streamelements",
     category: "Donations",
     description: "Sync donations, overlays, campaigns, and creator support.",
-    available: false,
+    available: true,
   },
   {
     name: "Fourthwall",

@@ -7,6 +7,13 @@ import RevenueTimeline from "@/components/revenue/RevenueTimeline";
 import RevenueHero from "@/components/revenue/RevenueHero";
 import RevenueSidebar from "@/components/revenue/RevenueSidebar";
 import RevenueMainContent from "@/components/revenue/RevenueMainContent";
+import RevenueExecutiveSummary from "@/components/revenue/RevenueExecutiveSummary";
+import RevenueMixSection from "@/components/revenue/RevenueMixSection";
+import TopRevenueDriversSection from "@/components/revenue/TopRevenueDriversSection";
+import UpcomingPayoutsSection from "@/components/revenue/UpcomingPayoutsSection";
+import RevenueOpportunitiesSection from "@/components/revenue/RevenueOpportunitiesSection";
+import CreatorBusinessScoreSection from "@/components/revenue/CreatorBusinessScoreSection";
+import DashboardSection from "@/components/revenue/DashboardSection";
 
 import { useRevenueStats } from "@/hooks/useRevenueStats";
 import { useRevenueData } from "@/hooks/useRevenueData";
@@ -148,14 +155,81 @@ export default function RevenuePage() {
 
         <RevenueHero />
 
-        <section
-          className="gap-6"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "380px minmax(0, 1fr)",
-            alignItems: "start",
-          }}
+        <RevenueExecutiveSummary
+          totalRevenue={totalRevenue}
+          thisMonthRevenue={thisMonthRevenue}
+          projectedNextMonthRevenue={projectedNextMonthRevenue}
+          monthlyGrowthPercent={monthlyGrowthPercent}
+        />
+
+        <DashboardSection
+          title="Revenue Mix"
+          description="See where your creator income is coming from."
+          tooltip="Shows how your tracked revenue is split across platforms."
         >
+          <RevenueMixSection
+            platformChartData={platformChartData}
+            totalRevenue={totalRevenue}
+            chartColors={chartColors}
+          />
+        </DashboardSection>
+
+        <DashboardSection
+          title="Top Revenue Drivers"
+          description="See what is contributing most to your creator business."
+          tooltip="Highlights the platforms, categories, and entries contributing the most tracked revenue."
+        >
+          <TopRevenueDriversSection
+            platformChartData={platformChartData}
+            revenueTypeChartData={revenueTypeChartData}
+            entries={entries}
+            monthlyGrowthPercent={monthlyGrowthPercent}
+          />
+        </DashboardSection>
+
+        <DashboardSection
+          title="Upcoming Payouts"
+          description="Track expected money arriving from connected platforms."
+          tooltip="Shows estimated or placeholder payout information from payment and commerce platforms."
+        >
+          <UpcomingPayoutsSection upcomingPayouts={upcomingPayouts} />
+        </DashboardSection>
+
+        <DashboardSection
+          title="Opportunities"
+          description="Simple recommendations based on your current revenue picture."
+          tooltip="Turns your revenue data into suggested next actions. These are simple rules for now and can become AI-powered later."
+        >
+          <RevenueOpportunitiesSection
+            bestPlatform={bestPlatform}
+            monthlyGrowthPercent={monthlyGrowthPercent}
+            platformCount={platformCount}
+            topPlatformPercent={topPlatformPercent}
+          />
+        </DashboardSection>
+
+        <DashboardSection
+          title="Creator Business Score"
+          description="A simple health score for your creator business."
+          tooltip="Scores your creator business using tracked revenue, growth, platform diversity, and revenue concentration."
+        >
+          <CreatorBusinessScoreSection
+            monthlyGrowthPercent={monthlyGrowthPercent}
+            platformCount={platformCount}
+            topPlatformPercent={topPlatformPercent}
+            totalRevenue={totalRevenue}
+          />
+        </DashboardSection>
+
+        {false && (
+          <section
+            className="gap-6"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "380px minmax(0, 1fr)",
+              alignItems: "start",
+            }}
+          >
           <RevenueSidebar
             totalRevenue={totalRevenue}
             thisMonthRevenue={thisMonthRevenue}
@@ -198,6 +272,7 @@ export default function RevenuePage() {
             upcomingPayouts={upcomingPayouts}
           />
         </section>
+        )}
 
         {visibleWidgets.revenueEvents && (
           <RevenueEventsSection events={revenueEvents} />

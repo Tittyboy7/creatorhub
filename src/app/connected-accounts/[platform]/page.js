@@ -41,6 +41,11 @@ const platformInfo = {
     description:
       "Connect PayPal to sync direct payments, sponsor payments, refunds, and creator income.",
   },
+  streamelements: {
+    name: "StreamElements",
+    description:
+      "Connect StreamElements to sync donations, campaign revenue, overlay activity, and creator support data.",
+  },
   patreon: {
     name: "Patreon",
     description:
@@ -185,6 +190,13 @@ export default function PlatformConnectionPage() {
                 className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
               >
                 Connect PayPal
+              </Link>
+            ) : platform === "streamelements" ? (
+              <Link
+                href={`/api/auth/streamelements/start?user_id=${user.id}`}
+                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
+              >
+                Connect StreamElements
               </Link>   
             ) : platform === "shopify" ? (
               <div className="space-y-4">
