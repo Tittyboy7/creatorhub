@@ -7,8 +7,8 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import InfoTooltip from "./InfoTooltip";
 import { formatCurrency } from "@/lib/formatCurrency";
+import EmptyState from "@/components/ui/EmptyState";
 
 export default function RevenueMixSection({
   platformChartData = [],
@@ -29,13 +29,10 @@ export default function RevenueMixSection({
   return (
     <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
       {!hasData ? (
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 text-center">
-          <h3 className="text-lg font-bold">No revenue mix yet</h3>
-          <p className="mt-2 text-sm text-zinc-500">
-            Add revenue entries or sync platforms with revenue data to see your
-            income breakdown.
-          </p>
-        </div>
+        <EmptyState
+          title="No revenue mix yet"
+          description="Add revenue entries or sync platforms with revenue data to see your income breakdown."
+        />
       ) : (
         <div className="grid gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
           <div className="h-72 min-h-72 rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
