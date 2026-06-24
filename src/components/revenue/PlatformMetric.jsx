@@ -5,6 +5,7 @@ export default function PlatformMetric({ label, value }) {
     <MetricCard
       label={label}
       value={value}
+      compact
       className="rounded-xl p-3"
     />
   );

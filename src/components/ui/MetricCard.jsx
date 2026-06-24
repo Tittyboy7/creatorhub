@@ -8,27 +8,42 @@ export default function MetricCard({
   tooltip,
   badge,
   className = "",
+  valueClassName = "",
+  compact = false,
 }) {
   return (
     <CardShell className={className}>
       <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-medium text-zinc-500">{label}</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+          {label}
+        </p>
+
         {tooltip && <InfoTooltip text={tooltip} />}
       </div>
 
-      <p className="mt-3 truncate text-3xl font-bold tracking-tight text-white">
+      <p
+        className={`mt-2 truncate font-bold tracking-tight text-white ${
+          compact ? "text-xl" : "text-3xl"
+        } ${valueClassName}`}
+      >
         {value}
       </p>
 
-      <div className="mt-2 flex items-center justify-between gap-3">
-        {subtitle && <p className="truncate text-sm text-zinc-400">{subtitle}</p>}
+      {(subtitle || badge) && (
+        <div className="mt-3 flex items-center justify-between gap-3">
+          {subtitle ? (
+            <p className="truncate text-sm text-zinc-400">{subtitle}</p>
+          ) : (
+            <span />
+          )}
 
-        {badge && (
-          <span className="shrink-0 rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-400">
-            {badge}
-          </span>
-        )}
-      </div>
+          {badge && (
+            <span className="shrink-0 rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-400">
+              {badge}
+            </span>
+          )}
+        </div>
+      )}
     </CardShell>
   );
 }
