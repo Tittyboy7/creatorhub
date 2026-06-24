@@ -4,7 +4,6 @@ import Link from "next/link";
 
 import RevenueEventsSection from "@/components/revenue/RevenueEventsSection";
 import RevenueTimeline from "@/components/revenue/RevenueTimeline";
-import RevenueHero from "@/components/revenue/RevenueHero";
 import RevenueSidebar from "@/components/revenue/RevenueSidebar";
 import RevenueMainContent from "@/components/revenue/RevenueMainContent";
 import RevenueExecutiveSummary from "@/components/revenue/RevenueExecutiveSummary";
@@ -14,6 +13,7 @@ import UpcomingPayoutsSection from "@/components/revenue/UpcomingPayoutsSection"
 import RevenueOpportunitiesSection from "@/components/revenue/RevenueOpportunitiesSection";
 import CreatorBusinessScoreSection from "@/components/revenue/CreatorBusinessScoreSection";
 import DashboardSection from "@/components/revenue/DashboardSection";
+import RevenueDailyBrief from "@/components/revenue/RevenueDailyBrief";
 
 import { useRevenueStats } from "@/hooks/useRevenueStats";
 import { useRevenueData } from "@/hooks/useRevenueData";
@@ -144,8 +144,8 @@ export default function RevenuePage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 px-5 py-8 text-white md:p-10">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <div className="min-h-screen bg-zinc-950 px-5 py-6 text-white md:px-10 md:py-8">
+      <div className="mx-auto max-w-7xl space-y-5">
         <Link
           href="/dashboard"
           className="inline-block rounded-2xl border border-zinc-700 px-5 py-3 hover:bg-zinc-800"
@@ -153,7 +153,14 @@ export default function RevenuePage() {
           Back to Dashboard
         </Link>
 
-        <RevenueHero />
+        <RevenueDailyBrief
+          totalRevenue={totalRevenue}
+          thisMonthRevenue={thisMonthRevenue}
+          monthlyGrowthPercent={monthlyGrowthPercent}
+          bestPlatform={bestPlatform}
+          topPlatformPercent={topPlatformPercent}
+          upcomingPayouts={upcomingPayouts}
+        />
 
         <RevenueExecutiveSummary
           totalRevenue={totalRevenue}
