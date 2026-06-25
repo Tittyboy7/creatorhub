@@ -1,6 +1,13 @@
 import Link from "next/link";
 
-function OpportunityCard({ label, title, description, action, priority = "low" }) {
+function OpportunityCard({
+  label,
+  title,
+  description,
+  action,
+  href = "/revenue",
+  priority = "low",
+}) {
   const priorityStyles = {
     high: "border-red-500/30 bg-red-500/10 text-red-300",
     medium: "border-amber-500/30 bg-amber-500/10 text-amber-300",
@@ -30,14 +37,14 @@ function OpportunityCard({ label, title, description, action, priority = "low" }
       </p>
 
       <Link
-        href="/revenue"
+        href={href}
         className="mt-4 inline-flex rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm font-semibold text-white hover:border-zinc-700 hover:bg-zinc-900"
       >
         {action} →
       </Link>
-          </div>
-        );
-      }
+    </div>
+  );
+}
 
 export default function RevenueOpportunitiesSection({
   bestPlatform,
@@ -49,6 +56,7 @@ export default function RevenueOpportunitiesSection({
     {
       label: "Growth",
       priority: "medium",
+      href: "/revenue",
       title: bestPlatform?.platform
         ? `Double down on ${bestPlatform.platform}`
         : "Connect more revenue sources",
@@ -56,12 +64,13 @@ export default function RevenueOpportunitiesSection({
         ? `${bestPlatform.platform} is currently your strongest tracked revenue source. This is where your business is already showing traction.`
         : "The more platforms you connect, the clearer your business picture becomes.",
       action: bestPlatform?.platform
-        ? `Look for what is driving ${bestPlatform.platform} revenue and repeat it.`
-        : "Connect another platform to improve recommendations.",
+        ? `Review ${bestPlatform.platform} revenue`
+        : "Connect another platform",
     },
     {
       label: monthlyGrowthPercent >= 0 ? "Momentum" : "Warning",
       priority: monthlyGrowthPercent >= 0 ? "low" : "high",
+      href: "/revenue",
       title:
         monthlyGrowthPercent >= 0
           ? "Momentum is moving in the right direction"
@@ -72,12 +81,13 @@ export default function RevenueOpportunitiesSection({
           : "Your tracked revenue trend is down. One platform, product, or revenue type may be pulling performance lower.",
       action:
         monthlyGrowthPercent >= 0
-          ? "Compare your strongest platform against your second strongest platform."
-          : "Open your Revenue Timeline and find where the drop started.",
+          ? "Compare revenue sources"
+          : "Review revenue timeline",
     },
     {
       label: topPlatformPercent >= 60 ? "Risk" : "Stability",
       priority: topPlatformPercent >= 60 ? "high" : "low",
+      href: "/revenue",
       title:
         topPlatformPercent >= 60
           ? "Your revenue is concentrated"
@@ -88,12 +98,13 @@ export default function RevenueOpportunitiesSection({
           : "Your revenue appears to be spread across multiple sources, which is healthier for long-term creator stability.",
       action:
         topPlatformPercent >= 60
-          ? "Build a second strong revenue channel."
-          : "Keep growing your strongest two platforms.",
+          ? "Review platform mix"
+          : "View revenue mix",
     },
     {
       label: "Data Quality",
       priority: platformCount >= 4 ? "low" : "medium",
+      href: "/connected-accounts",
       title:
         platformCount >= 4
           ? "You have enough data for stronger strategy"
@@ -104,8 +115,8 @@ export default function RevenueOpportunitiesSection({
           : "Recommendations become more useful when more revenue platforms are connected.",
       action:
         platformCount >= 4
-          ? "Use this dashboard weekly to decide what to create, promote, or sell next."
-          : "Connect one more revenue platform when available.",
+          ? "Manage integrations"
+          : "Connect another platform",
     },
   ];
 
@@ -119,6 +130,7 @@ export default function RevenueOpportunitiesSection({
             title={opportunity.title}
             description={opportunity.description}
             action={opportunity.action}
+            href={opportunity.href}
             priority={opportunity.priority}
           />
         ))}
