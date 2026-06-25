@@ -202,6 +202,7 @@ export default function RevenuePage() {
           icon={Lightbulb}
           description="The most important signals CreatorsHub thinks deserve your attention."
           tooltip="Highlights business signals based on your revenue, platform mix, growth, and connected account data."
+          defaultOpen={true}
         >
           <RevenueOpportunitiesSection businessSignals={businessSignals} />
         </DashboardSection>
