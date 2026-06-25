@@ -234,12 +234,7 @@ export default function RevenuePage() {
           description="Simple recommendations based on your current revenue picture."
           tooltip="Turns your revenue data into suggested next actions. These are simple rules for now and can become AI-powered later."
         >
-          <RevenueOpportunitiesSection
-            bestPlatform={bestPlatform}
-            monthlyGrowthPercent={monthlyGrowthPercent}
-            platformCount={platformCount}
-            topPlatformPercent={topPlatformPercent}
-          />
+          <RevenueOpportunitiesSection businessSignals={businessSignals} />
         </DashboardSection>
 
         <DashboardSection
