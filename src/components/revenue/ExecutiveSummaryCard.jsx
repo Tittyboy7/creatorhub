@@ -5,6 +5,8 @@ export default function ExecutiveSummaryCard({
   value,
   subtitle,
   tooltip,
+  trend,
+  trendLabel,
 }) {
   return (
     <MetricCard
@@ -12,6 +14,8 @@ export default function ExecutiveSummaryCard({
       value={value}
       subtitle={subtitle}
       tooltip={tooltip}
+      trend={trend}
+      trendLabel={trendLabel}
     />
   );
 }

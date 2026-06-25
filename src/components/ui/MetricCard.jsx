@@ -1,5 +1,6 @@
 import CardShell from "./CardShell";
 import InfoTooltip from "@/components/revenue/InfoTooltip";
+import StatTrend from "./StatTrend";
 
 export default function MetricCard({
   label,
@@ -7,6 +8,8 @@ export default function MetricCard({
   subtitle,
   tooltip,
   badge,
+  trend,
+  trendLabel,
   className = "",
   valueClassName = "",
   compact = false,
@@ -28,6 +31,10 @@ export default function MetricCard({
       >
         {value}
       </p>
+
+      {trend !== undefined && (
+        <StatTrend value={trend} label={trendLabel} />
+      )}
 
       {(subtitle || badge) && (
         <div className="mt-3 flex items-center justify-between gap-3">

@@ -2,21 +2,16 @@ import { formatMonth } from "@/lib/formatMonth";
 import { formatCurrency } from "@/lib/formatCurrency";
 
 export function buildBusinessInsights({
-  topPlatformPercent,
+  topPlatformPercent = 0,
   bestPlatform,
-  monthlyGrowthPercent,
-  revenueStreak,
-  bestMonth,
+  monthlyGrowthPercent = 0,
+  revenueStreak = 0,
+  bestMonth = {},
 }) {
   return [
     {
+      icon: "⚠️",
       title: "Revenue Concentration",
-      value:
-        topPlatformPercent >= 70
-          ? "High Dependency"
-          : topPlatformPercent >= 40
-          ? "Moderate Dependency"
-          : "Healthy Mix",
       description: bestPlatform
         ? `${topPlatformPercent}% of your revenue comes from ${bestPlatform.platform}. ${
             topPlatformPercent >= 70
@@ -24,34 +19,66 @@ export function buildBusinessInsights({
               : "Your platform mix is moving in a healthy direction."
           }`
         : "Add revenue entries to see platform dependency insights.",
+      trend: topPlatformPercent >= 70 ? "negative" : "positive",
+      priority:
+        topPlatformPercent >= 70
+          ? "high"
+          : topPlatformPercent >= 40
+          ? "medium"
+          : "low",
+      actionLabel: "View platform mix",
+      actionHref: "/revenue",
     },
     {
+      icon: monthlyGrowthPercent >= 0 ? "📈" : "📉",
       title: "Growth Momentum",
-      value:
-        monthlyGrowthPercent > 0
-          ? `+${monthlyGrowthPercent}%`
-          : `${monthlyGrowthPercent}%`,
       description:
         monthlyGrowthPercent > 0
-          ? "Revenue increased compared to your previous tracked month."
+          ? `Revenue increased ${monthlyGrowthPercent}% compared to your previous tracked month.`
           : monthlyGrowthPercent < 0
-          ? "Revenue decreased compared to your previous tracked month."
+          ? `Revenue decreased ${Math.abs(
+              monthlyGrowthPercent
+            )}% compared to your previous tracked month.`
           : "Revenue is currently flat compared to your previous tracked month.",
+      trend:
+        monthlyGrowthPercent > 0
+          ? "positive"
+          : monthlyGrowthPercent < 0
+          ? "negative"
+          : "neutral",
+      priority:
+        monthlyGrowthPercent < -20
+          ? "high"
+          : monthlyGrowthPercent < 0
+          ? "medium"
+          : "low",
+      actionLabel: "Review trend",
+      actionHref: "/revenue",
     },
     {
+      icon: "🔥",
       title: "Revenue Streak",
-      value: `${revenueStreak} month${revenueStreak === 1 ? "" : "s"}`,
       description:
         revenueStreak >= 3
-          ? "You are building consistent revenue momentum."
-          : "Keep adding monthly revenue to build a stronger tracking streak.",
+          ? `You have tracked revenue for ${revenueStreak} straight months, which helps CreatorsHub identify stronger patterns.`
+          : "Keep adding monthly revenue so CreatorsHub can identify stronger business patterns.",
+      trend: revenueStreak >= 3 ? "positive" : "neutral",
+      priority: revenueStreak >= 3 ? "low" : "medium",
+      actionLabel: "Add revenue",
+      actionHref: "/add-revenue",
     },
     {
+      icon: "🏆",
       title: "Best Month",
-      value: bestMonth.month ? formatMonth(bestMonth.month) : "—",
       description: bestMonth.month
-        ? `${formatCurrency(bestMonth.revenue)} was your strongest tracked month.`
+        ? `${formatCurrency(bestMonth.revenue)} in ${formatMonth(
+            bestMonth.month
+          )} is your strongest tracked month so far.`
         : "Your best month will appear once revenue is added.",
+      trend: bestMonth.month ? "positive" : "neutral",
+      priority: "low",
+      actionLabel: "View timeline",
+      actionHref: "/revenue",
     },
   ];
 }

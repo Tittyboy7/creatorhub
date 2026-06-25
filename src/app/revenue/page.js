@@ -14,6 +14,7 @@ import RevenueOpportunitiesSection from "@/components/revenue/RevenueOpportuniti
 import CreatorBusinessScoreSection from "@/components/revenue/CreatorBusinessScoreSection";
 import DashboardSection from "@/components/revenue/DashboardSection";
 import RevenueDailyBrief from "@/components/revenue/RevenueDailyBrief";
+import BusinessInsightsSection from "@/components/revenue/BusinessInsightsSection";
 
 import { useRevenueStats } from "@/hooks/useRevenueStats";
 import { useRevenueData } from "@/hooks/useRevenueData";
@@ -176,6 +177,8 @@ export default function RevenuePage() {
           projectedNextMonthRevenue={projectedNextMonthRevenue}
           monthlyGrowthPercent={monthlyGrowthPercent}
         />
+
+        <BusinessInsightsSection insights={businessInsights} />
 
         <DashboardSection
           title="Revenue Mix"

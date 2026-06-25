@@ -33,8 +33,9 @@ export default function RevenueExecutiveSummary({
       <ExecutiveSummaryCard
         label="Monthly Growth"
         value={`${monthlyGrowthPercent}%`}
-        subtitle="Compared to previous trend"
-        tooltip="Shows whether your tracked revenue is trending up or down compared with previous months."
+        trend={monthlyGrowthPercent}
+        trendLabel="vs last month"
+        tooltip="Shows whether your tracked revenue is increasing or decreasing compared with the previous month."
       />
     </section>
   );

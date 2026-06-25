@@ -1,4 +1,4 @@
-import InfoTooltip from "./InfoTooltip";
+import ProgressBar from "@/components/ui/ProgressBar";
 
 function getScoreColor(score) {
   if (score >= 80) return "text-green-400";
@@ -46,12 +46,7 @@ export default function CreatorBusinessScoreSection({
 
           <p className="mt-2 text-sm text-zinc-500">out of 100</p>
 
-          <div className="mt-5 h-3 overflow-hidden rounded-full bg-zinc-800">
-            <div
-              className="h-full rounded-full bg-white"
-              style={{ width: `${score}%` }}
-            />
-          </div>
+          <ProgressBar value={score} className="mt-5" />
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
