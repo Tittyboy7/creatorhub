@@ -7,6 +7,7 @@ export default function DashboardSection({
   title,
   description,
   tooltip,
+  icon,
   defaultOpen = true,
   children,
 }) {
@@ -18,6 +19,7 @@ export default function DashboardSection({
         title={title}
         description={description}
         tooltip={tooltip}
+        icon={icon}
         action={
           <button
             type="button"

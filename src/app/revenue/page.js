@@ -33,6 +33,14 @@ import { buildRevenueFilterOptions } from "@/lib/revenue/buildRevenueFilterOptio
 import { calculateRevenueTotals } from "@/lib/revenue/calculateRevenueTotals";
 import { hasActiveRevenueFilters } from "@/lib/revenue/hasActiveRevenueFilters";
 
+import {
+  Lightbulb,
+  PieChart,
+  ShieldCheck,
+  Trophy,
+  Wallet,
+} from "lucide-react";
+
 export default function RevenuePage() {
 
   const {
@@ -171,6 +179,7 @@ export default function RevenuePage() {
 
         <DashboardSection
           title="Revenue Mix"
+          icon={PieChart}
           description="See where your creator income is coming from."
           tooltip="Shows how your tracked revenue is split across platforms."
         >
@@ -183,6 +192,7 @@ export default function RevenuePage() {
 
         <DashboardSection
           title="Top Revenue Drivers"
+          icon={Trophy}
           description="See what is contributing most to your creator business."
           tooltip="Highlights the platforms, categories, and entries contributing the most tracked revenue."
         >
@@ -196,6 +206,7 @@ export default function RevenuePage() {
 
         <DashboardSection
           title="Upcoming Payouts"
+          icon={Wallet}
           description="Track expected money arriving from connected platforms."
           tooltip="Shows estimated or placeholder payout information from payment and commerce platforms."
         >
@@ -204,6 +215,7 @@ export default function RevenuePage() {
 
         <DashboardSection
           title="Opportunities"
+          icon={Lightbulb}
           description="Simple recommendations based on your current revenue picture."
           tooltip="Turns your revenue data into suggested next actions. These are simple rules for now and can become AI-powered later."
         >
@@ -217,6 +229,7 @@ export default function RevenuePage() {
 
         <DashboardSection
           title="Creator Business Score"
+         icon={ShieldCheck}
           description="A simple health score for your creator business."
           tooltip="Scores your creator business using tracked revenue, growth, platform diversity, and revenue concentration."
         >
