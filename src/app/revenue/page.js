@@ -197,6 +197,15 @@ export default function RevenuePage() {
           upcomingPayouts={upcomingPayouts}
         />
 
+        <DashboardSection
+          title="Today's Focus"
+          icon={Lightbulb}
+          description="The most important signals CreatorsHub thinks deserve your attention."
+          tooltip="Highlights business signals based on your revenue, platform mix, growth, and connected account data."
+        >
+          <RevenueOpportunitiesSection businessSignals={businessSignals} />
+        </DashboardSection>
+
         <RevenueExecutiveSummary
           totalRevenue={totalRevenue}
           thisMonthRevenue={thisMonthRevenue}
@@ -207,15 +216,6 @@ export default function RevenuePage() {
         {false && (
          <BusinessInsightsSection insights={businessInsights} />
         )}
-
-        <DashboardSection
-          title="Today's Focus"
-          icon={Lightbulb}
-          description="The most important signals CreatorsHub thinks deserve your attention."
-          tooltip="Highlights business signals based on your revenue, platform mix, growth, and connected account data."
-        >
-          <RevenueOpportunitiesSection businessSignals={businessSignals} />
-        </DashboardSection>
 
         <DashboardSection
           title="Revenue Mix"
