@@ -193,6 +193,15 @@ export default function RevenuePage() {
         )}
 
         <DashboardSection
+          title="Today's Focus"
+          icon={Lightbulb}
+          description="The most important signals CreatorsHub thinks deserve your attention."
+          tooltip="Highlights business signals based on your revenue, platform mix, growth, and connected account data."
+        >
+          <RevenueOpportunitiesSection businessSignals={businessSignals} />
+        </DashboardSection>
+
+        <DashboardSection
           title="Revenue Mix"
           icon={PieChart}
           description="See where your creator income is coming from."
@@ -226,15 +235,6 @@ export default function RevenuePage() {
           tooltip="Shows estimated or placeholder payout information from payment and commerce platforms."
         >
           <UpcomingPayoutsSection upcomingPayouts={upcomingPayouts} />
-        </DashboardSection>
-
-        <DashboardSection
-          title="Today's Focus"
-          icon={Lightbulb}
-          description="The most important signals CreatorsHub thinks deserve your attention."
-          tooltip="Highlights business signals based on your revenue, platform mix, growth, and connected account data."
-        >
-          <RevenueOpportunitiesSection businessSignals={businessSignals} />
         </DashboardSection>
 
         <DashboardSection

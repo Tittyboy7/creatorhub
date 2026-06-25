@@ -15,7 +15,7 @@ export default function DashboardSection({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5 transition hover:border-zinc-700">
+    <section className="h-full rounded-3xl border border-zinc-800 bg-zinc-950 p-5 transition hover:border-zinc-700">
       <SectionHeader
         title={title}
         description={description}
