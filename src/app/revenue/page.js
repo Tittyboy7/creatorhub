@@ -33,6 +33,7 @@ import { filterRevenueEntries } from "@/lib/revenue/filterRevenueEntries";
 import { buildRevenueFilterOptions } from "@/lib/revenue/buildRevenueFilterOptions";
 import { calculateRevenueTotals } from "@/lib/revenue/calculateRevenueTotals";
 import { hasActiveRevenueFilters } from "@/lib/revenue/hasActiveRevenueFilters";
+import { buildBusinessSignals } from "@/lib/business/buildBusinessSignals";
 
 import {
   Lightbulb,
@@ -134,6 +135,15 @@ export default function RevenuePage() {
     platformChartData,
     monthlyGrowthPercent,
     connectedAccounts,
+  });
+
+  const businessSignals = buildBusinessSignals({
+    totalRevenue,
+    monthlyGrowthPercent,
+    topPlatformPercent,
+    bestPlatform,
+    platformCount,
+    revenueStreak,
   });
 
   const entriesByMonth = groupEntriesByMonth(filteredEntries);
