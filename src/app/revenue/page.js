@@ -229,10 +229,10 @@ export default function RevenuePage() {
         </DashboardSection>
 
         <DashboardSection
-          title="Opportunities"
+          title="Today's Focus"
           icon={Lightbulb}
-          description="Simple recommendations based on your current revenue picture."
-          tooltip="Turns your revenue data into suggested next actions. These are simple rules for now and can become AI-powered later."
+          description="The most important signals CreatorsHub thinks deserve your attention."
+          tooltip="Highlights business signals based on your revenue, platform mix, growth, and connected account data."
         >
           <RevenueOpportunitiesSection businessSignals={businessSignals} />
         </DashboardSection>
