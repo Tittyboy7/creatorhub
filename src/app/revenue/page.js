@@ -34,6 +34,8 @@ import { buildRevenueFilterOptions } from "@/lib/revenue/buildRevenueFilterOptio
 import { calculateRevenueTotals } from "@/lib/revenue/calculateRevenueTotals";
 import { hasActiveRevenueFilters } from "@/lib/revenue/hasActiveRevenueFilters";
 import { buildBusinessSignals } from "@/lib/business/buildBusinessSignals";
+import { buildBusinessCauses } from "@/lib/business/buildBusinessCauses";
+import { buildBusinessIntelligence } from "@/lib/business/buildBusinessIntelligence";
 
 import {
   Lightbulb,
@@ -146,6 +148,18 @@ export default function RevenuePage() {
     revenueStreak,
   });
 
+  const businessCauses = buildBusinessCauses({
+    signals: businessSignals,
+    bestPlatform,
+    monthlyGrowthPercent,
+    topPlatformPercent,
+  });
+
+  const businessIntelligence = buildBusinessIntelligence({
+    signals: businessSignals,
+    causes: businessCauses,
+  });
+
   const entriesByMonth = groupEntriesByMonth(filteredEntries);
 
   const connectedPlatformCount = connectedAccounts.length;
@@ -204,7 +218,10 @@ export default function RevenuePage() {
           tooltip="Highlights business signals based on your revenue, platform mix, growth, and connected account data."
           defaultOpen={true}
         >
-          <RevenueOpportunitiesSection businessSignals={businessSignals} />
+          <RevenueOpportunitiesSection
+            businessSignals={businessSignals}
+            businessCauses={businessCauses}
+          />
         </DashboardSection>
 
         <RevenueExecutiveSummary

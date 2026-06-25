@@ -7,6 +7,9 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { getAccentBadgeClass } from "@/lib/accentColors";
 import SuspendedAccountMessage from "@/components/SuspendedAccountMessage";
+import { buildBusinessSignals } from "@/lib/business/buildBusinessSignals";
+import { buildBusinessCauses } from "@/lib/business/buildBusinessCauses";
+import { buildBusinessIntelligence } from "@/lib/business/buildBusinessIntelligence";
 
 function getNotificationTypeClass(type) {
   if (type === "follow") return "bg-blue-950 text-blue-400";
@@ -220,6 +223,39 @@ export default function DashboardPage() {
     (value) => value && value.trim() !== ""
   );
 
+  const bestPlatform = topPlatforms[0];
+
+  const topPlatformPercent =
+    totalRevenue === 0 || !bestPlatform
+      ? 0
+      : Math.round((bestPlatform.amount / totalRevenue) * 100);
+
+  const monthlyGrowthPercent =
+    totalRevenue === 0
+      ? 0
+      : Math.round((revenueThisMonth / totalRevenue) * 100);
+
+  const businessSignals = buildBusinessSignals({
+    totalRevenue,
+    monthlyGrowthPercent,
+    topPlatformPercent,
+    bestPlatform,
+    platformCount: topPlatforms.length,
+    revenueStreak: revenueEntries.length > 0 ? 1 : 0,
+  });
+
+  const businessCauses = buildBusinessCauses({
+    signals: businessSignals,
+    bestPlatform,
+    monthlyGrowthPercent,
+    topPlatformPercent,
+  });
+
+  const businessIntelligence = buildBusinessIntelligence({
+    signals: businessSignals,
+    causes: businessCauses,
+  });
+
   const checklistItems = [
     {
       label: "Create your creator profile",
@@ -324,7 +360,7 @@ export default function DashboardPage() {
           <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
             <div>
               <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-                Creator Business
+                Creator Business Morning Brief
               </p>
 
               <h2 className="mt-2 text-4xl font-bold">
@@ -334,6 +370,20 @@ export default function DashboardPage() {
               <p className="mt-2 text-sm text-zinc-400">
                 Total revenue tracked across all creator income streams.
               </p>
+
+              <div className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                  Today's Focus
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-zinc-300">
+                  {businessIntelligence.summary}
+                </p>
+
+                <p className="mt-3 text-sm leading-6 text-zinc-400">
+                  {businessIntelligence.recommendation}
+                </p>
+              </div>
 
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link
@@ -347,7 +397,7 @@ export default function DashboardPage() {
                   href="/revenue"
                   className="rounded-2xl border border-zinc-700 px-5 py-3 hover:bg-zinc-800"
                 >
-                  Revenue Dashboard
+                  Review Revenue Intelligence →
                 </Link>
               </div>
             </div>

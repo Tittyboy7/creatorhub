@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-function OpportunityCard({ signal }) {
+function OpportunityCard({ signal, cause, featured = false }) {
   const priorityStyles = {
     high: "border-red-500/30 bg-red-500/10 text-red-300",
     medium: "border-amber-500/30 bg-amber-500/10 text-amber-300",
@@ -8,7 +8,13 @@ function OpportunityCard({ signal }) {
   };
 
   return (
-    <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
+    <div
+      className={`rounded-3xl border p-5 transition hover:border-zinc-700 ${
+        featured
+          ? "border-zinc-700 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black"
+          : "border-zinc-800 bg-zinc-900"
+      }`}
+    >
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
           {signal.category}
@@ -23,28 +29,30 @@ function OpportunityCard({ signal }) {
         </span>
       </div>
 
-      <h3 className="mt-3 text-xl font-bold">{signal.title}</h3>
+      <h3 className={featured ? "mt-4 text-2xl font-bold" : "mt-3 text-xl font-bold"}>
+        {signal.title}
+      </h3>
 
-      <div className="mt-3 space-y-3 text-sm leading-relaxed text-zinc-400">
-        <div>
+      <div className="mt-4 grid gap-3 text-sm leading-relaxed text-zinc-400 md:grid-cols-2">
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
             Why this matters
           </p>
-          <p className="mt-1">{signal.reason}</p>
+          <p className="mt-2">{cause?.explanation || signal.reason}</p>
         </div>
 
-        <div>
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
             Recommendation
           </p>
-          <p className="mt-1">{signal.recommendation}</p>
+          <p className="mt-2">{signal.recommendation}</p>
         </div>
       </div>
 
       {signal.action?.label && signal.action?.href && (
         <Link
           href={signal.action.href}
-          className="mt-4 inline-flex rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm font-semibold text-white hover:border-zinc-700 hover:bg-zinc-900"
+          className="mt-5 inline-flex rounded-2xl border border-zinc-700 bg-white px-4 py-3 text-sm font-semibold text-black hover:bg-zinc-200"
         >
           {signal.action.label} →
         </Link>
@@ -53,7 +61,10 @@ function OpportunityCard({ signal }) {
   );
 }
 
-export default function RevenueOpportunitiesSection({ businessSignals = [] }) {
+export default function RevenueOpportunitiesSection({
+  businessSignals = [],
+  businessCauses = [],
+}) {
   const visibleSignals = businessSignals
     .filter((signal) =>
       ["growth", "risk", "opportunity", "stability"].includes(signal.category)
@@ -76,12 +87,28 @@ export default function RevenueOpportunitiesSection({ businessSignals = [] }) {
     );
   }
 
+  const [primarySignal, ...secondarySignals] = visibleSignals;
+
   return (
     <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
-      <div className="grid gap-4 md:grid-cols-2">
-        {visibleSignals.map((signal) => (
-          <OpportunityCard key={signal.id} signal={signal} />
-        ))}
+      <div className="space-y-4">
+        <OpportunityCard
+          signal={primarySignal}
+          cause={businessCauses.find((cause) => cause.signalId === primarySignal.id)}
+          featured
+        />
+
+        {secondarySignals.length > 0 && (
+          <div className="grid gap-4 md:grid-cols-3">
+            {secondarySignals.map((signal) => (
+              <OpportunityCard
+                key={signal.id}
+                signal={signal}
+                cause={businessCauses.find((cause) => cause.signalId === signal.id)}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
