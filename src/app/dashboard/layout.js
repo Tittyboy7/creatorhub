@@ -35,7 +35,7 @@ export default function DashboardLayout({ children }) {
     { href: "/dashboard", label: "Overview" },
     { href: "/dashboard/products", label: "Products" },
     { href: "/dashboard/announcements", label: "Announcements" },
-    { href: "/dashboard/revenue", label: "Revenue" },
+    { href: "/revenue", label: "Revenue" },
   ];
 
   return (
@@ -66,7 +66,9 @@ export default function DashboardLayout({ children }) {
 
           <div className="mt-4 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
             {links.map((link) => {
-              const isActive = pathname === link.href;
+              const isActive =
+                pathname === link.href ||
+                (link.href === "/revenue" && pathname.startsWith("/revenue"));
 
               return (
                 <Link
