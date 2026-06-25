@@ -15,7 +15,9 @@ export function buildBusinessSignals({
       category: "growth",
       severity: "low",
       title: "Revenue momentum is positive",
-      description: `Tracked revenue is up ${monthlyGrowthPercent}% compared to the previous tracked month.`,
+      reason: `Tracked revenue is up ${monthlyGrowthPercent}% compared to the previous tracked month.`,
+      recommendation:
+        "Identify which platform, product, or revenue type caused the increase so you can repeat what is working.",
       metric: monthlyGrowthPercent,
       action: {
         label: "Review growth drivers",
@@ -34,9 +36,11 @@ export function buildBusinessSignals({
       category: "risk",
       severity: monthlyGrowthPercent <= -20 ? "high" : "medium",
       title: "Revenue momentum is down",
-      description: `Tracked revenue is down ${Math.abs(
+      reason: `Tracked revenue is down ${Math.abs(
         monthlyGrowthPercent
       )}% compared to the previous tracked month.`,
+      recommendation:
+        "Look for the platform, product, or revenue type where the drop started before making new growth decisions.",
       metric: monthlyGrowthPercent,
       action: {
         label: "Review revenue timeline",
@@ -55,7 +59,9 @@ export function buildBusinessSignals({
       category: "risk",
       severity: topPlatformPercent >= 75 ? "high" : "medium",
       title: "Revenue is concentrated",
-      description: `${bestPlatform.platform} accounts for ${topPlatformPercent}% of tracked revenue. That creates risk if traffic, payouts, or platform rules change.`,
+      reason: `${bestPlatform.platform} accounts for ${topPlatformPercent}% of tracked revenue.`,
+      recommendation:
+        "Start building a second reliable revenue channel so your business is less exposed to one platform.",
       metric: topPlatformPercent,
       action: {
         label: "Review platform mix",
@@ -75,8 +81,10 @@ export function buildBusinessSignals({
       category: "opportunity",
       severity: "medium",
       title: "More connections will improve recommendations",
-      description:
-        "CreatorsHub can provide stronger business signals when more platforms are connected.",
+      reason:
+        "CreatorsHub currently has limited connected platform data to compare across your business.",
+      recommendation:
+        "Connect another revenue platform so CreatorsHub can identify stronger cross-platform patterns.",
       metric: platformCount,
       action: {
         label: "Connect another platform",
@@ -95,7 +103,9 @@ export function buildBusinessSignals({
       category: "stability",
       severity: "low",
       title: "Revenue tracking is consistent",
-      description: `You have tracked revenue for ${revenueStreak} straight months, giving CreatorsHub better data to identify patterns.`,
+      reason: `You have tracked revenue for ${revenueStreak} straight months.`,
+      recommendation:
+        "Keep tracking consistently so CreatorsHub can identify stronger trends, forecasts, and recommendations over time.",
       metric: revenueStreak,
       action: {
         label: "View revenue dashboard",
@@ -112,7 +122,7 @@ export function buildBusinessSignals({
     medium: 2,
     low: 3,
   };
- 
+
   return signals.sort(
     (a, b) =>
       (severityRank[a.severity] || 99) - (severityRank[b.severity] || 99)

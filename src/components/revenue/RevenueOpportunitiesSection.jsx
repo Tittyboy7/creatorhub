@@ -25,9 +25,21 @@ function OpportunityCard({ signal }) {
 
       <h3 className="mt-3 text-xl font-bold">{signal.title}</h3>
 
-      <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-        {signal.description}
-      </p>
+      <div className="mt-3 space-y-3 text-sm leading-relaxed text-zinc-400">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            Why this matters
+          </p>
+          <p className="mt-1">{signal.reason}</p>
+        </div>
+
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            Recommendation
+          </p>
+          <p className="mt-1">{signal.recommendation}</p>
+        </div>
+      </div>
 
       {signal.action?.label && signal.action?.href && (
         <Link
