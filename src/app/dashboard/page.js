@@ -10,6 +10,8 @@ import SuspendedAccountMessage from "@/components/SuspendedAccountMessage";
 import { buildBusinessSignals } from "@/lib/business/buildBusinessSignals";
 import { buildBusinessCauses } from "@/lib/business/buildBusinessCauses";
 import { buildBusinessIntelligence } from "@/lib/business/buildBusinessIntelligence";
+import { buildBusinessMetrics } from "@/lib/business/buildBusinessMetrics";
+import { summarizeBusinessMetrics } from "@/lib/business/summarizeBusinessMetrics";
 
 function getNotificationTypeClass(type) {
   if (type === "follow") return "bg-blue-950 text-blue-400";
@@ -254,6 +256,15 @@ export default function DashboardPage() {
   const businessIntelligence = buildBusinessIntelligence({
     signals: businessSignals,
     causes: businessCauses,
+  });
+
+  const businessMetrics = buildBusinessMetrics({
+    revenueEntries,
+    products,
+  });
+
+  const businessMetricSummary = summarizeBusinessMetrics({
+    metrics: businessMetrics,
   });
 
   const checklistItems = [
