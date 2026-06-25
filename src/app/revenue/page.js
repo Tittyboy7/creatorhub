@@ -165,12 +165,28 @@ export default function RevenuePage() {
   return (
     <div className="min-h-screen bg-zinc-950 px-5 py-6 text-white md:px-10 md:py-8">
       <div className="mx-auto max-w-7xl space-y-5">
-        <Link
-          href="/dashboard"
-          className="inline-block rounded-2xl border border-zinc-700 px-5 py-3 hover:bg-zinc-800"
-        >
-          Back to Dashboard
-        </Link>
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+              Revenue Intelligence
+            </p>
+
+            <h1 className="mt-2 text-4xl font-bold tracking-tight text-white">
+              Revenue Dashboard
+            </h1>
+
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">
+              Track income, identify business signals, and understand what deserves your attention next.
+            </p>
+          </div>
+
+          <Link
+            href="/dashboard"
+            className="inline-flex w-fit rounded-2xl border border-zinc-700 px-5 py-3 text-sm font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white"
+          >
+            Back to Dashboard
+          </Link>
+        </div>
 
         <RevenueDailyBrief
           totalRevenue={totalRevenue}
