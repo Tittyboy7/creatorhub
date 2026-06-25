@@ -230,6 +230,7 @@ export default function RevenuePage() {
 
         <DashboardSection
           title="Upcoming Payouts"
+          defaultOpen={false}
           icon={Wallet}
           description="Track expected money arriving from connected platforms."
           tooltip="Shows estimated or placeholder payout information from payment and commerce platforms."
@@ -239,7 +240,8 @@ export default function RevenuePage() {
 
         <DashboardSection
           title="Creator Business Score"
-         icon={ShieldCheck}
+          defaultOpen={false}
+          icon={ShieldCheck}
           description="A simple health score for your creator business."
           tooltip="Scores your creator business using tracked revenue, growth, platform diversity, and revenue concentration."
         >
