@@ -632,7 +632,7 @@ export default function DashboardPage() {
               </Link>
 
               <Link
-                href="/dashboard/revenue"
+                href="/revenue"
                 className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 hover:border-zinc-600"
               >
                 <p className="text-zinc-400">Revenue</p>
@@ -675,7 +675,7 @@ export default function DashboardPage() {
 
             <div className="grid gap-3 md:grid-cols-3">
               <Link
-                href="/dashboard/revenue"
+                href="/revenue"
                 className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 transition hover:border-zinc-600 hover:bg-zinc-900"
               >
                 <p className="text-sm text-zinc-400">Revenue</p>
