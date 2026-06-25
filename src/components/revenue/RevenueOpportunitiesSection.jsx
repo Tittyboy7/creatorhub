@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 function OpportunityCard({ label, title, description, action, priority = "low" }) {
   const priorityStyles = {
     high: "border-red-500/30 bg-red-500/10 text-red-300",
@@ -27,12 +29,15 @@ function OpportunityCard({ label, title, description, action, priority = "low" }
         {description}
       </p>
 
-      <p className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-3 text-sm font-semibold text-white">
-        {action}
-      </p>
-    </div>
-  );
-}
+      <Link
+        href="/revenue"
+        className="mt-4 inline-flex rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm font-semibold text-white hover:border-zinc-700 hover:bg-zinc-900"
+      >
+        {action} →
+      </Link>
+          </div>
+        );
+      }
 
 export default function RevenueOpportunitiesSection({
   bestPlatform,
