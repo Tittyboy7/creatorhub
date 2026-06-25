@@ -107,5 +107,14 @@ export function buildBusinessSignals({
     });
   }
 
-  return signals;
+  const severityRank = {
+    high: 1,
+    medium: 2,
+    low: 3,
+  };
+ 
+  return signals.sort(
+    (a, b) =>
+      (severityRank[a.severity] || 99) - (severityRank[b.severity] || 99)
+  );
 }
