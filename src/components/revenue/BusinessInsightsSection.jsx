@@ -20,11 +20,11 @@ export default function BusinessInsightsSection({ insights = [] }) {
   return (
     <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
       <div className="mb-4">
-        <p className="text-sm font-semibold text-zinc-300">
-          Business Insights
+        <p className="text-sm font-semibold text-white">
+          What needs your attention
         </p>
         <p className="mt-1 text-xs text-zinc-500">
-          Clear recommendations based on your connected platform data.
+          Key signals from your creator business, ranked by priority.
         </p>
       </div>
 

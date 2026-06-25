@@ -178,7 +178,9 @@ export default function RevenuePage() {
           monthlyGrowthPercent={monthlyGrowthPercent}
         />
 
-        <BusinessInsightsSection insights={businessInsights} />
+        {false && (
+         <BusinessInsightsSection insights={businessInsights} />
+        )}
 
         <DashboardSection
           title="Revenue Mix"
