@@ -469,9 +469,9 @@ export default function DashboardPage() {
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-              <p className="text-sm text-zinc-400">Revenue</p>
+              <p className="text-sm text-zinc-400">This Month</p>
               <p className="mt-1 break-words text-2xl font-bold">
-                {formatCurrency(totalRevenue)}
+                {formatCurrency(revenueThisMonth)}
               </p>
             </div>
 
@@ -571,7 +571,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-6">
+              <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">
                 <Link
                   href="/add-product"
                   className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-center text-sm font-semibold hover:border-zinc-600 hover:bg-zinc-900"
@@ -612,6 +612,13 @@ export default function DashboardPage() {
                   className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-center text-sm font-semibold hover:border-zinc-600 hover:bg-zinc-900"
                 >
                   Connections
+                </Link>
+
+                <Link
+                  href="/compare"
+                  className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 text-center text-sm font-semibold hover:border-zinc-600 hover:bg-zinc-900"
+                >
+                  Compare
                 </Link>
               </div>
             </div>
@@ -678,14 +685,14 @@ export default function DashboardPage() {
                 href="/revenue"
                 className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4 transition hover:border-zinc-600 hover:bg-zinc-900"
               >
-                <p className="text-sm text-zinc-400">Revenue</p>
+                <p className="text-sm text-zinc-400">Revenue This Month</p>
 
                 <p className="mt-1 text-2xl font-bold">
                   {formatCurrency(revenueThisMonth)}
                 </p>
 
                 <p className="mt-3 text-xs font-semibold text-zinc-500">
-                  Manage revenue →
+                  Open revenue intelligence →
                 </p>
               </Link>
 

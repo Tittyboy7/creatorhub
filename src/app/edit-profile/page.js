@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { getAccentBadgeClass } from "@/lib/accentColors";
 import SuspendedAccountMessage from "@/components/SuspendedAccountMessage";
+import WorkspaceLayout from "@/components/workspace/WorkspaceLayout";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -70,12 +71,12 @@ export default function EditProfilePage() {
       setBio(creator.bio || "");
       setCurrentAvatarUrl(creator.avatar_url || "");
       setCurrentBannerUrl(creator.banner_url || "");
-      setYoutube(creator.social_links?.youtube || "");
-      setTiktok(creator.social_links?.tiktok || "");
-      setInstagram(creator.social_links?.instagram || "");
-      setShopify(creator.social_links?.shopify || "");
-      setPatreon(creator.social_links?.patreon || "");
-      setAccentColor(creator.accent_color || "white");
+      setYoutube(creator.social_links?.youtube ?? "");
+      setTiktok(creator.social_links?.tiktok ?? "");
+      setInstagram(creator.social_links?.instagram ?? "");
+      setShopify(creator.social_links?.shopify ?? "");
+      setPatreon(creator.social_links?.patreon ?? "");
+      setAccentColor(creator.accent_color ?? "white");
       setLoading(false);
     }
 
@@ -179,8 +180,20 @@ export default function EditProfilePage() {
 
     return (
     <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center p-6">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-10 w-full max-w-xl">
-        <h1 className="text-4xl font-bold mb-8">Edit Creator Profile</h1>
+      <div className="w-full max-w-5xl space-y-6">
+        <section className="rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 md:p-8">
+          <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+            Creator Workspace
+          </p>
+
+          <h1 className="mt-2 text-4xl font-bold">Manage your creator profile</h1>
+
+          <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-400">
+            Update your public identity, storefront branding, social links, and creator presence.
+          </p>
+        </section>
+
+        <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6 md:p-8">
 
         <Link
           href="/dashboard"
@@ -190,68 +203,102 @@ export default function EditProfilePage() {
         </Link>
 
         <form onSubmit={handleUpdate} className="space-y-6">
-          <input
-            type="text"
-            placeholder="Display Name"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-          />
+          <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
+            <div className="mb-5">
+              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+                Brand Identity
+              </p>
+              <p className="mt-1 text-sm text-zinc-400">
+                Control how your public creator profile appears across CreatorsHub.
+              </p>
+            </div>
 
-          <input
-            type="text"
-            placeholder="Username"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Display Name"
+                className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                value={displayName || ""}
+                onChange={(e) => setDisplayName(e.target.value)}
+              />
 
-          <input
-            type="text"
-            placeholder="Niche (e.g. Gaming, Art, Fitness)"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            value={niche}
-            onChange={(e) => setNiche(e.target.value)}
-          />
+              <input
+                type="text"
+                placeholder="Username"
+                className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                value={username || ""}
+                onChange={(e) => setUsername(e.target.value)}
+              />
 
-          <textarea
-            placeholder="Bio"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4 h-40"
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-          />
+              <input
+                type="text"
+                placeholder="Niche (e.g. Gaming, Art, Fitness)"
+                className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                value={niche || ""}
+                onChange={(e) => setNiche(e.target.value)}
+              />
 
-          <div>
-            <label className="block text-zinc-400 mb-2">
-              Storefront Accent Color
-            </label>
+              <textarea
+                placeholder="Bio"
+                className="h-40 w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                value={bio || ""}
+                onChange={(e) => setBio(e.target.value)}
+              />
+            </div>
+          </section>
 
-            <select
-              className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-              value={accentColor}
-              onChange={(e) => setAccentColor(e.target.value)}
-            >
-              <option value="white">White</option>
-              <option value="blue">Blue</option>
-              <option value="purple">Purple</option>
-              <option value="green">Green</option>
-              <option value="pink">Pink</option>
-              <option value="orange">Orange</option>
-              <option value="red">Red</option>
-            </select>
-          </div>
+          <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
+            <div className="mb-5">
+              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+                Storefront Design
+              </p>
+              <p className="mt-1 text-sm text-zinc-400">
+                Customize how your public storefront feels to visitors.
+              </p>
+            </div>
 
-          <div className="mt-4 rounded-2xl border border-zinc-700 p-4">
-            <p className="text-zinc-400 mb-3">Theme Preview</p>
+            <div>
+              <label className="mb-2 block text-zinc-400">
+                Storefront Accent Color
+              </label>
 
-            <span
-              className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${getAccentBadgeClass(
-                accentColor
-              )}`}
-            >
-              Featured Product
-            </span>
-          </div>
+              <select
+                className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                value={accentColor || "white"}
+                onChange={(e) => setAccentColor(e.target.value)}
+              >
+                <option value="white">White</option>
+                <option value="blue">Blue</option>
+                <option value="purple">Purple</option>
+                <option value="green">Green</option>
+                <option value="pink">Pink</option>
+                <option value="orange">Orange</option>
+                <option value="red">Red</option>
+              </select>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-zinc-700 p-4">
+              <p className="mb-3 text-zinc-400">Theme Preview</p>
+
+              <span
+                className={`inline-block rounded-full px-4 py-2 text-sm font-semibold ${getAccentBadgeClass(
+                  accentColor || "white"
+                )}`}
+              >
+                Featured Product
+              </span>
+            </div>
+          </section>
+
+          <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
+            <div className="mb-5">
+              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+                Profile Media
+              </p>
+              <p className="mt-1 text-sm text-zinc-400">
+                Upload the avatar and banner visitors see on your public creator profile.
+              </p>
+            </div>
 
           {currentAvatarUrl && (
             <img
@@ -282,55 +329,70 @@ export default function EditProfilePage() {
             className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
             onChange={(e) => setBanner(e.target.files[0])}
           />
+          </section>
 
-          <input
-            type="url"
-            placeholder="YouTube URL"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            value={youtube}
-            onChange={(e) => setYoutube(e.target.value)}
-          />
+          <section className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
+            <div className="mb-5">
+              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+                Social Presence
+              </p>
+              <p className="mt-1 text-sm text-zinc-400">
+                Add the platforms where fans can find you outside of CreatorsHub.
+              </p>
+            </div>
 
-          <input
-            type="url"
-            placeholder="TikTok URL"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            value={tiktok}
-            onChange={(e) => setTiktok(e.target.value)}
-          />
+            <div className="space-y-4">
+              <input
+                type="url"
+                placeholder="YouTube URL"
+                className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                value={youtube || ""}
+                onChange={(e) => setYoutube(e.target.value)}
+              />
 
-          <input
-            type="url"
-            placeholder="Instagram URL"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            value={instagram}
-            onChange={(e) => setInstagram(e.target.value)}
-          />
+              <input
+                type="url"
+                placeholder="TikTok URL"
+                className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                value={tiktok || ""}
+                onChange={(e) => setTiktok(e.target.value)}
+              />
 
-          <input
-            type="url"
-            placeholder="Shopify URL"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            value={shopify}
-            onChange={(e) => setShopify(e.target.value)}
-          />
+              <input
+                type="url"
+                placeholder="Instagram URL"
+                className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                value={instagram || ""}
+                onChange={(e) => setInstagram(e.target.value)}
+              />
 
-          <input
-            type="url"
-            placeholder="Patreon URL"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl p-4"
-            value={patreon}
-            onChange={(e) => setPatreon(e.target.value)}
-          />
+              <input
+                type="url"
+                placeholder="Shopify URL"
+                className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                value={shopify || ""}
+                onChange={(e) => setShopify(e.target.value)}
+              />
+
+              <input
+                type="url"
+                placeholder="Patreon URL"
+                className="w-full rounded-2xl border border-zinc-700 bg-zinc-800 p-4"
+                value={patreon || ""}
+                onChange={(e) => setPatreon(e.target.value)}
+              />
+            </div>
+          </section>
 
           <button
             type="submit"
-            className="w-full bg-white text-black py-4 rounded-2xl font-semibold"
+            className="w-full rounded-2xl bg-white py-4 font-semibold text-black"
           >
             Save Profile
           </button>
         </form>
       </div>
+    </div>
     </div>
   );
 }
