@@ -10,7 +10,7 @@ export default function ComparisonInsights({ businessComparisons = [] }) {
       {businessComparisons.map((comparison) => (
         <div
           key={comparison.id}
-          className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5"
+          className="rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-5 shadow-2xl shadow-black/20"
         >
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
             Comparison Insight

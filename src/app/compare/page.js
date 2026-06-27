@@ -5,6 +5,8 @@ import ComparisonSidebar from "@/components/compare/ComparisonSidebar";
 import ComparisonRevenueChart from "@/components/compare/ComparisonRevenueChart";
 import ComparisonPlatformCards from "@/components/compare/ComparisonPlatformCards";
 import ComparisonInsights from "@/components/compare/ComparisonInsights";
+import ComparisonRevenueMix from "@/components/compare/ComparisonRevenueMix";
+import ComparisonRevenueTrend from "@/components/compare/ComparisonRevenueTrend";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -207,6 +209,22 @@ export default function ComparePage() {
     );
   }
 
+  const revenueTrendData = Object.entries(
+    filteredComparisonMetrics
+      .filter((metric) => metric.metric === "revenue" && metric.period)
+      .reduce((totals, metric) => {
+        totals[metric.period] =
+          (totals[metric.period] || 0) + Number(metric.value || 0);
+
+        return totals;
+      }, {})
+  )
+    .map(([period, revenue]) => ({
+      period,
+      revenue,
+    }))
+    .sort((a, b) => a.period.localeCompare(b.period));
+
   return (
     <div className="min-h-screen bg-zinc-950 px-5 py-6 text-white md:px-10 md:py-8">
       <div className="mx-auto max-w-7xl space-y-6">
@@ -237,10 +255,17 @@ export default function ComparePage() {
 
             <ComparisonInsights businessComparisons={businessComparisons} />
 
-            <ComparisonPlatformCards
-              comparisonMetrics={filteredComparisonMetrics}
-              metricsByPlatform={metricsByPlatform}
-            />
+            <div className="mt-6 grid gap-6 xl:grid-cols-2">
+              <ComparisonRevenueMix revenueComparisonData={revenueComparisonData} />
+              <ComparisonRevenueTrend revenueTrendData={revenueTrendData} />
+            </div>
+
+            {false && (
+              <ComparisonPlatformCards
+                comparisonMetrics={filteredComparisonMetrics}
+                metricsByPlatform={metricsByPlatform}
+              />
+            )}
           </section>
         </section>
       </div>

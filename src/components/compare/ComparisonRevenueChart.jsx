@@ -31,7 +31,7 @@ export default function ComparisonRevenueChart({
   setSelectedChartType,
 }) {
   return (
-    <div className="mt-6 rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
+    <div className="mt-6 rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-5 shadow-2xl shadow-black/20">
       <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-lg font-bold">Revenue by Platform</h3>
@@ -65,7 +65,7 @@ export default function ComparisonRevenueChart({
           </p>
         </div>
       ) : (
-        <div className="h-80">
+        <div className="h-[22rem] rounded-3xl border border-zinc-800 bg-zinc-950/70 p-4">
           <ResponsiveContainer width="100%" height="100%">
             {selectedChartType === "line" ? (
               <LineChart data={revenueComparisonData}>
