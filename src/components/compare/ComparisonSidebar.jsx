@@ -8,14 +8,27 @@ export default function ComparisonSidebar({
   setSelectedSystem,
   selectedTimePeriod,
   setSelectedTimePeriod,
+  onAddChart
 }) {
   return (
     <aside className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
-      <h2 className="text-xl font-bold">Comparison Controls</h2>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+        <h2 className="text-xl font-bold">Comparison Controls</h2>
 
-      <p className="mt-2 text-sm text-zinc-500">
-        Filter the business systems, platforms, and time range you want to compare.
-      </p>
+        <p className="mt-2 text-sm text-zinc-500">
+          Filter the business systems, platforms, and time range you want to compare.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        onClick={onAddChart}
+        className="rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-200"
+      >
+        + Add
+      </button>
+    </div>
 
       <div className="mt-5 space-y-4">
         <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">

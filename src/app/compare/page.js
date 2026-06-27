@@ -7,6 +7,9 @@ import ComparisonPlatformCards from "@/components/compare/ComparisonPlatformCard
 import ComparisonInsights from "@/components/compare/ComparisonInsights";
 import ComparisonRevenueMix from "@/components/compare/ComparisonRevenueMix";
 import ComparisonRevenueTrend from "@/components/compare/ComparisonRevenueTrend";
+import AddChartModal from "@/components/compare/AddChartModal";
+import SavedCompareChart from "@/components/compare/SavedCompareChart";
+import { buildSavedCompareChartData } from "@/lib/business/buildSavedCompareChartData";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -81,6 +84,8 @@ export default function ComparePage() {
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("all");
   const [selectedSystem, setSelectedSystem] = useState("all");
   const [selectedChartType, setSelectedChartType] = useState("bar");
+  const [savedCharts, setSavedCharts] = useState([]);
+  const [showAddChartModal, setShowAddChartModal] = useState(false);
 
   useEffect(() => {
     async function loadComparisonData() {
@@ -133,9 +138,21 @@ export default function ComparePage() {
         alert(connectedAccountsError.message);
       }
 
+      const { data: savedChartsData, error: savedChartsError } =
+        await supabase
+          .from("compare_charts")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("position", { ascending: true });
+
+      if (savedChartsError) {
+        alert(savedChartsError.message);
+      }
+
       setRevenueEntries(revenueData || []);
       setProducts(productData || []);
       setConnectedAccounts(connectedAccountsData || []);
+      setSavedCharts(savedChartsData || []);
       setLoading(false);
     }
 
@@ -227,10 +244,10 @@ export default function ComparePage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 px-5 py-6 text-white md:px-10 md:py-8">
-      <div className="mx-auto max-w-7xl space-y-6">
+      <div className="mx-auto max-w-[92rem] space-y-6">
         <ComparisonHero />
 
-        <section className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+        <section className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
           <ComparisonSidebar
             platforms={platforms}
             metricTypes={metricTypes}
@@ -238,6 +255,7 @@ export default function ComparePage() {
             setSelectedSystem={setSelectedSystem}
             selectedTimePeriod={selectedTimePeriod}
             setSelectedTimePeriod={setSelectedTimePeriod}
+            onAddChart={() => setShowAddChartModal(true)}
           />
 
           <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
@@ -246,6 +264,21 @@ export default function ComparePage() {
             <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">
               This workspace is now connected to normalized business metrics. Charts and filters will be added next.
             </p>
+
+            {savedCharts.length > 0 && (
+              <div className="mb-6 grid gap-6 xl:grid-cols-2">
+                {savedCharts.map((chart) => (
+                  <SavedCompareChart
+                    key={chart.id}
+                    chart={chart}
+                    data={buildSavedCompareChartData({
+                      chart,
+                      metrics: filteredComparisonMetrics,
+                    })}
+                  />
+                ))}
+              </div>
+            )}
 
             <ComparisonRevenueChart
               revenueComparisonData={revenueComparisonData}
@@ -269,6 +302,41 @@ export default function ComparePage() {
           </section>
         </section>
       </div>
+      {showAddChartModal && (
+        <AddChartModal
+          onClose={() => setShowAddChartModal(false)}
+          onAddChart={async (chart) => {
+            const {
+              data: { user },
+            } = await supabase.auth.getUser();
+
+            if (!user) return;
+
+            const { data, error } = await supabase
+              .from("compare_charts")
+              .insert({
+                user_id: user.id,
+                title: `${chart.metric} by platform`,
+                metric: chart.metric,
+                compare_by: "platform",
+                chart_type: chart.chartType,
+                time_period: selectedTimePeriod,
+                position: savedCharts.length,
+                size: "large",
+              })
+              .select()
+              .single();
+
+            if (error) {
+              alert(error.message);
+              return;
+            }
+
+            setSavedCharts((current) => [...current, data]);
+            setShowAddChartModal(false);
+          }}
+        />
+      )}
     </div>
   );
 }
