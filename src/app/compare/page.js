@@ -8,6 +8,7 @@ import { buildBusinessMetrics } from "@/lib/business/buildBusinessMetrics";
 import { buildPlatformComparisonMetrics } from "@/lib/business/buildPlatformComparisonMetrics";
 import { businessTimePeriods } from "@/lib/business/businessTimePeriods";
 import { businessSystems } from "@/lib/business/businessSystems";
+import { buildBusinessComparisons } from "@/lib/business/buildBusinessComparisons";
 
 function isMetricInTimePeriod(metric, selectedTimePeriod) {
   if (selectedTimePeriod === "all") return true;
@@ -123,6 +124,12 @@ export default function ComparePage() {
 
     return matchesTime && matchesSystem;
   });
+
+  const businessComparisons = buildBusinessComparisons({
+    metrics: filteredComparisonMetrics,
+    selectedSystem,
+    selectedTimePeriod,
+  }); 
 
   const platforms = [
     ...new Set(filteredComparisonMetrics.map((metric) => metric.platform)),
@@ -265,6 +272,36 @@ export default function ComparePage() {
             <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">
               This workspace is now connected to normalized business metrics. Charts and filters will be added next.
             </p>
+
+            {businessComparisons.length > 0 && (
+  <div className="mt-6 space-y-3">
+    {businessComparisons.map((comparison) => (
+      <div
+        key={comparison.id}
+        className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5"
+      >
+        <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+          Comparison Insight
+        </p>
+
+        <h3 className="mt-2 text-xl font-bold">{comparison.title}</h3>
+
+        <p className="mt-3 text-sm leading-6 text-zinc-400">
+          {comparison.insight}
+        </p>
+
+        {comparison.action?.href && (
+          <Link
+            href={comparison.action.href}
+            className="mt-4 inline-flex rounded-2xl border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white"
+          >
+            {comparison.action.label} →
+          </Link>
+        )}
+      </div>
+    ))}
+  </div>
+)}
 
             <div className="mt-6 rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
               <div className="mb-4 flex items-center justify-between gap-4">

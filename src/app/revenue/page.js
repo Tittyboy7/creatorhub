@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 
 import RevenueEventsSection from "@/components/revenue/RevenueEventsSection";
 import RevenueTimeline from "@/components/revenue/RevenueTimeline";
@@ -168,6 +169,25 @@ export default function RevenuePage() {
     (entry) => entry.synced_from_api
   ).length;
 
+  useEffect(() => {
+    if (loading) return;
+    if (typeof window === "undefined") return;
+
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const element = document.getElementById(hash.replace("#", ""));
+
+    if (element) {
+      setTimeout(() => {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 100);
+    }
+  }, [loading]);
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
@@ -235,123 +255,125 @@ export default function RevenuePage() {
          <BusinessInsightsSection insights={businessInsights} />
         )}
 
-        <DashboardSection
-          title="Revenue Mix"
-          icon={PieChart}
-          description="See where your creator income is coming from."
-          tooltip="Shows how your tracked revenue is split across platforms."
-        >
-          <RevenueMixSection
-            platformChartData={platformChartData}
-            totalRevenue={totalRevenue}
-            chartColors={chartColors}
-          />
-        </DashboardSection>
-
-        <DashboardSection
-          title="Top Revenue Drivers"
-          icon={Trophy}
-          description="See what is contributing most to your creator business."
-          tooltip="Highlights the platforms, categories, and entries contributing the most tracked revenue."
-        >
-          <TopRevenueDriversSection
-            platformChartData={platformChartData}
-            revenueTypeChartData={revenueTypeChartData}
-            entries={entries}
-            monthlyGrowthPercent={monthlyGrowthPercent}
-          />
-        </DashboardSection>
-
-        <DashboardSection
-          title="Upcoming Payouts"
-          defaultOpen={false}
-          icon={Wallet}
-          description="Track expected money arriving from connected platforms."
-          tooltip="Shows estimated or placeholder payout information from payment and commerce platforms."
-        >
-          <UpcomingPayoutsSection upcomingPayouts={upcomingPayouts} />
-        </DashboardSection>
-
-        <DashboardSection
-          title="Creator Business Score"
-          defaultOpen={false}
-          icon={ShieldCheck}
-          description="A simple health score for your creator business."
-          tooltip="Scores your creator business using tracked revenue, growth, platform diversity, and revenue concentration."
-        >
-          <CreatorBusinessScoreSection
-            monthlyGrowthPercent={monthlyGrowthPercent}
-            platformCount={platformCount}
-            topPlatformPercent={topPlatformPercent}
-            totalRevenue={totalRevenue}
-          />
-        </DashboardSection>
-
-        {false && (
-          <section
-            className="gap-6"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "380px minmax(0, 1fr)",
-              alignItems: "start",
-            }}
+        <div id="revenue-mix" className="scroll-mt-24">
+          <DashboardSection
+            title="Revenue Mix"
+            icon={PieChart}
+            description="See where your creator income is coming from."
+            tooltip="Shows how your tracked revenue is split across platforms."
           >
-          <RevenueSidebar
-            totalRevenue={totalRevenue}
-            thisMonthRevenue={thisMonthRevenue}
-            connectedPlatformCount={connectedPlatformCount}
-            syncedEntriesCount={syncedEntriesCount}
-            bestPlatform={bestPlatform}
-            monthlyGrowthPercent={monthlyGrowthPercent}
-            platforms={platforms}
-            revenueTypes={revenueTypes}
-            selectedPlatform={selectedPlatform}
-            setSelectedPlatform={setSelectedPlatform}
-            selectedRevenueType={selectedRevenueType}
-            setSelectedRevenueType={setSelectedRevenueType}
-            filteredEntries={filteredEntries}
-            entries={entries}
-            hasActiveFilters={hasActiveFilters}
-            dashboardWidgets={dashboardWidgets}
-            visibleWidgets={visibleWidgets}
-            setVisibleWidgets={setVisibleWidgets}
-            showIntelligence={showIntelligence}
-            setShowIntelligence={setShowIntelligence}
-            businessInsights={businessInsights}
-            goalCards={goalCards}
-            aiInsights={aiInsights}
-          />
+            <RevenueMixSection
+              platformChartData={platformChartData}
+              totalRevenue={totalRevenue}
+              chartColors={chartColors}
+            />
+          </DashboardSection>
+        </div>  
 
-          <RevenueMainContent
-            platformChartData={platformChartData}
-            revenueTypeChartData={revenueTypeChartData}
-            totalRevenue={totalRevenue}
-            chartColors={chartColors}
-            visibleWidgets={visibleWidgets}
-            platformHealthCards={platformHealthCards}
-            chartType={chartType}
-            setChartType={setChartType}
-            recentMonthlyChartData={recentMonthlyChartData}
-            averageMonthlyRevenue={averageMonthlyRevenue}
-            projectedAnnualRevenue={projectedAnnualRevenue}
-            projectedNextMonthRevenue={projectedNextMonthRevenue}
-            upcomingPayouts={upcomingPayouts}
-          />
-        </section>
-        )}
+          <DashboardSection
+            title="Top Revenue Drivers"
+            icon={Trophy}
+            description="See what is contributing most to your creator business."
+            tooltip="Highlights the platforms, categories, and entries contributing the most tracked revenue."
+          >
+            <TopRevenueDriversSection
+              platformChartData={platformChartData}
+              revenueTypeChartData={revenueTypeChartData}
+              entries={entries}
+              monthlyGrowthPercent={monthlyGrowthPercent}
+            />
+          </DashboardSection>
 
-        {visibleWidgets.revenueEvents && (
-          <RevenueEventsSection events={revenueEvents} />
-        )}
+          <DashboardSection
+            title="Upcoming Payouts"
+            defaultOpen={false}
+            icon={Wallet}
+            description="Track expected money arriving from connected platforms."
+            tooltip="Shows estimated or placeholder payout information from payment and commerce platforms."
+          >
+            <UpcomingPayoutsSection upcomingPayouts={upcomingPayouts} />
+          </DashboardSection>
 
-        {visibleWidgets.revenueTimeline && (
-          <RevenueTimeline
-            filteredEntries={filteredEntries}
-            entriesByMonth={entriesByMonth}
-            handleDeleteEntry={handleDeleteEntry}
-          />
-        )}
+          <DashboardSection
+            title="Creator Business Score"
+            defaultOpen={false}
+            icon={ShieldCheck}
+            description="A simple health score for your creator business."
+            tooltip="Scores your creator business using tracked revenue, growth, platform diversity, and revenue concentration."
+          >
+            <CreatorBusinessScoreSection
+              monthlyGrowthPercent={monthlyGrowthPercent}
+              platformCount={platformCount}
+              topPlatformPercent={topPlatformPercent}
+              totalRevenue={totalRevenue}
+            />
+          </DashboardSection>
+
+          {false && (
+            <section
+              className="gap-6"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "380px minmax(0, 1fr)",
+                alignItems: "start",
+              }}
+            >
+            <RevenueSidebar
+              totalRevenue={totalRevenue}
+              thisMonthRevenue={thisMonthRevenue}
+              connectedPlatformCount={connectedPlatformCount}
+              syncedEntriesCount={syncedEntriesCount}
+              bestPlatform={bestPlatform}
+              monthlyGrowthPercent={monthlyGrowthPercent}
+              platforms={platforms}
+              revenueTypes={revenueTypes}
+              selectedPlatform={selectedPlatform}
+              setSelectedPlatform={setSelectedPlatform}
+              selectedRevenueType={selectedRevenueType}
+              setSelectedRevenueType={setSelectedRevenueType}
+              filteredEntries={filteredEntries}
+              entries={entries}
+              hasActiveFilters={hasActiveFilters}
+              dashboardWidgets={dashboardWidgets}
+              visibleWidgets={visibleWidgets}
+              setVisibleWidgets={setVisibleWidgets}
+              showIntelligence={showIntelligence}
+              setShowIntelligence={setShowIntelligence}
+              businessInsights={businessInsights}
+              goalCards={goalCards}
+              aiInsights={aiInsights}
+            />
+
+            <RevenueMainContent
+              platformChartData={platformChartData}
+              revenueTypeChartData={revenueTypeChartData}
+              totalRevenue={totalRevenue}
+              chartColors={chartColors}
+              visibleWidgets={visibleWidgets}
+              platformHealthCards={platformHealthCards}
+              chartType={chartType}
+              setChartType={setChartType}
+              recentMonthlyChartData={recentMonthlyChartData}
+              averageMonthlyRevenue={averageMonthlyRevenue}
+              projectedAnnualRevenue={projectedAnnualRevenue}
+              projectedNextMonthRevenue={projectedNextMonthRevenue}
+              upcomingPayouts={upcomingPayouts}
+            />
+          </section>
+          )}
+
+          {visibleWidgets.revenueEvents && (
+            <RevenueEventsSection events={revenueEvents} />
+          )}
+
+          {visibleWidgets.revenueTimeline && (
+            <RevenueTimeline
+              filteredEntries={filteredEntries}
+              entriesByMonth={entriesByMonth}
+              handleDeleteEntry={handleDeleteEntry}
+            />
+          )}
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
