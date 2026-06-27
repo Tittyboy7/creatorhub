@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { buildBusinessMetrics } from "@/lib/business/buildBusinessMetrics";
 import { buildPlatformComparisonMetrics } from "@/lib/business/buildPlatformComparisonMetrics";
 import { businessTimePeriods } from "@/lib/business/businessTimePeriods";
+import { businessSystems } from "@/lib/business/businessSystems";
 
 function isMetricInTimePeriod(metric, selectedTimePeriod) {
   if (selectedTimePeriod === "all") return true;
@@ -45,6 +46,7 @@ export default function ComparePage() {
   const [revenueEntries, setRevenueEntries] = useState([]);
   const [products, setProducts] = useState([]);
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("all");
+  const [selectedSystem, setSelectedSystem] = useState("all");
 
   useEffect(() => {
     async function loadComparisonData() {
@@ -106,9 +108,21 @@ export default function ComparePage() {
     });
   }, [revenueEntries, products]);
 
-  const filteredComparisonMetrics = comparisonMetrics.filter((metric) =>
-    isMetricInTimePeriod(metric, selectedTimePeriod)
+  const systemPlatformLookup = Object.fromEntries(
+    businessSystems.flatMap((system) =>
+      system.platforms.map((platform) => [platform, system.key])
+    )
   );
+
+  const filteredComparisonMetrics = comparisonMetrics.filter((metric) => {
+    const matchesTime = isMetricInTimePeriod(metric, selectedTimePeriod);
+
+    const matchesSystem =
+      selectedSystem === "all" ||
+      systemPlatformLookup[metric.platform] === selectedSystem;
+
+    return matchesTime && matchesSystem;
+  });
 
   const platforms = [
     ...new Set(filteredComparisonMetrics.map((metric) => metric.platform)),
@@ -180,6 +194,39 @@ export default function ComparePage() {
                 <p className="mt-1 text-sm text-zinc-500">
                   {platforms.length > 0 ? platforms.join(", ") : "No platform data yet."}
                 </p>
+              </div>
+
+              <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                <p className="text-sm font-semibold text-white">Business System</p>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSystem("all")}
+                    className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                      selectedSystem === "all"
+                        ? "bg-white text-black"
+                        : "border border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                    }`}
+                  >
+                    All
+                  </button>
+
+                  {businessSystems.map((system) => (
+                    <button
+                      key={system.key}
+                      type="button"
+                      onClick={() => setSelectedSystem(system.key)}
+                      className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                        selectedSystem === system.key
+                          ? "bg-white text-black"
+                          : "border border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                      }`}
+                    >
+                      {system.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
