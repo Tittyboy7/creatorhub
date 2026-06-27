@@ -8,13 +8,43 @@ import { buildBusinessMetrics } from "@/lib/business/buildBusinessMetrics";
 import { buildPlatformComparisonMetrics } from "@/lib/business/buildPlatformComparisonMetrics";
 import { businessTimePeriods } from "@/lib/business/businessTimePeriods";
 
+function isMetricInTimePeriod(metric, selectedTimePeriod) {
+  if (selectedTimePeriod === "all") return true;
+
+  const metricDateValue = metric.period
+    ? `${metric.period}-01`
+    : metric.date;
+
+  if (!metricDateValue) return true;
+
+  const metricDate = new Date(metricDateValue);
+  const now = new Date();
+
+  const daysByPeriod = {
+    today: 1,
+    "7d": 7,
+    "30d": 30,
+    "90d": 90,
+    "12m": 365,
+  };
+
+  const days = daysByPeriod[selectedTimePeriod];
+
+  if (!days) return true;
+
+  const cutoff = new Date();
+  cutoff.setDate(now.getDate() - days);
+
+  return metricDate >= cutoff;
+}
+
 export default function ComparePage() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [revenueEntries, setRevenueEntries] = useState([]);
   const [products, setProducts] = useState([]);
-  const [selectedTimePeriod, setSelectedTimePeriod] = useState("30d");
+  const [selectedTimePeriod, setSelectedTimePeriod] = useState("all");
 
   useEffect(() => {
     async function loadComparisonData() {
@@ -76,11 +106,23 @@ export default function ComparePage() {
     });
   }, [revenueEntries, products]);
 
-  const platforms = [...new Set(comparisonMetrics.map((metric) => metric.platform))];
-  const metricTypes = [...new Set(comparisonMetrics.map((metric) => metric.metric))];
+  const filteredComparisonMetrics = comparisonMetrics.filter((metric) =>
+    isMetricInTimePeriod(metric, selectedTimePeriod)
+  );
+
+  const platforms = [
+    ...new Set(filteredComparisonMetrics.map((metric) => metric.platform)),
+  ];
+
+  const metricTypes = [
+    ...new Set(filteredComparisonMetrics.map((metric) => metric.metric)),
+  ];
+
   const metricsByPlatform = platforms.map((platform) => ({
     platform,
-    metrics: comparisonMetrics.filter((metric) => metric.platform === platform),
+    metrics: filteredComparisonMetrics.filter(
+      (metric) => metric.platform === platform
+    ),
   }));
 
   if (loading) {
@@ -187,7 +229,7 @@ export default function ComparePage() {
                 </div>
               </div>
 
-              {comparisonMetrics.length === 0 ? (
+              {filteredComparisonMetrics.length === 0 ? (
                 <p className="text-sm text-zinc-400">
                   Add revenue entries or products to start comparing platform performance.
                 </p>
