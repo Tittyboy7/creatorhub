@@ -25,12 +25,13 @@ const comparisonChartColors = [
   "#ef4444",
 ];
 
-export default function SavedCompareChart({ chart, data = [] }) {
+export default function SavedCompareChart({ chart, data = [], onDelete }) {
   const hasData = data.length > 0;
 
   return (
     <div className="rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-5 shadow-2xl shadow-black/20">
-      <div className="mb-4">
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
           Saved Chart
         </p>
@@ -41,6 +42,15 @@ export default function SavedCompareChart({ chart, data = [] }) {
           {chart.chart_type} chart · {chart.metric} · {chart.time_period}
         </p>
       </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => onDelete?.(chart.id)}
+          className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-400 hover:border-red-500/60 hover:bg-red-500/10 hover:text-red-300"
+        >
+          Remove
+        </button>
 
       {!hasData ? (
         <div className="rounded-2xl border border-dashed border-zinc-700 p-8 text-center">

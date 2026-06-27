@@ -275,6 +275,25 @@ export default function ComparePage() {
                       chart,
                       metrics: filteredComparisonMetrics,
                     })}
+                    onDelete={async (chartId) => {
+                      const confirmed = window.confirm("Remove this chart from your workspace?");
+
+                      if (!confirmed) return;
+
+                      const { error } = await supabase
+                        .from("compare_charts")
+                        .delete()
+                        .eq("id", chartId);
+
+                      if (error) {
+                        alert(error.message);
+                        return;
+                      }
+
+                      setSavedCharts((current) =>
+                        current.filter((savedChart) => savedChart.id !== chartId)
+                      );
+                    }}
                   />
                 ))}
               </div>
