@@ -86,6 +86,7 @@ export default function ComparePage() {
   const [selectedChartType, setSelectedChartType] = useState("bar");
   const [savedCharts, setSavedCharts] = useState([]);
   const [showAddChartModal, setShowAddChartModal] = useState(false);
+  const [editingChart, setEditingChart] = useState(null);
 
   useEffect(() => {
     async function loadComparisonData() {
@@ -276,6 +277,11 @@ export default function ComparePage() {
                       metrics: comparisonMetrics,
                     })}
 
+                    onEdit={(chart) => {
+                      setEditingChart(chart);
+                      setShowAddChartModal(true);
+                    }}
+
                     onDelete={async (chartId) => {
                       const confirmed = window.confirm("Remove this chart from your workspace?");
 
@@ -344,7 +350,11 @@ export default function ComparePage() {
       </div>
       {showAddChartModal && (
         <AddChartModal
-          onClose={() => setShowAddChartModal(false)}
+          editingChart={editingChart}
+          onClose={() => {
+            setEditingChart(null);
+            setShowAddChartModal(false);
+          }}
           onAddChart={async (chart) => {
             const {
               data: { user },
@@ -352,23 +362,52 @@ export default function ComparePage() {
 
             if (!user) return;
 
+            const chartPayload = {
+              title: `${chart.metric} by ${chart.compareBy}`,
+              metric: chart.metric,
+              compare_by: chart.compareBy,
+              chart_type: chart.chartType,
+              time_period: chart.timePeriod,
+              config: {
+                dataset: chart.metric,
+                compareBy: chart.compareBy,
+                visualization: chart.chartType,
+                timePeriod: chart.timePeriod,
+              },
+              updated_at: new Date().toISOString(),
+            };
+
+            if (editingChart) {
+              const { data, error } = await supabase
+                .from("compare_charts")
+                .update(chartPayload)
+                .eq("id", editingChart.id)
+                .select()
+                .single();
+
+              if (error) {
+                alert(error.message);
+                return;
+              }
+
+              setSavedCharts((current) =>
+                current.map((savedChart) =>
+                  savedChart.id === editingChart.id ? data : savedChart
+                )
+              );
+
+              setEditingChart(null);
+              setShowAddChartModal(false);
+              return;
+            }
+
             const { data, error } = await supabase
               .from("compare_charts")
               .insert({
                 user_id: user.id,
-                title: `${chart.metric} by ${chart.compareBy}`,
-                metric: chart.metric,
-                compare_by: chart.compareBy,
-                chart_type: chart.chartType,
-                time_period: chart.timePeriod,
+                ...chartPayload,
                 position: savedCharts.length,
                 size: "large",
-                config: {
-                  dataset: chart.metric,
-                  compareBy: chart.compareBy,
-                  visualization: chart.chartType,
-                  timePeriod: chart.timePeriod,
-                },
               })
               .select()
               .single();
@@ -379,6 +418,7 @@ export default function ComparePage() {
             }
 
             setSavedCharts((current) => [...current, data]);
+            setEditingChart(null);
             setShowAddChartModal(false);
           }}
         />

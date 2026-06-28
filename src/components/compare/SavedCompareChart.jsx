@@ -30,6 +30,7 @@ export default function SavedCompareChart({
   data = [],
   onDelete,
   onResize,
+  onEdit,
 }) {
 
   const hasData = data.length > 0;
@@ -99,13 +100,23 @@ export default function SavedCompareChart({
       </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => onDelete?.(chart.id)}
-          className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-400 hover:border-red-500/60 hover:bg-red-500/10 hover:text-red-300"
-        >
-          Remove
-        </button>
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={() => onEdit?.(chart)}
+            className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-400 hover:bg-zinc-800 hover:text-white"
+          >
+            Edit
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onDelete?.(chart.id)}
+            className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-400 hover:border-red-500/60 hover:bg-red-500/10 hover:text-red-300"
+          >
+            Remove
+          </button>
+        </div>
 
       {!hasData ? (
         <div className="rounded-2xl border border-dashed border-zinc-700 p-8 text-center">

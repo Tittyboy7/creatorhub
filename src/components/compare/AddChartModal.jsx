@@ -11,11 +11,15 @@ import { useEffect, useState } from "react";
     return visualizationRules[compareBy] || ["bar"];
   }
 
-export default function AddChartModal({ onClose, onAddChart }) {
-  const [metric, setMetric] = useState("revenue");
-  const [chartType, setChartType] = useState("bar");
-  const [compareBy, setCompareBy] = useState("platform");
-  const [timePeriod, setTimePeriod] = useState("all");
+export default function AddChartModal({ onClose, onAddChart, editingChart }) {
+  const [metric, setMetric] = useState(editingChart?.metric || "revenue");
+  const [chartType, setChartType] = useState(editingChart?.chart_type || "bar");
+  const [compareBy, setCompareBy] = useState(
+    editingChart?.compare_by || "platform"
+  );
+  const [timePeriod, setTimePeriod] = useState(
+    editingChart?.time_period || "all"
+  );
 
   const validChartTypes = getValidChartTypes(compareBy);
 
@@ -34,7 +38,9 @@ export default function AddChartModal({ onClose, onAddChart }) {
               Custom Chart
             </p>
 
-            <h2 className="mt-2 text-2xl font-bold">Add chart</h2>
+            <h2 className="mt-2 text-2xl font-bold">
+              {editingChart ? "Edit chart" : "Add chart"}
+            </h2>
 
             <p className="mt-2 text-sm text-zinc-400">
               Choose what you want to compare in your workspace.
@@ -143,7 +149,7 @@ export default function AddChartModal({ onClose, onAddChart }) {
             }
             className="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-zinc-200"
           >
-            Add Chart
+            {editingChart ? "Save Changes" : "Add Chart"}
           </button>
         </div>
       </div>
