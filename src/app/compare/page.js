@@ -83,6 +83,7 @@ export default function ComparePage() {
   const [showAddChartModal, setShowAddChartModal] = useState(false);
   const [editingChart, setEditingChart] = useState(null);
   const [syncingPlatforms, setSyncingPlatforms] = useState(false);
+  const [syncResults, setSyncResults] = useState([]);
 
   useEffect(() => {
     async function loadComparisonData() {
@@ -254,12 +255,51 @@ export default function ComparePage() {
             setSelectedTimePeriod={setSelectedTimePeriod}
             onAddChart={() => setShowAddChartModal(true)}
             syncingPlatforms={syncingPlatforms}
+            syncResults={syncResults}
             onSyncAll={async () => {
               setSyncingPlatforms(true);
+              setSyncResults([]);
 
-              setTimeout(() => {
+              try {
+                const {
+                  data: { user },
+                } = await supabase.auth.getUser();
+
+                if (!user) return;
+
+                const syncablePlatforms = connectedAccounts
+                  .map((account) => account.platform)
+                  .filter((platform) =>
+                    ["youtube", "twitch", "kick", "shopify", "patreon", "stripe", "paypal"].includes(platform)
+                  );
+
+                const results = [];
+
+                for (const platform of syncablePlatforms) {
+                  try {
+                    const response = await fetch(`/api/sync/${platform}?user_id=${user.id}`);
+                    const data = await response.json();
+
+                    results.push({
+                      platform,
+                      success: response.ok,
+                      message: response.ok
+                        ? data.message || "Sync completed."
+                        : data.error || "Sync failed.",
+                    });
+                  } catch (error) {
+                    results.push({
+                      platform,
+                      success: false,
+                      message: error.message || "Sync failed.",
+                    });
+                  }
+                }
+
+                setSyncResults(results);
+              } finally {
                 setSyncingPlatforms(false);
-              }, 1200);
+              }
             }}
           />
 

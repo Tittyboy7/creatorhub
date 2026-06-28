@@ -11,6 +11,7 @@ export default function ComparisonSidebar({
   onAddChart,
   onSyncAll,
   syncingPlatforms,
+  syncResults = [],
 }) {
   return (
     <aside className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
@@ -46,6 +47,24 @@ export default function ComparisonSidebar({
       >
         {syncingPlatforms ? "Syncing..." : "Sync All"}
       </button>
+
+      {syncResults.length > 0 && (
+        <div className="mt-4 space-y-2">
+          {syncResults.map((result) => (
+            <div
+              key={result.platform}
+              className={`rounded-xl border px-3 py-2 text-xs ${
+                result.success
+                  ? "border-green-500/30 bg-green-500/10 text-green-300"
+                  : "border-red-500/30 bg-red-500/10 text-red-300"
+              }`}
+            >
+              <span className="font-semibold capitalize">{result.platform}: </span>
+              {result.message}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
 
       <div className="mt-5 space-y-4">
