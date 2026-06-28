@@ -25,11 +25,49 @@ const comparisonChartColors = [
   "#ef4444",
 ];
 
-export default function SavedCompareChart({ chart, data = [], onDelete }) {
+export default function SavedCompareChart({
+  chart,
+  data = [],
+  onDelete,
+  onResize,
+}) {
+
   const hasData = data.length > 0;
+  const isMonthChart = chart.compare_by === "month";
+  const isSmallChart = chart.size === "small";
+  const isMediumChart = chart.size === "medium";
+ 
+  const xAxisInterval = isMonthChart
+    ? isSmallChart
+      ? 0
+      : isMediumChart
+      ? 3
+      : 1
+    : isSmallChart
+    ? "preserveStartEnd"
+    : isMediumChart
+    ? "preserveStartEnd"
+    : 0;
+ 
+  function formatXAxisTick(value, index) {
+    if (isMonthChart && isSmallChart) {
+      if (index === 0 || index === data.length - 1) return value;
+      return "";
+    }
+ 
+    return value;
+  }
 
   return (
-    <div className="rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-5 shadow-2xl shadow-black/20">
+    <div
+      className={`rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-5 shadow-2xl shadow-black/20 ${
+        chart.size === "large"
+          ? "md:col-span-2 xl:col-span-3"
+          : chart.size === "medium"
+          ? "xl:col-span-2"
+          : ""
+      }`}
+    >
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
@@ -41,6 +79,23 @@ export default function SavedCompareChart({ chart, data = [], onDelete }) {
         <p className="mt-1 text-sm text-zinc-500">
           {chart.chart_type} chart · {chart.metric} · {chart.time_period}
         </p>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          {["small", "medium", "large"].map((size) => (
+            <button
+              key={size}
+              type="button"
+              onClick={() => onResize?.(chart.id, size)}
+              className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${
+                chart.size === size
+                  ? "bg-white text-black"
+                  : "border border-zinc-700 text-zinc-400 hover:bg-zinc-800"
+              }`}
+            >
+              {size}
+            </button>
+          ))}
+        </div>
       </div>
         </div>
 
@@ -63,7 +118,13 @@ export default function SavedCompareChart({ chart, data = [], onDelete }) {
           <ResponsiveContainer width="100%" height="100%">
             {chart.chart_type === "line" ? (
               <LineChart data={data}>
-                <XAxis dataKey="label" />
+                <XAxis
+                  dataKey="label"
+                  interval={xAxisInterval}
+                  minTickGap={24}
+                  tickFormatter={formatXAxisTick}
+                  tick={{ fontSize: chart.size === "small" ? 10 : 12 }}
+                />
                 <YAxis />
                 <Tooltip formatter={(value) => `$${Number(value).toFixed(2)}`} />
                 <Line type="monotone" dataKey="value" strokeWidth={3} />
@@ -93,14 +154,26 @@ export default function SavedCompareChart({ chart, data = [], onDelete }) {
               </PieChart>
             ) : chart.chart_type === "area" ? (
               <AreaChart data={data}>
-                <XAxis dataKey="label" />
+                <XAxis
+                  dataKey="label"
+                  interval={xAxisInterval}
+                  minTickGap={24}
+                  tickFormatter={formatXAxisTick}
+                  tick={{ fontSize: chart.size === "small" ? 10 : 12 }}
+                />
                 <YAxis />
                 <Tooltip formatter={(value) => `$${Number(value).toFixed(2)}`} />
                 <Area type="monotone" dataKey="value" />
               </AreaChart>
             ) : (
               <BarChart data={data}>
-                <XAxis dataKey="label" />
+                <XAxis
+                  dataKey="label"
+                  interval={xAxisInterval}
+                  minTickGap={24}
+                  tickFormatter={formatXAxisTick}
+                  tick={{ fontSize: chart.size === "small" ? 10 : 12 }}
+                />
                 <YAxis />
                 <Tooltip formatter={(value) => `$${Number(value).toFixed(2)}`} />
                 <Bar dataKey="value" radius={[8, 8, 0, 0]}>

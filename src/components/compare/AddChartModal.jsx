@@ -1,8 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+  const visualizationRules = {
+    platform: ["bar", "pie"],
+    business_system: ["bar", "pie"],
+    month: ["bar", "line", "area"],
+    product: ["bar"],
+  };
+
+  function getValidChartTypes(compareBy) {
+    return visualizationRules[compareBy] || ["bar"];
+  }
 
 export default function AddChartModal({ onClose, onAddChart }) {
   const [metric, setMetric] = useState("revenue");
   const [chartType, setChartType] = useState("bar");
+  const [compareBy, setCompareBy] = useState("platform");
+  const [timePeriod, setTimePeriod] = useState("all");
+
+  const validChartTypes = getValidChartTypes(compareBy);
+
+  useEffect(() => {
+    if (!validChartTypes.includes(chartType)) {
+      setChartType(validChartTypes[0]);
+    }
+  }, [compareBy, chartType, validChartTypes]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
       <div className="w-full max-w-lg rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6 text-white shadow-2xl shadow-black/40">
@@ -48,6 +70,23 @@ export default function AddChartModal({ onClose, onAddChart }) {
 
           <div>
             <label className="mb-2 block text-sm font-semibold text-zinc-300">
+              Compare By
+            </label>
+
+            <select
+              className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 p-4"
+              value={compareBy}
+              onChange={(e) => setCompareBy(e.target.value)}
+            >
+              <option value="platform">Platform</option>
+              <option value="business_system">Business System</option>
+              <option value="month">Month</option>
+              <option value="product">Product</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-zinc-300">
               Chart Type
             </label>
             <select
@@ -55,13 +94,33 @@ export default function AddChartModal({ onClose, onAddChart }) {
               value={chartType}
               onChange={(e) => setChartType(e.target.value)}
             >
-              <option value="bar">Bar</option>
-              <option value="line">Line</option>
-              <option value="area">Area</option>
-              <option value="pie">Pie</option>
+              {validChartTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </option>
+              ))}
             </select>
           </div>
         </div>
+
+        <div>
+            <label className="mb-2 block text-sm font-semibold text-zinc-300">
+              Time Period
+            </label>
+
+            <select
+              className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 p-4"
+              value={timePeriod}
+              onChange={(e) => setTimePeriod(e.target.value)}
+            >
+              <option value="today">Today</option>
+              <option value="7d">Last 7 Days</option>
+              <option value="30d">Last 30 Days</option>
+              <option value="90d">Last 90 Days</option>
+              <option value="12m">Last 12 Months</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
 
         <div className="mt-6 flex justify-end gap-3">
           <button
@@ -78,6 +137,8 @@ export default function AddChartModal({ onClose, onAddChart }) {
               onAddChart({
                 metric,
                 chartType,
+                compareBy,
+                timePeriod,
               })
             }
             className="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-zinc-200"

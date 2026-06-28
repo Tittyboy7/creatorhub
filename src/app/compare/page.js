@@ -266,15 +266,16 @@ export default function ComparePage() {
             </p>
 
             {savedCharts.length > 0 && (
-              <div className="mb-6 grid gap-6 xl:grid-cols-2">
+              <div className="mb-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {savedCharts.map((chart) => (
                   <SavedCompareChart
                     key={chart.id}
                     chart={chart}
                     data={buildSavedCompareChartData({
                       chart,
-                      metrics: filteredComparisonMetrics,
+                      metrics: comparisonMetrics,
                     })}
+
                     onDelete={async (chartId) => {
                       const confirmed = window.confirm("Remove this chart from your workspace?");
 
@@ -292,6 +293,26 @@ export default function ComparePage() {
 
                       setSavedCharts((current) =>
                         current.filter((savedChart) => savedChart.id !== chartId)
+                      );
+                    }}
+                    onResize={async (chartId, size) => {
+                      const { error } = await supabase
+                        .from("compare_charts")
+                        .update({
+                          size,
+                          updated_at: new Date().toISOString(),
+                        })
+                        .eq("id", chartId);
+
+                      if (error) {
+                        alert(error.message);
+                        return;
+                      }
+
+                      setSavedCharts((current) =>
+                        current.map((savedChart) =>
+                          savedChart.id === chartId ? { ...savedChart, size } : savedChart
+                        )
                       );
                     }}
                   />
@@ -335,13 +356,19 @@ export default function ComparePage() {
               .from("compare_charts")
               .insert({
                 user_id: user.id,
-                title: `${chart.metric} by platform`,
+                title: `${chart.metric} by ${chart.compareBy}`,
                 metric: chart.metric,
-                compare_by: "platform",
+                compare_by: chart.compareBy,
                 chart_type: chart.chartType,
-                time_period: selectedTimePeriod,
+                time_period: chart.timePeriod,
                 position: savedCharts.length,
                 size: "large",
+                config: {
+                  dataset: chart.metric,
+                  compareBy: chart.compareBy,
+                  visualization: chart.chartType,
+                  timePeriod: chart.timePeriod,
+                },
               })
               .select()
               .single();
