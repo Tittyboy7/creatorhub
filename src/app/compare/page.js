@@ -253,7 +253,10 @@ export default function ComparePage() {
             setSelectedSystem={setSelectedSystem}
             selectedTimePeriod={selectedTimePeriod}
             setSelectedTimePeriod={setSelectedTimePeriod}
-            onAddChart={() => setShowAddChartModal(true)}
+            onAddChart={() => {
+              setEditingChart(null);
+              setShowAddChartModal(true);
+            }}
             syncingPlatforms={syncingPlatforms}
             syncResults={syncResults}
             onSyncAll={async () => {
