@@ -2,11 +2,6 @@
 
 import ComparisonHero from "@/components/compare/ComparisonHero";
 import ComparisonSidebar from "@/components/compare/ComparisonSidebar";
-import ComparisonRevenueChart from "@/components/compare/ComparisonRevenueChart";
-import ComparisonPlatformCards from "@/components/compare/ComparisonPlatformCards";
-import ComparisonInsights from "@/components/compare/ComparisonInsights";
-import ComparisonRevenueMix from "@/components/compare/ComparisonRevenueMix";
-import ComparisonRevenueTrend from "@/components/compare/ComparisonRevenueTrend";
 import AddChartModal from "@/components/compare/AddChartModal";
 import SavedCompareChart from "@/components/compare/SavedCompareChart";
 import { buildSavedCompareChartData } from "@/lib/business/buildSavedCompareChartData";
