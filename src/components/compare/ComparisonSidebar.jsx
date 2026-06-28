@@ -8,7 +8,9 @@ export default function ComparisonSidebar({
   setSelectedSystem,
   selectedTimePeriod,
   setSelectedTimePeriod,
-  onAddChart
+  onAddChart,
+  onSyncAll,
+  syncingPlatforms,
 }) {
   return (
     <aside className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5">
@@ -27,6 +29,22 @@ export default function ComparisonSidebar({
         className="rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-200"
       >
         + Add
+      </button>
+    </div>
+
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+      <p className="text-sm font-semibold text-white">Sync Platforms</p>
+
+      <p className="mt-1 text-sm text-zinc-500">
+        Refresh connected platform data before comparing your workspace.
+      </p>
+
+      <button
+        type="button"
+        onClick={onSyncAll}
+        className="mt-4 w-full rounded-2xl border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white"
+      >
+        {syncingPlatforms ? "Syncing..." : "Sync All"}
       </button>
     </div>
 

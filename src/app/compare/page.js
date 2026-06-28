@@ -82,6 +82,7 @@ export default function ComparePage() {
   const [savedCharts, setSavedCharts] = useState([]);
   const [showAddChartModal, setShowAddChartModal] = useState(false);
   const [editingChart, setEditingChart] = useState(null);
+  const [syncingPlatforms, setSyncingPlatforms] = useState(false);
 
   useEffect(() => {
     async function loadComparisonData() {
@@ -252,6 +253,14 @@ export default function ComparePage() {
             selectedTimePeriod={selectedTimePeriod}
             setSelectedTimePeriod={setSelectedTimePeriod}
             onAddChart={() => setShowAddChartModal(true)}
+            syncingPlatforms={syncingPlatforms}
+            onSyncAll={async () => {
+              setSyncingPlatforms(true);
+
+              setTimeout(() => {
+                setSyncingPlatforms(false);
+              }, 1200);
+            }}
           />
 
           <section className="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
