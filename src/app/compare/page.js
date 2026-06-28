@@ -266,7 +266,24 @@ export default function ComparePage() {
               This workspace is now connected to normalized business metrics. Charts and filters will be added next.
             </p>
 
-            {savedCharts.length > 0 && (
+            {savedCharts.length === 0 ? (
+              <div className="rounded-[2rem] border border-dashed border-zinc-700 bg-zinc-950 p-10 text-center">
+                <h3 className="text-xl font-bold">Build your comparison workspace</h3>
+
+                <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-zinc-400">
+                  Add charts to compare revenue, views, customers, orders, and other creator
+                  business metrics.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => setShowAddChartModal(true)}
+                  className="mt-6 rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-zinc-200"
+                >
+                  + Create your first chart
+                </button>
+              </div>
+            ) : (
               <div className="mb-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                 {savedCharts.map((chart) => (
                   <SavedCompareChart
@@ -326,6 +343,8 @@ export default function ComparePage() {
               </div>
             )}
 
+        {false && (
+          <>
             <ComparisonRevenueChart
               revenueComparisonData={revenueComparisonData}
               selectedChartType={selectedChartType}
@@ -338,6 +357,8 @@ export default function ComparePage() {
               <ComparisonRevenueMix revenueComparisonData={revenueComparisonData} />
               <ComparisonRevenueTrend revenueTrendData={revenueTrendData} />
             </div>
+          </>
+        )}
 
             {false && (
               <ComparisonPlatformCards
