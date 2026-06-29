@@ -14,6 +14,18 @@ import { buildPlatformComparisonMetrics } from "@/lib/business/buildPlatformComp
 import { businessTimePeriods } from "@/lib/business/businessTimePeriods";
 import { businessSystems } from "@/lib/business/businessSystems";
 import { buildBusinessComparisons } from "@/lib/business/buildBusinessComparisons";
+import {
+  DndContext,
+  closestCenter,
+} from "@dnd-kit/core";
+
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
+
+import SortableCompareWidget from "@/components/compare/SortableCompareWidget";
 
 function isMetricInTimePeriod(metric, selectedTimePeriod) {
   if (selectedTimePeriod === "all") return true;
@@ -216,6 +228,21 @@ export default function ComparePage() {
     .filter((item) => item.revenue > 0)
     .sort((a, b) => b.revenue - a.revenue);
 
+  function handleDragEnd(event) {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
+    setSavedCharts((current) => {
+      const oldIndex = current.findIndex((chart) => chart.id === active.id);
+      const newIndex = current.findIndex((chart) => chart.id === over.id);
+
+      if (oldIndex === -1 || newIndex === -1) return current;
+
+      return arrayMove(current, oldIndex, newIndex);
+    });
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
@@ -331,9 +358,20 @@ export default function ComparePage() {
                 </button>
               </div>
             ) : (
-              <div className="mb-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {savedCharts.map((chart) => (
-                  <SavedCompareChart
+              <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext
+                  items={savedCharts.map((chart) => chart.id)}
+                  strategy={rectSortingStrategy}
+                >
+                  <div className="mb-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    {savedCharts.map((chart) => (
+                      <SortableCompareWidget
+                        key={chart.id}
+                        id={chart.id}
+                        title={chart.title}
+                        subtitle={`${chart.chart_type} chart · ${chart.metric} · ${chart.time_period}`}
+                      >
+                        <SavedCompareChart
                     key={chart.id}
                     chart={chart}
                     data={buildSavedCompareChartData({
@@ -417,9 +455,12 @@ export default function ComparePage() {
                         return updated;
                       });
                     }}
-                    />
-                ))}
-              </div>
+                        />
+                      </SortableCompareWidget>
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             )}
 
         {false && (

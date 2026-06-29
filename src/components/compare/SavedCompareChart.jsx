@@ -69,37 +69,23 @@ export default function SavedCompareChart({
           : ""
       }`}
     >
-      <div className="mb-4 flex items-start justify-between gap-4">
-        <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-          Saved Chart
-        </p>
+      <div className="mb-4 flex justify-end gap-2">
+        <button
+          type="button"
+          onClick={() => onEdit?.(chart)}
+          className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-400 hover:bg-zinc-800 hover:text-white"
+        >
+          Edit
+        </button>
 
-        <h3 className="mt-2 text-lg font-bold capitalize">{chart.title}</h3>
-
-        <p className="mt-1 text-sm text-zinc-500">
-          {chart.chart_type} chart · {chart.metric} · {chart.time_period}
-        </p>
+        <button
+          type="button"
+          onClick={() => onDelete?.(chart.id)}
+          className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-400 hover:border-red-500/60 hover:bg-red-500/10 hover:text-red-300"
+        >
+          Remove
+        </button>
       </div>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={() => onEdit?.(chart)}
-            className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-400 hover:bg-zinc-800 hover:text-white"
-          >
-            Edit
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onDelete?.(chart.id)}
-            className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-400 hover:border-red-500/60 hover:bg-red-500/10 hover:text-red-300"
-          >
-            Remove
-          </button>
-        </div>
 
       {!hasData ? (
         <div className="rounded-2xl border border-dashed border-zinc-700 p-8 text-center">
