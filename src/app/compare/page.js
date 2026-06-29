@@ -228,19 +228,39 @@ export default function ComparePage() {
     .filter((item) => item.revenue > 0)
     .sort((a, b) => b.revenue - a.revenue);
 
-  function handleDragEnd(event) {
+  async function handleDragEnd(event) {
     const { active, over } = event;
 
     if (!over || active.id === over.id) return;
 
-    setSavedCharts((current) => {
-      const oldIndex = current.findIndex((chart) => chart.id === active.id);
-      const newIndex = current.findIndex((chart) => chart.id === over.id);
+    const oldIndex = savedCharts.findIndex((chart) => chart.id === active.id);
+    const newIndex = savedCharts.findIndex((chart) => chart.id === over.id);
 
-      if (oldIndex === -1 || newIndex === -1) return current;
+    if (oldIndex === -1 || newIndex === -1) return;
 
-      return arrayMove(current, oldIndex, newIndex);
-    });
+    const reorderedCharts = arrayMove(savedCharts, oldIndex, newIndex).map(
+      (chart, index) => ({
+        ...chart,
+        position: index,
+      })
+    );
+
+    setSavedCharts(reorderedCharts);
+
+    for (const chart of reorderedCharts) {
+      const { error } = await supabase
+        .from("compare_charts")
+          .update({
+          position: chart.position,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", chart.id);
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+    }
   }
 
   if (loading) {
