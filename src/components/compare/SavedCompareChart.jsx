@@ -59,6 +59,66 @@ export default function SavedCompareChart({
     return value;
   }
 
+  function formatChartValue(value) {
+    const number = Number(value || 0);
+
+    if (chart.metric === "revenue" || chart.metric.includes("revenue")) {
+      if (Math.abs(number) >= 1000000) {
+        return `$${(number / 1000000).toFixed(1)}M`;
+      }
+
+      if (Math.abs(number) >= 1000) {
+        return `$${Math.round(number / 1000)}k`;
+      }
+
+      return `$${number.toLocaleString()}`;
+    }
+
+    if (Math.abs(number) >= 1000000) {
+      return `${(number / 1000000).toFixed(1)}M`;
+    }
+
+    if (Math.abs(number) >= 1000) {
+      return `${Math.round(number / 1000)}k`;
+    }
+
+    return number.toLocaleString();
+  }
+
+  function formatExactChartValue(value) {
+    const number = Number(value || 0);
+
+    if (chart.metric === "revenue" || chart.metric.includes("revenue")) {
+      return number.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+    }
+
+    return number.toLocaleString();
+  }
+
+  function CustomTooltip({ active, payload, label }) {
+    if (!active || !payload?.length) return null;
+
+    const value = payload[0]?.value;
+
+    return (
+      <div className="rounded-2xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm shadow-2xl shadow-black/40">
+        <p className="font-semibold text-white">
+          {chart.compare_by === "month" ? `Month: ${label}` : `Platform: ${label}`}
+        </p>
+
+        <p className="mt-1 text-zinc-400 capitalize">
+          {chart.metric}:{" "}
+          <span className="font-semibold text-white">
+            {formatExactChartValue(value)}
+          </span>
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-5 shadow-2xl shadow-black/20 ${
@@ -105,13 +165,19 @@ export default function SavedCompareChart({
                   tickFormatter={formatXAxisTick}
                   tick={{ fontSize: chart.size === "small" ? 10 : 12 }}
                 />
-                <YAxis />
-                <Tooltip formatter={(value) => `$${Number(value).toFixed(2)}`} />
-                <Line type="monotone" dataKey="value" strokeWidth={3} />
+                <YAxis tickFormatter={formatChartValue} width={56} />
+                <Tooltip content={<CustomTooltip />} />
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={{ r: 5 }}
+                />
               </LineChart>
             ) : chart.chart_type === "pie" ? (
               <PieChart>
-                <Tooltip formatter={(value) => `$${Number(value).toFixed(2)}`} />
+                <Tooltip content={<CustomTooltip />} />
                 <Pie
                   data={data}
                   dataKey="value"
@@ -141,9 +207,14 @@ export default function SavedCompareChart({
                   tickFormatter={formatXAxisTick}
                   tick={{ fontSize: chart.size === "small" ? 10 : 12 }}
                 />
-                <YAxis />
-                <Tooltip formatter={(value) => `$${Number(value).toFixed(2)}`} />
-                <Area type="monotone" dataKey="value" />
+                <YAxis tickFormatter={formatChartValue} width={56} />
+                <Tooltip content={<CustomTooltip />} />
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  strokeWidth={3}
+                  fillOpacity={0.25}
+                />
               </AreaChart>
             ) : (
               <BarChart data={data}>
@@ -154,8 +225,8 @@ export default function SavedCompareChart({
                   tickFormatter={formatXAxisTick}
                   tick={{ fontSize: chart.size === "small" ? 10 : 12 }}
                 />
-                <YAxis />
-                <Tooltip formatter={(value) => `$${Number(value).toFixed(2)}`} />
+                <YAxis tickFormatter={formatChartValue} width={56} />
+                <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="value" radius={[8, 8, 0, 0]}>
                   {data.map((entry, index) => (
                     <Cell
