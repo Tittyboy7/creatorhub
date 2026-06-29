@@ -80,23 +80,6 @@ export default function SavedCompareChart({
         <p className="mt-1 text-sm text-zinc-500">
           {chart.chart_type} chart · {chart.metric} · {chart.time_period}
         </p>
-
-        <div className="mt-3 flex flex-wrap gap-2">
-          {["small", "medium", "large"].map((size) => (
-            <button
-              key={size}
-              type="button"
-              onClick={() => onResize?.(chart.id, size)}
-              className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${
-                chart.size === size
-                  ? "bg-white text-black"
-                  : "border border-zinc-700 text-zinc-400 hover:bg-zinc-800"
-              }`}
-            >
-              {size}
-            </button>
-          ))}
-        </div>
       </div>
         </div>
 

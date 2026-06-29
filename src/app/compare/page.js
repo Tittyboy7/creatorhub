@@ -385,7 +385,39 @@ export default function ComparePage() {
                         )
                       );
                     }}
-                  />
+
+                    onMoveUp={(chartId) => {
+                      setSavedCharts((current) => {
+                        const index = current.findIndex((chart) => chart.id === chartId);
+
+                        if (index <= 0) return current;
+
+                        const updated = [...current];
+                        [updated[index - 1], updated[index]] = [
+                          updated[index],
+                          updated[index - 1],
+                        ];
+
+                        return updated;
+                      });
+                    }}
+
+                    onMoveDown={(chartId) => {
+                      setSavedCharts((current) => {
+                        const index = current.findIndex((chart) => chart.id === chartId);
+
+                        if (index === -1 || index >= current.length - 1) return current;
+
+                        const updated = [...current];
+                        [updated[index], updated[index + 1]] = [
+                          updated[index + 1],
+                          updated[index],
+                        ];
+
+                        return updated;
+                      });
+                    }}
+                    />
                 ))}
               </div>
             )}
