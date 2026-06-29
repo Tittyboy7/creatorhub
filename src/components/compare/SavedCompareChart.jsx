@@ -200,6 +200,13 @@ export default function SavedCompareChart({
               </PieChart>
             ) : chart.chart_type === "area" ? (
               <AreaChart data={data}>
+                <defs>
+                  <linearGradient id={`areaGradient-${chart.id}`} x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#0ea5e9" stopOpacity={0.45} />
+                    <stop offset="45%" stopColor="#8b5cf6" stopOpacity={0.45} />
+                    <stop offset="100%" stopColor="#ec4899" stopOpacity={0.45} />
+                  </linearGradient>
+                </defs>
                 <XAxis
                   dataKey="label"
                   interval={xAxisInterval}
@@ -212,8 +219,10 @@ export default function SavedCompareChart({
                 <Area
                   type="monotone"
                   dataKey="value"
+                  stroke="#38bdf8"
                   strokeWidth={3}
-                  fillOpacity={0.25}
+                  fill={`url(#areaGradient-${chart.id})`}
+                  fillOpacity={1}
                 />
               </AreaChart>
             ) : (
