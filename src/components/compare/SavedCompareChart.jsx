@@ -1,3 +1,4 @@
+import ComparePieChart from "@/components/compare/charts/ComparePieChart";
 import {
   Area,
   AreaChart,
@@ -176,28 +177,12 @@ export default function SavedCompareChart({
                 />
               </LineChart>
             ) : chart.chart_type === "pie" ? (
-              <PieChart>
-                <Tooltip content={<CustomTooltip />} />
-                <Pie
-                  data={data}
-                  dataKey="value"
-                  nameKey="label"
-                  innerRadius={60}
-                  outerRadius={95}
-                  paddingAngle={2}
-                >
-                  {data.map((entry, index) => (
-                    <Cell
-                      key={entry.label}
-                      fill={
-                        comparisonChartColors[
-                          index % comparisonChartColors.length
-                        ]
-                      }
-                    />
-                  ))}
-                </Pie>
-              </PieChart>
+              <ComparePieChart
+                chart={chart}
+                data={data}
+                formatExactChartValue={formatExactChartValue}
+                CustomTooltip={CustomTooltip}
+              />
             ) : chart.chart_type === "area" ? (
               <AreaChart data={data}>
                 <defs>
