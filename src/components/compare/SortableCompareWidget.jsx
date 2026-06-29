@@ -1,7 +1,14 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-export default function SortableCompareWidget({ id, title, subtitle, children }) {
+export default function SortableCompareWidget({
+  id,
+  title,
+  subtitle,
+  size,
+  onResize,
+  children,
+}) {
   const {
     attributes,
     listeners,
@@ -20,7 +27,9 @@ export default function SortableCompareWidget({ id, title, subtitle, children })
     <div
       ref={setNodeRef}
       style={style}
-      className={isDragging ? "opacity-60" : ""}
+      className={`${isDragging ? "opacity-60" : ""} ${
+        size === "large" ? "md:col-span-2 xl:col-span-2" : ""
+      }`}
     >
       <div
         {...attributes}

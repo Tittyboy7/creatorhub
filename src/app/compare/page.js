@@ -390,6 +390,27 @@ export default function ComparePage() {
                         id={chart.id}
                         title={chart.title}
                         subtitle={`${chart.chart_type} chart · ${chart.metric} · ${chart.time_period}`}
+                        size={chart.size}
+                        onResize={async (chartId, size) => {
+                          const { error } = await supabase
+                            .from("compare_charts")
+                            .update({
+                              size,
+                              updated_at: new Date().toISOString(),
+                            })
+                            .eq("id", chartId);
+
+                          if (error) {
+                            alert(error.message);
+                            return;
+                          }
+
+                          setSavedCharts((current) =>
+                            current.map((savedChart) =>
+                              savedChart.id === chartId ? { ...savedChart, size } : savedChart
+                            )
+                          );
+                        }}
                       >
                         <SavedCompareChart
                     key={chart.id}
