@@ -21,7 +21,16 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
     editingChart?.time_period || "all"
   );
 
+  const [currentStep, setCurrentStep] = useState(1);
+
   const validChartTypes = getValidChartTypes(compareBy);
+
+  const stepLabels = [
+    "Measure",
+    "Compare",
+    "Visualize",
+    "Time",
+  ];
 
   useEffect(() => {
     if (!validChartTypes.includes(chartType)) {
@@ -42,9 +51,25 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
               {editingChart ? "Edit widget" : "Add widget"}
             </h2>
 
-            <p className="mt-2 text-sm text-zinc-400">
-              Build a saved analytics widget for your workspace.
-            </p>
+            <div className="mt-5 grid grid-cols-4 gap-2">
+              {stepLabels.map((label, index) => {
+                const step = index + 1;
+
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    className={`rounded-full px-3 py-2 text-xs font-semibold ${
+                      true
+                        ? "bg-white text-black"
+                        : "border border-zinc-700 text-zinc-400 hover:bg-zinc-800"
+                    }`}
+                  >
+                    {step}. {label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <button
