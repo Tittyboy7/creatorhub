@@ -1,30 +1,7 @@
 import ComparePieChart from "@/components/compare/charts/ComparePieChart";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  Cell,
-  Line,
-  LineChart,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-
-const comparisonChartColors = [
-  "#3b82f6",
-  "#22c55e",
-  "#a855f7",
-  "#f97316",
-  "#ec4899",
-  "#06b6d4",
-  "#facc15",
-  "#ef4444",
-];
+import CompareAreaChart from "@/components/compare/charts/CompareAreaChart";
+import CompareLineChart from "@/components/compare/charts/CompareLineChart";
+import CompareBarChart from "@/components/compare/charts/CompareBarChart";
 
 export default function SavedCompareChart({
   chart,
@@ -156,86 +133,41 @@ export default function SavedCompareChart({
         </div>
       ) : (
         <div className="h-72 rounded-3xl border border-zinc-800 bg-zinc-950/70 p-4">
-          <ResponsiveContainer width="100%" height="100%">
-            {chart.chart_type === "line" ? (
-              <LineChart data={data}>
-                <XAxis
-                  dataKey="label"
-                  interval={xAxisInterval}
-                  minTickGap={24}
-                  tickFormatter={formatXAxisTick}
-                  tick={{ fontSize: chart.size === "small" ? 10 : 12 }}
-                />
-                <YAxis tickFormatter={formatChartValue} width={56} />
-                <Tooltip content={<CustomTooltip />} />
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  strokeWidth={3}
-                  dot={false}
-                  activeDot={{ r: 5 }}
-                />
-              </LineChart>
-            ) : chart.chart_type === "pie" ? (
-              <ComparePieChart
-                chart={chart}
-                data={data}
-                formatExactChartValue={formatExactChartValue}
-                CustomTooltip={CustomTooltip}
-              />
-            ) : chart.chart_type === "area" ? (
-              <AreaChart data={data}>
-                <defs>
-                  <linearGradient id={`areaGradient-${chart.id}`} x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#0ea5e9" stopOpacity={0.45} />
-                    <stop offset="45%" stopColor="#8b5cf6" stopOpacity={0.45} />
-                    <stop offset="100%" stopColor="#ec4899" stopOpacity={0.45} />
-                  </linearGradient>
-                </defs>
-                <XAxis
-                  dataKey="label"
-                  interval={xAxisInterval}
-                  minTickGap={24}
-                  tickFormatter={formatXAxisTick}
-                  tick={{ fontSize: chart.size === "small" ? 10 : 12 }}
-                />
-                <YAxis tickFormatter={formatChartValue} width={56} />
-                <Tooltip content={<CustomTooltip />} />
-                <Area
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#38bdf8"
-                  strokeWidth={3}
-                  fill={`url(#areaGradient-${chart.id})`}
-                  fillOpacity={1}
-                />
-              </AreaChart>
-            ) : (
-              <BarChart data={data}>
-                <XAxis
-                  dataKey="label"
-                  interval={xAxisInterval}
-                  minTickGap={24}
-                  tickFormatter={formatXAxisTick}
-                  tick={{ fontSize: chart.size === "small" ? 10 : 12 }}
-                />
-                <YAxis tickFormatter={formatChartValue} width={56} />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                  {data.map((entry, index) => (
-                    <Cell
-                      key={entry.label}
-                      fill={
-                        comparisonChartColors[
-                          index % comparisonChartColors.length
-                        ]
-                      }
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            )}
-          </ResponsiveContainer>
+          {chart.chart_type === "line" ? (
+            <CompareLineChart
+              chart={chart}
+              data={data}
+              CustomTooltip={CustomTooltip}
+              formatChartValue={formatChartValue}
+              formatXAxisTick={formatXAxisTick}
+              xAxisInterval={xAxisInterval}
+            />
+          ) : chart.chart_type === "pie" ? (
+            <ComparePieChart
+              chart={chart}
+              data={data}
+              formatExactChartValue={formatExactChartValue}
+              CustomTooltip={CustomTooltip}
+            />
+          ) : chart.chart_type === "area" ? (
+            <CompareAreaChart
+              chart={chart}
+              data={data}
+              CustomTooltip={CustomTooltip}
+              formatChartValue={formatChartValue}
+              formatXAxisTick={formatXAxisTick}
+              xAxisInterval={xAxisInterval}
+            />
+          ) : (
+            <CompareBarChart
+              chart={chart}
+              data={data}
+              CustomTooltip={CustomTooltip}
+              formatChartValue={formatChartValue}
+              formatXAxisTick={formatXAxisTick}
+              xAxisInterval={xAxisInterval}
+            />
+          )}
         </div>
       )}
     </div>
