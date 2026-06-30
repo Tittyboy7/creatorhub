@@ -549,7 +549,10 @@ export default function ComparePage() {
             if (!user) return;
 
             const chartPayload = {
-              title: `${chart.metric} by ${chart.compareBy}`,
+              title: formatCompareChartTitle({
+              metric: chart.metric,
+              compare_by: chart.compareBy,
+            }),
               metric: chart.metric,
               compare_by: chart.compareBy,
               chart_type: chart.chartType,
