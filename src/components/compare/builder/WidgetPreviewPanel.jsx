@@ -1,11 +1,7 @@
-function titleCase(value = "") {
-  return value
-    .replaceAll("_", " ")
-    .split(" ")
-    .filter(Boolean)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
+import {
+  formatCompareChartTitle,
+  formatCompareChartSubtitle,
+} from "@/lib/compare/formatCompareChartTitle";
 
 export default function WidgetPreviewPanel({
   metric,
@@ -21,11 +17,18 @@ export default function WidgetPreviewPanel({
 
       <div className="mt-3 rounded-3xl border border-zinc-800 bg-zinc-950/70 p-4">
         <h3 className="text-lg font-bold">
-          {titleCase(metric)} by {titleCase(compareBy)}
+          {formatCompareChartTitle({
+            metric,
+            compare_by: compareBy,
+          })}
         </h3>
 
         <p className="mt-1 text-sm text-zinc-500">
-          {titleCase(chartType)} widget · {timePeriod}
+          {formatCompareChartSubtitle({
+            chart_type: chartType,
+            metric,
+            time_period: timePeriod,
+          })}
         </p>
 
         <div className="mt-5 flex h-28 items-center justify-center rounded-2xl border border-dashed border-zinc-700 bg-black/20 p-4">
