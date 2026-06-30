@@ -1,9 +1,7 @@
-import ComparePieChart from "@/components/compare/charts/ComparePieChart";
-import CompareAreaChart from "@/components/compare/charts/CompareAreaChart";
-import CompareLineChart from "@/components/compare/charts/CompareLineChart";
-import CompareBarChart from "@/components/compare/charts/CompareBarChart";
 import CompareChartTooltip from "@/components/compare/charts/CompareChartTooltip";
 import { buildCompareXAxisSettings } from "@/lib/compare/buildCompareXAxisSettings";
+import { buildCompareSeriesData } from "@/lib/compare/buildCompareSeriesData";
+import { getVisualizationComponent } from "@/components/compare/charts/visualizationRegistry";
 
 import {
   formatCompareChartValue,
@@ -13,12 +11,20 @@ import {
 export default function SavedCompareChart({
   chart,
   data = [],
+  metrics = [],
   onDelete,
   onResize,
   onEdit,
 }) {
 
   const hasData = data.length > 0;
+
+  const VisualizationComponent = getVisualizationComponent(chart.chart_type);
+
+  const seriesChart = buildCompareSeriesData({
+    chart,
+    metrics,
+  });
   
   const { interval: xAxisInterval, formatTick: formatXAxisTick } =
   buildCompareXAxisSettings({
@@ -80,41 +86,15 @@ export default function SavedCompareChart({
         </div>
       ) : (
         <div className="h-72 rounded-3xl border border-zinc-800 bg-zinc-950/70 p-4">
-          {chart.chart_type === "line" ? (
-            <CompareLineChart
-              chart={chart}
-              data={data}
-              CustomTooltip={CustomTooltip}
-              formatChartValue={formatChartValue}
-              formatXAxisTick={formatXAxisTick}
-              xAxisInterval={xAxisInterval}
-            />
-          ) : chart.chart_type === "pie" ? (
-            <ComparePieChart
-              chart={chart}
-              data={data}
-              formatExactChartValue={formatExactChartValue}
-              CustomTooltip={CustomTooltip}
-            />
-          ) : chart.chart_type === "area" ? (
-            <CompareAreaChart
-              chart={chart}
-              data={data}
-              CustomTooltip={CustomTooltip}
-              formatChartValue={formatChartValue}
-              formatXAxisTick={formatXAxisTick}
-              xAxisInterval={xAxisInterval}
-            />
-          ) : (
-            <CompareBarChart
-              chart={chart}
-              data={data}
-              CustomTooltip={CustomTooltip}
-              formatChartValue={formatChartValue}
-              formatXAxisTick={formatXAxisTick}
-              xAxisInterval={xAxisInterval}
-            />
-          )}
+          <VisualizationComponent
+            chart={chart}
+            data={data}
+            CustomTooltip={CustomTooltip}
+            formatChartValue={formatChartValue}
+            formatExactChartValue={formatExactChartValue}
+            formatXAxisTick={formatXAxisTick}
+            xAxisInterval={xAxisInterval}
+          />
         </div>
       )}
     </div>

@@ -416,9 +416,10 @@ export default function ComparePage() {
                           );
                         }}
                       >
-                        <SavedCompareChart
+                  <SavedCompareChart
                     key={chart.id}
                     chart={chart}
+                    metrics={comparisonMetrics}
                     data={buildSavedCompareChartData({
                       chart,
                       metrics: comparisonMetrics,
