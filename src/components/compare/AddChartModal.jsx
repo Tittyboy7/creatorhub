@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import WidgetBuilder from "@/components/compare/builder/WidgetBuilder";
 
   const visualizationRules = {
     platform: ["bar", "pie"],
@@ -56,9 +57,8 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
                 const step = index + 1;
 
                 return (
-                  <button
+                  <div
                     key={label}
-                    type="button"
                     className={`rounded-full px-3 py-2 text-xs font-semibold ${
                       true
                         ? "bg-white text-black"
@@ -66,7 +66,7 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
                     }`}
                   >
                     {step}. {label}
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -81,102 +81,17 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
           </button>
         </div>
 
-        <div className="mt-6 grid gap-4">
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-zinc-300">
-               1. What do you want to measure?
-            </label>
-            <select
-              className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 p-4"
-              value={metric}
-              onChange={(e) => setMetric(e.target.value)}
-            >
-              <option value="revenue">Revenue</option>
-              <option value="views">Views</option>
-              <option value="subscribers">Subscribers</option>
-              <option value="orders">Orders</option>
-              <option value="customers">Customers</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-zinc-300">
-              2. How do you want to compare it?
-            </label>
-
-            <select
-              className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 p-4"
-              value={compareBy}
-              onChange={(e) => setCompareBy(e.target.value)}
-            >
-              <option value="platform">Platform</option>
-              <option value="business_system">Business System</option>
-              <option value="month">Month</option>
-              <option value="product">Product</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-zinc-300">
-              3. Recommended visualization
-            </label>
-            <p className="mb-3 text-xs text-zinc-500">
-              Options update based on what you are measuring and comparing.
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              {validChartTypes.map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => setChartType(type)}
-                  className={`rounded-2xl border p-4 text-left ${
-                    chartType === type
-                      ? "border-white bg-white text-black"
-                      : "border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800"
-                  }`}
-                >
-                  <p className="text-sm font-bold capitalize">
-                    {type === "bar"
-                      ? "📊 Bar"
-                      : type === "pie"
-                      ? "🥧 Pie"
-                      : type === "line"
-                      ? "📈 Line"
-                      : "🌊 Area"}
-                  </p>
-                  <p className="mt-1 text-xs opacity-70">
-                    {type === "bar"
-                      ? "Compare categories."
-                      : type === "pie"
-                      ? "Show share of a total."
-                      : type === "line"
-                      ? "Track changes over time."
-                      : "Show trend volume."}
-                  </p>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div>
-            <label className="mb-2 block text-sm font-semibold text-zinc-300">
-              4. What time range?
-            </label>
-
-            <select
-              className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 p-4"
-              value={timePeriod}
-              onChange={(e) => setTimePeriod(e.target.value)}
-            >
-              <option value="today">Today</option>
-              <option value="7d">Last 7 Days</option>
-              <option value="30d">Last 30 Days</option>
-              <option value="90d">Last 90 Days</option>
-              <option value="12m">Last 12 Months</option>
-              <option value="all">All Time</option>
-            </select>
-          </div>
+        <WidgetBuilder
+          metric={metric}
+          setMetric={setMetric}
+          compareBy={compareBy}
+          setCompareBy={setCompareBy}
+          chartType={chartType}
+          setChartType={setChartType}
+          validChartTypes={validChartTypes}
+          timePeriod={timePeriod}
+          setTimePeriod={setTimePeriod}
+        />
 
         <div className="mt-6 flex justify-end gap-3">
           <button
