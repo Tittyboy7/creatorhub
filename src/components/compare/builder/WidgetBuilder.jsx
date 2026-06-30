@@ -2,6 +2,7 @@ import MetricSelector from "./MetricSelector";
 import CompareBySelector from "./CompareBySelector";
 import VisualizationSelector from "./VisualizationSelector";
 import TimeRangeSelector from "./TimeRangeSelector";
+import WidgetPreviewPanel from "./WidgetPreviewPanel";
 
 export default function WidgetBuilder({
   metric,
@@ -35,6 +36,13 @@ export default function WidgetBuilder({
       <TimeRangeSelector
         timePeriod={timePeriod}
         setTimePeriod={setTimePeriod}
+      />
+
+      <WidgetPreviewPanel
+        metric={metric}
+        compareBy={compareBy}
+        chartType={chartType}
+        timePeriod={timePeriod}
       />
     </div>
   );
