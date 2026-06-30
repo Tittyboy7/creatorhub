@@ -16,7 +16,7 @@ export default function WidgetBuilder({
   setTimePeriod,
 }) {
   return (
-    <div className="grid max-h-[60vh] gap-4 overflow-y-auto pr-1">
+    <div className="mt-6 grid max-h-[62vh] gap-4 overflow-y-auto pr-1">
       <MetricSelector
         metric={metric}
         setMetric={setMetric}
