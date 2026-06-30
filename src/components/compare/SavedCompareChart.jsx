@@ -2,6 +2,10 @@ import ComparePieChart from "@/components/compare/charts/ComparePieChart";
 import CompareAreaChart from "@/components/compare/charts/CompareAreaChart";
 import CompareLineChart from "@/components/compare/charts/CompareLineChart";
 import CompareBarChart from "@/components/compare/charts/CompareBarChart";
+import {
+  formatCompareChartValue,
+  formatExactCompareChartValue,
+} from "@/lib/compare/formatCompareChartValue";
 
 export default function SavedCompareChart({
   chart,
@@ -38,42 +42,11 @@ export default function SavedCompareChart({
   }
 
   function formatChartValue(value) {
-    const number = Number(value || 0);
-
-    if (chart.metric === "revenue" || chart.metric.includes("revenue")) {
-      if (Math.abs(number) >= 1000000) {
-        return `$${(number / 1000000).toFixed(1)}M`;
-      }
-
-      if (Math.abs(number) >= 1000) {
-        return `$${Math.round(number / 1000)}k`;
-      }
-
-      return `$${number.toLocaleString()}`;
-    }
-
-    if (Math.abs(number) >= 1000000) {
-      return `${(number / 1000000).toFixed(1)}M`;
-    }
-
-    if (Math.abs(number) >= 1000) {
-      return `${Math.round(number / 1000)}k`;
-    }
-
-    return number.toLocaleString();
+    return formatCompareChartValue(value, chart.metric);
   }
 
   function formatExactChartValue(value) {
-    const number = Number(value || 0);
-
-    if (chart.metric === "revenue" || chart.metric.includes("revenue")) {
-      return number.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-    }
-
-    return number.toLocaleString();
+    return formatExactCompareChartValue(value, chart.metric);
   }
 
   function CustomTooltip({ active, payload, label }) {
