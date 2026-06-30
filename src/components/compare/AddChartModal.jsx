@@ -118,8 +118,11 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
 
           <div>
             <label className="mb-2 block text-sm font-semibold text-zinc-300">
-              3. How should it be visualized?
+              3. Recommended visualization
             </label>
+            <p className="mb-3 text-xs text-zinc-500">
+              Options update based on what you are measuring and comparing.
+            </p>
             <select
               className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 p-4"
               value={chartType}
