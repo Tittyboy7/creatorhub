@@ -36,13 +36,24 @@ export default function CompareBarChart({
           minTickGap={24}
           tickFormatter={formatXAxisTick}
           tick={{ fontSize: chart.size === "small" ? 10 : 12 }}
+          axisLine={false}
+          tickLine={false}
         />
 
-        <YAxis tickFormatter={formatChartValue} width={56} />
+        <YAxis
+          tickFormatter={formatChartValue}
+          width={56}
+          axisLine={false}
+          tickLine={false}
+        />
 
         <Tooltip content={<CustomTooltip />} />
 
-        <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+        <Bar
+          dataKey="value"
+          radius={[10, 10, 4, 4]}
+          maxBarSize={64}
+        >
           {data.map((entry, index) => (
             <Cell
               key={entry.label}
