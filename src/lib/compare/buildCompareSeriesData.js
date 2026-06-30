@@ -1,3 +1,15 @@
+function formatMonthLabel(month = "") {
+  if (!month.includes("-")) return month;
+
+  const [year, monthNumber] = month.split("-");
+  const date = new Date(Number(year), Number(monthNumber) - 1, 1);
+
+  return date.toLocaleString("en-US", {
+    month: "short",
+    year: "2-digit",
+  });
+}
+
 export function buildCompareSeriesData({ chart, metrics = [] } = {}) {
   if (!chart || chart.compare_by !== "month") {
     return {
@@ -17,7 +29,10 @@ export function buildCompareSeriesData({ chart, metrics = [] } = {}) {
     const platform = metric.platform;
 
     if (!result[month]) {
-      result[month] = { label: month };
+      result[month] = {
+        label: formatMonthLabel(month),
+        rawLabel: month,
+      };
     }
 
     result[month][platform] =
@@ -28,7 +43,7 @@ export function buildCompareSeriesData({ chart, metrics = [] } = {}) {
 
   return {
     data: Object.values(totalsByMonth).sort((a, b) =>
-      a.label.localeCompare(b.label)
+      a.rawLabel.localeCompare(b.rawLabel)
     ),
     series: platforms.map((platform) => ({
       key: platform,

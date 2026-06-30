@@ -89,6 +89,7 @@ export default function SavedCompareChart({
           <VisualizationComponent
             chart={chart}
             data={data}
+            seriesData={seriesChart}
             CustomTooltip={CustomTooltip}
             formatChartValue={formatChartValue}
             formatExactChartValue={formatExactChartValue}
