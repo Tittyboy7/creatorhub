@@ -2,6 +2,8 @@ import ComparePieChart from "@/components/compare/charts/ComparePieChart";
 import CompareAreaChart from "@/components/compare/charts/CompareAreaChart";
 import CompareLineChart from "@/components/compare/charts/CompareLineChart";
 import CompareBarChart from "@/components/compare/charts/CompareBarChart";
+import CompareChartTooltip from "@/components/compare/charts/CompareChartTooltip";
+
 import {
   formatCompareChartValue,
   formatExactCompareChartValue,
@@ -49,24 +51,13 @@ export default function SavedCompareChart({
     return formatExactCompareChartValue(value, chart.metric);
   }
 
-  function CustomTooltip({ active, payload, label }) {
-    if (!active || !payload?.length) return null;
-
-    const value = payload[0]?.value;
-
+  function CustomTooltip(props) {
     return (
-      <div className="rounded-2xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm shadow-2xl shadow-black/40">
-        <p className="font-semibold text-white">
-          {chart.compare_by === "month" ? `Month: ${label}` : `Platform: ${label}`}
-        </p>
-
-        <p className="mt-1 text-zinc-400 capitalize">
-          {chart.metric}:{" "}
-          <span className="font-semibold text-white">
-            {formatExactChartValue(value)}
-          </span>
-        </p>
-      </div>
+      <CompareChartTooltip
+        {...props}
+        chart={chart}
+        formatExactChartValue={formatExactChartValue}
+      />
     );
   }
 
