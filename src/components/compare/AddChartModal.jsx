@@ -135,7 +135,15 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
                       : "border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800"
                   }`}
                 >
-                  <p className="text-sm font-bold capitalize">{type}</p>
+                  <p className="text-sm font-bold capitalize">
+                    {type === "bar"
+                      ? "📊 Bar"
+                      : type === "pie"
+                      ? "🥧 Pie"
+                      : type === "line"
+                      ? "📈 Line"
+                      : "🌊 Area"}
+                  </p>
                   <p className="mt-1 text-xs opacity-70">
                     {type === "bar"
                       ? "Compare categories."
