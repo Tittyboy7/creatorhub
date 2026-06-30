@@ -35,15 +35,15 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-              Custom Chart
+              Custom Widget
             </p>
 
             <h2 className="mt-2 text-2xl font-bold">
-              {editingChart ? "Edit chart" : "Add chart"}
+              {editingChart ? "Edit widget" : "Add widget"}
             </h2>
 
             <p className="mt-2 text-sm text-zinc-400">
-              Choose what you want to compare in your workspace.
+              Build a saved analytics widget for your workspace.
             </p>
           </div>
 
@@ -149,7 +149,7 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
             }
             className="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-zinc-200"
           >
-            {editingChart ? "Save Changes" : "Add Chart"}
+            {editingChart ? "Save Changes" : "Add Widget"}
           </button>
         </div>
       </div>
