@@ -22,16 +22,7 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
     editingChart?.time_period || "all"
   );
 
-  const [currentStep, setCurrentStep] = useState(1);
-
   const validChartTypes = getValidChartTypes(compareBy);
-
-  const stepLabels = [
-    "Measure",
-    "Compare",
-    "Visualize",
-    "Time",
-  ];
 
   useEffect(() => {
     if (!validChartTypes.includes(chartType)) {
