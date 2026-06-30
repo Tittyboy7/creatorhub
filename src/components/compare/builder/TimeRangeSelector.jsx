@@ -21,7 +21,7 @@ export default function TimeRangeSelector({ timePeriod, setTimePeriod }) {
             key={range.key}
             type="button"
             onClick={() => setTimePeriod(range.key)}
-            className={`rounded-2xl border p-4 text-left ${
+            className={`rounded-2xl border p-3 text-left ${
               timePeriod === range.key
                 ? "border-white bg-white text-black"
                 : "border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"

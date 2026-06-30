@@ -20,7 +20,7 @@ export default function MetricSelector({ metric, setMetric }) {
             key={item.key}
             type="button"
             onClick={() => setMetric(item.key)}
-            className={`rounded-2xl border p-4 text-left ${
+            className={`rounded-2xl border p-3 text-left ${
               metric === item.key
                 ? "border-white bg-white text-black"
                 : "border-zinc-700 bg-zinc-950 text-zinc-300 hover:bg-zinc-800"
