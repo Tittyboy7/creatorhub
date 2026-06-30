@@ -38,9 +38,16 @@ export default function CompareAreaChart({
           minTickGap={24}
           tickFormatter={formatXAxisTick}
           tick={{ fontSize: chart.size === "small" ? 10 : 12 }}
+          axisLine={false}
+          tickLine={false}
         />
 
-        <YAxis tickFormatter={formatChartValue} width={56} />
+        <YAxis
+          tickFormatter={formatChartValue}
+          width={56}
+          axisLine={false}
+          tickLine={false}
+        />
 
         <Tooltip content={<CustomTooltip />} />
 
