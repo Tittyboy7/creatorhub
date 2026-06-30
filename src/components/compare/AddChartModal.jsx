@@ -56,10 +56,10 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
           </button>
         </div>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-6 grid gap-4">
           <div>
             <label className="mb-2 block text-sm font-semibold text-zinc-300">
-              Metric
+               1. What do you want to measure?
             </label>
             <select
               className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 p-4"
@@ -76,7 +76,7 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
 
           <div>
             <label className="mb-2 block text-sm font-semibold text-zinc-300">
-              Compare By
+              2. How do you want to compare it?
             </label>
 
             <select
@@ -93,7 +93,7 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
 
           <div>
             <label className="mb-2 block text-sm font-semibold text-zinc-300">
-              Chart Type
+              3. How should it be visualized?
             </label>
             <select
               className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 p-4"
@@ -111,7 +111,7 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
 
         <div>
             <label className="mb-2 block text-sm font-semibold text-zinc-300">
-              Time Period
+              4. What time range?
             </label>
 
             <select
