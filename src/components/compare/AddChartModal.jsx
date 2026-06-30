@@ -123,17 +123,31 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
             <p className="mb-3 text-xs text-zinc-500">
               Options update based on what you are measuring and comparing.
             </p>
-            <select
-              className="w-full rounded-2xl border border-zinc-700 bg-zinc-900 p-4"
-              value={chartType}
-              onChange={(e) => setChartType(e.target.value)}
-            >
+            <div className="grid grid-cols-2 gap-3">
               {validChartTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </option>
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setChartType(type)}
+                  className={`rounded-2xl border p-4 text-left ${
+                    chartType === type
+                      ? "border-white bg-white text-black"
+                      : "border-zinc-700 bg-zinc-900 text-zinc-300 hover:bg-zinc-800"
+                  }`}
+                >
+                  <p className="text-sm font-bold capitalize">{type}</p>
+                  <p className="mt-1 text-xs opacity-70">
+                    {type === "bar"
+                      ? "Compare categories."
+                      : type === "pie"
+                      ? "Show share of a total."
+                      : type === "line"
+                      ? "Track changes over time."
+                      : "Show trend volume."}
+                  </p>
+                </button>
               ))}
-            </select>
+            </div>
           </div>
         </div>
 
