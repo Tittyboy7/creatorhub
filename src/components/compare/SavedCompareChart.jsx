@@ -3,6 +3,7 @@ import CompareAreaChart from "@/components/compare/charts/CompareAreaChart";
 import CompareLineChart from "@/components/compare/charts/CompareLineChart";
 import CompareBarChart from "@/components/compare/charts/CompareBarChart";
 import CompareChartTooltip from "@/components/compare/charts/CompareChartTooltip";
+import { buildCompareXAxisSettings } from "@/lib/compare/buildCompareXAxisSettings";
 
 import {
   formatCompareChartValue,
@@ -18,30 +19,12 @@ export default function SavedCompareChart({
 }) {
 
   const hasData = data.length > 0;
-  const isMonthChart = chart.compare_by === "month";
-  const isSmallChart = chart.size === "small";
-  const isMediumChart = chart.size === "medium";
- 
-  const xAxisInterval = isMonthChart
-    ? isSmallChart
-      ? 0
-      : isMediumChart
-      ? 3
-      : 1
-    : isSmallChart
-    ? "preserveStartEnd"
-    : isMediumChart
-    ? "preserveStartEnd"
-    : 0;
- 
-  function formatXAxisTick(value, index) {
-    if (isMonthChart && isSmallChart) {
-      if (index === 0 || index === data.length - 1) return value;
-      return "";
-    }
- 
-    return value;
-  }
+  
+  const { interval: xAxisInterval, formatTick: formatXAxisTick } =
+  buildCompareXAxisSettings({
+    chart,
+    data,
+  });
 
   function formatChartValue(value) {
     return formatCompareChartValue(value, chart.metric);
