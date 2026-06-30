@@ -4,11 +4,20 @@ export default function CompareChartTooltip({
   label,
   chart,
   formatExactChartValue,
+  activeSeriesKey,
 }) {
   if (!active || !payload?.length) return null;
 
-  const value = payload[0]?.value;
+  const selectedPayload =
+    activeSeriesKey
+      ? payload.find((item) => item.dataKey === activeSeriesKey)
+      : payload[0];
+
+  if (!selectedPayload) return null;
+
+  const value = selectedPayload.value;
   const labelPrefix = chart.compare_by === "month" ? "Month" : "Platform";
+  const metricLabel = selectedPayload.name || chart.metric;
 
   return (
     <div className="rounded-2xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm shadow-2xl shadow-black/40">
@@ -17,7 +26,7 @@ export default function CompareChartTooltip({
       </p>
 
       <p className="mt-1 text-zinc-400 capitalize">
-        {chart.metric}:{" "}
+        {metricLabel}:{" "}
         <span className="font-semibold text-white">
           {formatExactChartValue(value)}
         </span>

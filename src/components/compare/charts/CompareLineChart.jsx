@@ -1,4 +1,7 @@
+import { useState } from "react";
+
 import {
+  Legend,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -21,6 +24,8 @@ export default function CompareLineChart({
     ? seriesData.series
     : [{ key: "value", label: chart.metric }];
 
+  const [activeSeriesKey, setActiveSeriesKey] = useState(null);
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={chartData}>
@@ -41,7 +46,22 @@ export default function CompareLineChart({
           tickLine={false}
         />
 
-        <Tooltip content={<CustomTooltip />} />
+        <Tooltip
+          content={<CustomTooltip activeSeriesKey={activeSeriesKey} />}
+        />
+
+        {chart.size !== "small" && (
+          <Legend
+            verticalAlign="top"
+            align="left"
+            height={28}
+            iconType="circle"
+            wrapperStyle={{
+              fontSize: "12px",
+              color: "#a1a1aa",
+            }}
+          />
+        )}
 
         {series.map((item, index) => (
           <Line
@@ -53,6 +73,8 @@ export default function CompareLineChart({
             strokeWidth={3}
             dot={false}
             activeDot={{ r: 5 }}
+            onMouseEnter={() => setActiveSeriesKey(item.key)}
+            onMouseLeave={() => setActiveSeriesKey(null)}
           />
         ))}
       </LineChart>
