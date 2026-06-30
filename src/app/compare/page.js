@@ -26,6 +26,10 @@ import {
 } from "@dnd-kit/sortable";
 
 import SortableCompareWidget from "@/components/compare/SortableCompareWidget";
+import {
+  formatCompareChartTitle,
+  formatCompareChartSubtitle,
+} from "@/lib/compare/formatCompareChartTitle";
 
 function isMetricInTimePeriod(metric, selectedTimePeriod) {
   if (selectedTimePeriod === "all") return true;
@@ -388,8 +392,8 @@ export default function ComparePage() {
                       <SortableCompareWidget
                         key={chart.id}
                         id={chart.id}
-                        title={chart.title}
-                        subtitle={`${chart.chart_type} chart · ${chart.metric} · ${chart.time_period}`}
+                        title={formatCompareChartTitle(chart)}
+                        subtitle={formatCompareChartSubtitle(chart)}
                         size={chart.size}
                         onResize={async (chartId, size) => {
                           const { error } = await supabase
