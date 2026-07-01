@@ -5,13 +5,17 @@ export default function CompareChartTooltip({
   chart,
   formatExactChartValue,
   activeSeriesKey,
+  visibleSeriesKeys = [],
 }) {
   if (!active || !payload?.length) return null;
 
-  const selectedPayload =
-    activeSeriesKey
-      ? payload.find((item) => item.dataKey === activeSeriesKey)
-      : payload[0];
+  const visiblePayload = visibleSeriesKeys.length
+    ? payload.filter((item) => visibleSeriesKeys.includes(item.dataKey))
+    : payload;
+
+const selectedPayload = activeSeriesKey
+   ? visiblePayload.find((item) => item.dataKey === activeSeriesKey)
+   : visiblePayload[0];
 
   if (!selectedPayload) return null;
 

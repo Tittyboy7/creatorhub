@@ -49,7 +49,12 @@ export default function CompareLineChart({
         />
 
         <Tooltip
-          content={<CustomTooltip activeSeriesKey={activeSeriesKey} />}
+          content={
+            <CustomTooltip
+              activeSeriesKey={activeSeriesKey}
+              visibleSeriesKeys={series.map((item) => item.key)}
+            />
+          }
         />
 
         {Number(chart.width || 1) >= 2 && (
