@@ -443,6 +443,9 @@ export default function ComparePage() {
 
                           setSavedCharts((current) => [...current, data]);
                         }}
+                        onExport={() => {
+                          alert("Export is coming soon.");
+                        }}
                         onDelete={async (chartId) => {
                           const confirmed = window.confirm("Remove this chart from your workspace?");
 
