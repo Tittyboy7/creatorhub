@@ -28,7 +28,11 @@ export default function SortableCompareWidget({
       ref={setNodeRef}
       style={style}
       className={`${isDragging ? "opacity-60" : ""} ${
-        size === "large" ? "md:col-span-2 xl:col-span-2" : ""
+        size === "large"
+          ? "md:col-span-2 xl:col-span-3"
+          : size === "medium"
+          ? "md:col-span-2 xl:col-span-2"
+          : ""
       }`}
     >
       <div

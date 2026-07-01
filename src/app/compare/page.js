@@ -597,7 +597,9 @@ export default function ComparePage() {
                 user_id: user.id,
                 ...chartPayload,
                 position: savedCharts.length,
-                size: "large",
+                  size: "medium",
+                  width: 2,
+                  height: 1,
               })
               .select()
               .single();
