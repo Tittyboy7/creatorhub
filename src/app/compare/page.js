@@ -449,59 +449,7 @@ export default function ComparePage() {
                         current.filter((savedChart) => savedChart.id !== chartId)
                       );
                     }}
-                    onResize={async (chartId, size) => {
-                      const { error } = await supabase
-                        .from("compare_charts")
-                        .update({
-                          size,
-                          updated_at: new Date().toISOString(),
-                        })
-                        .eq("id", chartId);
-
-                      if (error) {
-                        alert(error.message);
-                        return;
-                      }
-
-                      setSavedCharts((current) =>
-                        current.map((savedChart) =>
-                          savedChart.id === chartId ? { ...savedChart, size } : savedChart
-                        )
-                      );
-                    }}
-
-                    onMoveUp={(chartId) => {
-                      setSavedCharts((current) => {
-                        const index = current.findIndex((chart) => chart.id === chartId);
-
-                        if (index <= 0) return current;
-
-                        const updated = [...current];
-                        [updated[index - 1], updated[index]] = [
-                          updated[index],
-                          updated[index - 1],
-                        ];
-
-                        return updated;
-                      });
-                    }}
-
-                    onMoveDown={(chartId) => {
-                      setSavedCharts((current) => {
-                        const index = current.findIndex((chart) => chart.id === chartId);
-
-                        if (index === -1 || index >= current.length - 1) return current;
-
-                        const updated = [...current];
-                        [updated[index], updated[index + 1]] = [
-                          updated[index + 1],
-                          updated[index],
-                        ];
-
-                        return updated;
-                      });
-                    }}
-                        />
+                    />
                       </SortableCompareWidget>
                     ))}
                   </div>

@@ -85,7 +85,12 @@ export default function SavedCompareChart({
           </p>
         </div>
       ) : (
-        <div className="h-72 rounded-3xl border border-zinc-800 bg-zinc-950/70 p-4">
+        <div
+          className="rounded-3xl border border-zinc-800 bg-zinc-950/70 p-4"
+          style={{
+            height: `${Number(chart.height || 1) * 18}rem`,
+          }}
+        >
           <VisualizationComponent
             chart={chart}
             data={data}
