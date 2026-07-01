@@ -406,6 +406,30 @@ export default function ComparePage() {
                           const chart = savedCharts.find((item) => item.id === chartId);
                           setFocusedChart(chart || null);
                         }}
+                        onEdit={(chartId) => {
+                          const chart = savedCharts.find((item) => item.id === chartId);
+                          setEditingChart(chart || null);
+                          setShowAddChartModal(true);
+                        }}
+                        onDelete={async (chartId) => {
+                          const confirmed = window.confirm("Remove this chart from your workspace?");
+
+                          if (!confirmed) return;
+
+                          const { error } = await supabase
+                            .from("compare_charts")
+                            .delete()
+                            .eq("id", chartId);
+
+                          if (error) {
+                            alert(error.message);
+                            return;
+                          }
+
+                          setSavedCharts((current) =>
+                            current.filter((savedChart) => savedChart.id !== chartId)
+                          );
+                        }}
                         onResize={async (chartId, layout) => {
                           const { error } = await supabase
                             .from("compare_charts")
