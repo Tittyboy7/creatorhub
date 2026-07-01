@@ -1,24 +1,29 @@
 export function buildCompareXAxisSettings({ chart, data = [] } = {}) {
   const isMonthChart = chart?.compare_by === "month";
-  const isSmallChart = chart?.size === "small";
-  const isMediumChart = chart?.size === "medium";
+  const width = Number(chart?.width || 1);
 
   const interval = isMonthChart
-    ? isSmallChart
-      ? 0
-      : isMediumChart
-      ? 3
-      : 1
-    : isSmallChart
-    ? "preserveStartEnd"
-    : isMediumChart
-    ? "preserveStartEnd"
-    : 0;
+    ? width >= 3
+      ? 1
+      : width === 2
+      ? 2
+      : 3
+    : width >= 3
+    ? 0
+    : "preserveStartEnd";
 
   function formatTick(value, index) {
-    if (isMonthChart && isSmallChart) {
+    if (isMonthChart && width === 1) {
+      return index % 4 === 0 ? value : "";
+    }
+
+    if (!isMonthChart && width === 1) {
       if (index === 0 || index === data.length - 1) return value;
       return "";
+    }
+
+    if (!isMonthChart && width === 2) {
+      return index % 2 === 0 ? value : "";
     }
 
     return value;

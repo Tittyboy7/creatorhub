@@ -34,7 +34,7 @@ export default function CompareLineChart({
           interval={xAxisInterval}
           minTickGap={24}
           tickFormatter={formatXAxisTick}
-          tick={{ fontSize: chart.size === "small" ? 10 : 12 }}
+          tick={{ fontSize: Number(chart.width || 1) === 1 ? 10 : 12 }}
           axisLine={false}
           tickLine={false}
         />
