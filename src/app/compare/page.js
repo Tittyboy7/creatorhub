@@ -394,7 +394,7 @@ export default function ComparePage() {
                         id={chart.id}
                         title={formatCompareChartTitle(chart)}
                         subtitle={formatCompareChartSubtitle(chart)}
-                        size={chart.size}
+                        size={chart.width || 1}
                         onResize={async (chartId, size) => {
                           const { error } = await supabase
                             .from("compare_charts")
