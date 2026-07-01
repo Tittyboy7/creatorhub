@@ -411,6 +411,38 @@ export default function ComparePage() {
                           setEditingChart(chart || null);
                           setShowAddChartModal(true);
                         }}
+                        onDuplicate={async (chartId) => {
+                          const chartToDuplicate = savedCharts.find((item) => item.id === chartId);
+
+                          if (!chartToDuplicate) return;
+
+                          const {
+                            data: { user },
+                          } = await supabase.auth.getUser();
+
+                          if (!user) return;
+
+                          const { id, created_at, updated_at, ...chartCopy } = chartToDuplicate;
+
+                          const { data, error } = await supabase
+                            .from("compare_charts")
+                            .insert({
+                              ...chartCopy,
+                              user_id: user.id,
+                              title: `${chartToDuplicate.title} Copy`,
+                              position: savedCharts.length,
+                              updated_at: new Date().toISOString(),
+                            })
+                            .select()
+                            .single();
+
+                          if (error) {
+                            alert(error.message);
+                            return;
+                          }
+
+                          setSavedCharts((current) => [...current, data]);
+                        }}
                         onDelete={async (chartId) => {
                           const confirmed = window.confirm("Remove this chart from your workspace?");
 
