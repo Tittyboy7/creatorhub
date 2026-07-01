@@ -97,15 +97,20 @@ export default function AddChartModal({
 
           <button
             type="button"
-            onClick={() =>
+            onClick={() => {
+              if (selectedPlatforms.length === 0) {
+                alert("Please select at least one platform for this widget.");
+                return;
+              }
+
               onAddChart({
                 metric,
                 chartType,
                 compareBy,
                 timePeriod,
                 selectedPlatforms,
-              })
-            }
+              });
+            }}
             className="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-zinc-200"
           >
             {editingChart ? "Save Changes" : "Add Widget"}
