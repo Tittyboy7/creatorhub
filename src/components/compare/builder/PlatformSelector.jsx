@@ -20,6 +20,24 @@ export default function PlatformSelector({
       title="5. Which platforms should be included?"
       description="Choose the platforms this widget should display. Leave all selected for a complete comparison."
     >
+    <div className="mb-3 flex gap-2">
+      <button
+        type="button"
+        onClick={() => setSelectedPlatforms(platforms)}
+        className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 hover:bg-zinc-800"
+      >
+        Select all
+      </button>
+
+      <button
+        type="button"
+        onClick={() => setSelectedPlatforms([])}
+        className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-300 hover:bg-zinc-800"
+      >
+        Clear all
+      </button>
+    </div>
+
       <div className="grid grid-cols-2 gap-3">
         {platforms.map((platform) => {
           const selected = selectedPlatforms.includes(platform);
