@@ -395,13 +395,13 @@ export default function ComparePage() {
                         title={formatCompareChartTitle(chart)}
                         subtitle={formatCompareChartSubtitle(chart)}
                         size={chart.width || 1}
-                        onResize={async (chartId, size) => {
+                        onResize={async (chartId, width) => {
                           const { error } = await supabase
                             .from("compare_charts")
                             .update({
-                              size,
+                              width,
                               updated_at: new Date().toISOString(),
-                            })
+                              })
                             .eq("id", chartId);
 
                           if (error) {
@@ -411,7 +411,7 @@ export default function ComparePage() {
 
                           setSavedCharts((current) =>
                             current.map((savedChart) =>
-                              savedChart.id === chartId ? { ...savedChart, size } : savedChart
+                              savedChart.id === chartId ? { ...savedChart, width } : savedChart
                             )
                           );
                         }}

@@ -53,7 +53,16 @@ export default function SortableCompareWidget({
         </span>
       </div>
 
-      {children}
+      <div className="relative">
+        {children}
+
+        <button
+          type="button"
+          onClick={() => onResize?.(id, Math.min(Number(size || 1) + 1, 3))}
+          className="absolute bottom-3 right-3 h-5 w-5 rounded-br-2xl border-b-2 border-r-2 border-zinc-500 hover:border-white"
+          aria-label="Resize widget"
+        />
+      </div>
     </div>
   );
 }
