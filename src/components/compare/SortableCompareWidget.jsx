@@ -7,6 +7,7 @@ export default function SortableCompareWidget({
   subtitle,
   size,
   onResize,
+  onFocus,
   children,
 }) {
   const {
@@ -48,9 +49,25 @@ export default function SortableCompareWidget({
           )}
         </div>
 
-        <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-500">
-          Drag
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onPointerDown={(event) => {
+              event.stopPropagation();
+            }}
+            onClick={(event) => {
+              event.stopPropagation();
+              onFocus?.(id);
+            }}
+            className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-400 hover:bg-zinc-800 hover:text-white"
+          >
+            Focus
+          </button>
+
+          <span className="rounded-full border border-zinc-700 px-3 py-1 text-xs font-semibold text-zinc-500">
+            Drag
+          </span>
+        </div>
       </div>
 
       <div className="relative">
