@@ -21,7 +21,10 @@ const selectedPayload = activeSeriesKey
 
   const value = selectedPayload.value;
   const labelPrefix = chart.compare_by === "month" ? "Month" : "Platform";
-  const metricLabel = selectedPayload.name || chart.metric;
+  const metricLabel =
+    chart.chart_type === "line" && selectedPayload.name
+      ? selectedPayload.name
+      : chart.metric;
 
   return (
     <div className="rounded-2xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm shadow-2xl shadow-black/40">
@@ -30,7 +33,7 @@ const selectedPayload = activeSeriesKey
       </p>
 
       <p className="mt-1 text-zinc-400 capitalize">
-        {metricLabel}:{" "}
+        <span className="capitalize">{metricLabel}</span>:{" "}
         <span className="font-semibold text-white">
           {formatExactChartValue(value)}
         </span>

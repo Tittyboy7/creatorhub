@@ -3,9 +3,16 @@ import { formatChartPeriod } from "@/lib/formatChartPeriod";
 export function buildSavedCompareChartData({ chart, metrics = [] } = {}) {
   if (!chart) return [];
 
-  const matchingMetrics = metrics.filter(
-    (metric) => metric.metric === chart.metric
-  );
+  const selectedPlatforms = chart.config?.platforms || [];
+
+  const matchingMetrics = metrics.filter((metric) => {
+    const metricMatches = metric.metric === chart.metric;
+    const platformMatches =
+      selectedPlatforms.length === 0 ||
+      selectedPlatforms.includes(metric.platform);
+
+    return metricMatches && platformMatches;
+  });
 
   const groupKey = chart.compare_by === "month" ? "period" : "platform";
 

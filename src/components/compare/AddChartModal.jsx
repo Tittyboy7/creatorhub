@@ -12,7 +12,12 @@ import WidgetBuilder from "@/components/compare/builder/WidgetBuilder";
     return visualizationRules[compareBy] || ["bar"];
   }
 
-export default function AddChartModal({ onClose, onAddChart, editingChart }) {
+export default function AddChartModal({
+  onClose,
+  onAddChart,
+  editingChart,
+  platforms = [],
+}) {
   const [metric, setMetric] = useState(editingChart?.metric || "revenue");
   const [chartType, setChartType] = useState(editingChart?.chart_type || "bar");
   const [compareBy, setCompareBy] = useState(
@@ -20,6 +25,9 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
   );
   const [timePeriod, setTimePeriod] = useState(
     editingChart?.time_period || "all"
+  );
+  const [selectedPlatforms, setSelectedPlatforms] = useState(
+    editingChart?.config?.platforms || platforms
   );
 
   const validChartTypes = getValidChartTypes(compareBy);
@@ -73,6 +81,9 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
           validChartTypes={validChartTypes}
           timePeriod={timePeriod}
           setTimePeriod={setTimePeriod}
+          platforms={platforms}
+          selectedPlatforms={selectedPlatforms}
+          setSelectedPlatforms={setSelectedPlatforms}
         />
 
         <div className="mt-6 flex justify-end gap-3">
@@ -92,6 +103,7 @@ export default function AddChartModal({ onClose, onAddChart, editingChart }) {
                 chartType,
                 compareBy,
                 timePeriod,
+                selectedPlatforms,
               })
             }
             className="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-black hover:bg-zinc-200"

@@ -3,6 +3,7 @@ import CompareBySelector from "./CompareBySelector";
 import VisualizationSelector from "./VisualizationSelector";
 import TimeRangeSelector from "./TimeRangeSelector";
 import WidgetPreviewPanel from "./WidgetPreviewPanel";
+import PlatformSelector from "./PlatformSelector";
 
 export default function WidgetBuilder({
   metric,
@@ -14,7 +15,11 @@ export default function WidgetBuilder({
   validChartTypes,
   timePeriod,
   setTimePeriod,
+  platforms,
+  selectedPlatforms,
+  setSelectedPlatforms,
 }) {
+
   return (
     <div className="mt-6 grid max-h-[62vh] gap-4 overflow-y-auto pr-1">
       <MetricSelector
@@ -36,6 +41,12 @@ export default function WidgetBuilder({
       <TimeRangeSelector
         timePeriod={timePeriod}
         setTimePeriod={setTimePeriod}
+      />
+
+      <PlatformSelector
+        platforms={platforms}
+        selectedPlatforms={selectedPlatforms}
+        setSelectedPlatforms={setSelectedPlatforms}
       />
 
       <WidgetPreviewPanel

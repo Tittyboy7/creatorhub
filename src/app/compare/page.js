@@ -5,7 +5,10 @@ import ComparisonSidebar from "@/components/compare/ComparisonSidebar";
 import AddChartModal from "@/components/compare/AddChartModal";
 import SavedCompareChart from "@/components/compare/SavedCompareChart";
 import { buildSavedCompareChartData } from "@/lib/business/buildSavedCompareChartData";
-
+import {
+  getCanonicalPlatforms,
+  normalizePlatformName,
+} from "@/lib/compare/platformRegistry";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -207,9 +210,9 @@ export default function ComparePage() {
     selectedTimePeriod,
   }); 
 
-  const platforms = [
-    ...new Set(filteredComparisonMetrics.map((metric) => metric.platform)),
-  ];
+  const platforms = getCanonicalPlatforms(
+    filteredComparisonMetrics.map((metric) => metric.platform)
+  );
 
   const metricTypes = [
     ...new Set(filteredComparisonMetrics.map((metric) => metric.metric)),
@@ -218,7 +221,8 @@ export default function ComparePage() {
   const metricsByPlatform = platforms.map((platform) => ({
     platform,
     metrics: filteredComparisonMetrics.filter(
-      (metric) => metric.platform === platform
+      (metric) =>
+        normalizePlatformName(metric.platform) === platform
     ),
   }));
 
@@ -396,28 +400,28 @@ export default function ComparePage() {
                         subtitle={formatCompareChartSubtitle(chart)}
                         size={chart.width || 1}
                         onResize={async (chartId, layout) => {
-  const { error } = await supabase
-    .from("compare_charts")
-    .update({
-      width: layout.width,
-      height: layout.height,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", chartId);
+                          const { error } = await supabase
+                            .from("compare_charts")
+                            .update({
+                              width: layout.width,
+                              height: layout.height,
+                              updated_at: new Date().toISOString(),
+                            })
+                            .eq("id", chartId);
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
+                          if (error) {
+                            alert(error.message);
+                            return;
+                          }
 
-  setSavedCharts((current) =>
-    current.map((savedChart) =>
-      savedChart.id === chartId
-        ? { ...savedChart, width: layout.width, height: layout.height }
-        : savedChart
-    )
-  );
-}}
+                          setSavedCharts((current) =>
+                            current.map((savedChart) =>
+                              savedChart.id === chartId
+                                ? { ...savedChart, width: layout.width, height: layout.height }
+                                : savedChart
+                            )
+                          );
+                        }}
                       >
                   <SavedCompareChart
                     key={chart.id}
@@ -489,6 +493,7 @@ export default function ComparePage() {
       {showAddChartModal && (
         <AddChartModal
           editingChart={editingChart}
+          platforms={platforms}
           onClose={() => {
             setEditingChart(null);
             setShowAddChartModal(false);
@@ -514,6 +519,7 @@ export default function ComparePage() {
                 compareBy: chart.compareBy,
                 visualization: chart.chartType,
                 timePeriod: chart.timePeriod,
+                platforms: chart.selectedPlatforms || [],
               },
               updated_at: new Date().toISOString(),
             };

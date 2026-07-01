@@ -4,10 +4,15 @@ function formatMonthLabel(month = "") {
   const [year, monthNumber] = month.split("-");
   const date = new Date(Number(year), Number(monthNumber) - 1, 1);
 
-  return date.toLocaleString("en-US", {
+  const shortMonth = date.toLocaleString("en-US", {
     month: "short",
+  });
+
+  const shortYear = date.toLocaleString("en-US", {
     year: "2-digit",
   });
+
+  return `${shortMonth} '${shortYear}`;
 }
 
 export function buildCompareSeriesData({ chart, metrics = [] } = {}) {
