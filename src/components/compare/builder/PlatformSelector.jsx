@@ -15,6 +15,16 @@ export default function PlatformSelector({
     });
   }
 
+    const sortedPlatforms = [...platforms].sort((a, b) => {
+      const aSelected = selectedPlatforms.includes(a);
+      const bSelected = selectedPlatforms.includes(b);
+
+      if (aSelected && !bSelected) return -1;
+      if (!aSelected && bSelected) return 1;
+
+      return a.localeCompare(b);
+    });
+
   return (
     <BuilderSection
       title="5. Which platforms should be included?"
@@ -39,7 +49,7 @@ export default function PlatformSelector({
     </div>
 
       <div className="grid grid-cols-2 gap-3">
-        {platforms.map((platform) => {
+        {sortedPlatforms.map((platform) => {
           const selected = selectedPlatforms.includes(platform);
 
           return (
