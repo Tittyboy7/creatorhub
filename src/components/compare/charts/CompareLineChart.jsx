@@ -20,9 +20,11 @@ export default function CompareLineChart({
   xAxisInterval,
 }) {
   const chartData = seriesData?.data?.length ? seriesData.data : data;
-  const series = seriesData?.series?.length
+  const allSeries = seriesData?.series?.length
     ? seriesData.series
     : [{ key: "value", label: chart.metric }];
+
+  const series = allSeries.slice(0, 6);
 
   const [activeSeriesKey, setActiveSeriesKey] = useState(null);
 
@@ -50,7 +52,7 @@ export default function CompareLineChart({
           content={<CustomTooltip activeSeriesKey={activeSeriesKey} />}
         />
 
-        {chart.size !== "small" && (
+        {Number(chart.width || 1) >= 2 && (
           <Legend
             verticalAlign="top"
             align="left"
