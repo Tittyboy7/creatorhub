@@ -58,12 +58,16 @@ export default function SortableCompareWidget({
 
         <button
           type="button"
-          onClick={() => {
-            const currentWidth = Number(size || 1);
-            const nextWidth = currentWidth >= 3 ? 1 : currentWidth + 1;
+         onClick={() => {
+          const currentWidth = Number(size || 1);
+          const nextWidth = currentWidth >= 3 ? 1 : currentWidth + 1;
+          const nextHeight = nextWidth === 3 ? 2 : 1;
 
-            onResize?.(id, nextWidth);
-          }}
+          onResize?.(id, {
+            width: nextWidth,
+            height: nextHeight,
+          });
+        }}
           className="absolute bottom-3 right-3 h-5 w-5 rounded-br-2xl border-b-2 border-r-2 border-zinc-500 hover:border-white"
           aria-label="Resize widget"
         />

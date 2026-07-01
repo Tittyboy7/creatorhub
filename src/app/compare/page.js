@@ -395,26 +395,29 @@ export default function ComparePage() {
                         title={formatCompareChartTitle(chart)}
                         subtitle={formatCompareChartSubtitle(chart)}
                         size={chart.width || 1}
-                        onResize={async (chartId, width) => {
-                          const { error } = await supabase
-                            .from("compare_charts")
-                            .update({
-                              width,
-                              updated_at: new Date().toISOString(),
-                              })
-                            .eq("id", chartId);
+                        onResize={async (chartId, layout) => {
+  const { error } = await supabase
+    .from("compare_charts")
+    .update({
+      width: layout.width,
+      height: layout.height,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", chartId);
 
-                          if (error) {
-                            alert(error.message);
-                            return;
-                          }
+  if (error) {
+    alert(error.message);
+    return;
+  }
 
-                          setSavedCharts((current) =>
-                            current.map((savedChart) =>
-                              savedChart.id === chartId ? { ...savedChart, width } : savedChart
-                            )
-                          );
-                        }}
+  setSavedCharts((current) =>
+    current.map((savedChart) =>
+      savedChart.id === chartId
+        ? { ...savedChart, width: layout.width, height: layout.height }
+        : savedChart
+    )
+  );
+}}
                       >
                   <SavedCompareChart
                     key={chart.id}
