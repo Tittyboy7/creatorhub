@@ -566,7 +566,6 @@ export default function ComparePage() {
           })}
           metrics={comparisonMetrics}
           onEdit={(chart) => {
-            setFocusedChart(null);
             setEditingChart(chart);
             setShowAddChartModal(true);
           }}
@@ -645,6 +644,10 @@ export default function ComparePage() {
                 current.map((savedChart) =>
                   savedChart.id === editingChart.id ? data : savedChart
                 )
+              );
+
+              setFocusedChart((current) =>
+                current?.id === editingChart.id ? data : current
               );
 
               setEditingChart(null);
