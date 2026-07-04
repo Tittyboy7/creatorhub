@@ -5,6 +5,8 @@ function formatValue(value = "") {
 export default function WidgetDetailsPanel({ chart }) {
   const platforms = chart?.config?.platforms || [];
 
+  const timePeriod = chart?.time_period || chart?.config?.timePeriod || "all";
+
   return (
     <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-5">
       <h3 className="text-lg font-bold text-white">Widget Details</h3>
@@ -23,6 +25,11 @@ export default function WidgetDetailsPanel({ chart }) {
         <div>
           <p className="text-xs uppercase tracking-wide text-zinc-500">Chart type</p>
           <p className="mt-1 capitalize text-white">{formatValue(chart.chart_type)}</p>
+        </div>
+
+        <div>
+          <p className="text-xs uppercase tracking-wide text-zinc-500">Time range</p>
+          <p className="mt-1 capitalize text-white">{formatValue(timePeriod)}</p>
         </div>
 
         <div>

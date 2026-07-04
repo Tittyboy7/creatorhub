@@ -1,5 +1,5 @@
 import SavedCompareChart from "./SavedCompareChart";
-import AIInsightsPanel from "./focus/AIInsightsPanel";
+import WidgetSnapshotPanel from "./focus/WidgetSnapshotPanel";
 import WidgetDetailsPanel from "./focus/WidgetDetailsPanel";
 import WidgetActionsPanel from "./focus/WidgetActionsPanel";
 
@@ -37,7 +37,16 @@ export default function FocusedCompareWidget({
           />
 
           <div className="grid gap-6 lg:grid-cols-3">
-            <AIInsightsPanel />
+            <WidgetSnapshotPanel
+              widget={chart}
+              data={data}
+              filters={{
+                platform: chart?.platform || chart?.config?.platform || "all",
+                metric: chart?.metric || chart?.config?.metric || "revenue",
+                visualization:
+                  chart?.visualization || chart?.config?.visualization || "chart",
+              }}
+            />
 
             <WidgetDetailsPanel chart={chart} />
 
