@@ -6,7 +6,7 @@ import AIInsightCard from "@/components/ui/AIInsightCard";
 import {
   getAIDebugInfo,
   getAIProviderLabel,
-  runRevenueAnalysisSkill,
+  runWidgetSnapshotSkill,
 } from "@/lib/ai";
 
 export default function AIInsightsPanel({
@@ -34,7 +34,7 @@ export default function AIInsightsPanel({
       setLoading(true);
 
       try {
-        const result = await runRevenueAnalysisSkill({
+        const result = await runWidgetSnapshotSkill({
           creator,
           widget,
           data: safeData,

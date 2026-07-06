@@ -16,6 +16,8 @@ import CreatorBusinessScoreSection from "@/components/revenue/CreatorBusinessSco
 import DashboardSection from "@/components/revenue/DashboardSection";
 import RevenueDailyBrief from "@/components/revenue/RevenueDailyBrief";
 import BusinessInsightsSection from "@/components/revenue/BusinessInsightsSection";
+import RevenueControlPanel from "@/components/revenue/RevenueControlPanel";
+import ExpandableSection from "@/components/ui/ExpandableSection";
 
 import { useRevenueStats } from "@/hooks/useRevenueStats";
 import { useRevenueData } from "@/hooks/useRevenueData";
@@ -222,14 +224,25 @@ export default function RevenuePage() {
           </Link>
         </div>
 
-        <RevenueDailyBrief
-          totalRevenue={totalRevenue}
-          thisMonthRevenue={thisMonthRevenue}
-          monthlyGrowthPercent={monthlyGrowthPercent}
-          bestPlatform={bestPlatform}
-          topPlatformPercent={topPlatformPercent}
-          upcomingPayouts={upcomingPayouts}
-        />
+        <section className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+          <RevenueDailyBrief
+            totalRevenue={totalRevenue}
+            thisMonthRevenue={thisMonthRevenue}
+            monthlyGrowthPercent={monthlyGrowthPercent}
+            bestPlatform={bestPlatform}
+            topPlatformPercent={topPlatformPercent}
+            upcomingPayouts={upcomingPayouts}
+          />
+
+          <RevenueControlPanel
+            totalRevenue={totalRevenue}
+            thisMonthRevenue={thisMonthRevenue}
+            bestPlatform={bestPlatform}
+            monthlyGrowthPercent={monthlyGrowthPercent}
+            connectedPlatformCount={connectedPlatformCount}
+            syncedEntriesCount={syncedEntriesCount}
+          />
+        </section>
 
         <DashboardSection
           title="Today's Focus"
@@ -244,12 +257,14 @@ export default function RevenuePage() {
           />
         </DashboardSection>
 
+      {false && (
         <RevenueExecutiveSummary
           totalRevenue={totalRevenue}
           thisMonthRevenue={thisMonthRevenue}
           projectedNextMonthRevenue={projectedNextMonthRevenue}
           monthlyGrowthPercent={monthlyGrowthPercent}
         />
+      )}
 
         {false && (
          <BusinessInsightsSection insights={businessInsights} />
@@ -261,6 +276,7 @@ export default function RevenuePage() {
             icon={PieChart}
             description="See where your creator income is coming from."
             tooltip="Shows how your tracked revenue is split across platforms."
+            defaultOpen={false}
           >
             <RevenueMixSection
               platformChartData={platformChartData}
@@ -275,6 +291,7 @@ export default function RevenuePage() {
             icon={Trophy}
             description="See what is contributing most to your creator business."
             tooltip="Highlights the platforms, categories, and entries contributing the most tracked revenue."
+            defaultOpen={false}
           >
             <TopRevenueDriversSection
               platformChartData={platformChartData}
@@ -362,17 +379,25 @@ export default function RevenuePage() {
           </section>
           )}
 
-          {visibleWidgets.revenueEvents && (
-            <RevenueEventsSection events={revenueEvents} />
-          )}
+          <ExpandableSection
+            title="Supporting Evidence"
+            description="Open this when you want to review the detailed records behind your revenue intelligence."
+            defaultOpen={false}
+          >
+            <div className="space-y-5">
+              {visibleWidgets.revenueEvents && (
+                <RevenueEventsSection events={revenueEvents} />
+              )}
 
-          {visibleWidgets.revenueTimeline && (
-            <RevenueTimeline
-              filteredEntries={filteredEntries}
-              entriesByMonth={entriesByMonth}
-              handleDeleteEntry={handleDeleteEntry}
-            />
-          )}
+              {visibleWidgets.revenueTimeline && (
+                <RevenueTimeline
+                  filteredEntries={filteredEntries}
+                  entriesByMonth={entriesByMonth}
+                  handleDeleteEntry={handleDeleteEntry}
+                />
+              )}
+            </div>
+          </ExpandableSection>
         </div>
       </div>
     );

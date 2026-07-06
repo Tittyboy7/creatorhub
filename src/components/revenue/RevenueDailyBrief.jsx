@@ -17,14 +17,14 @@ export default function RevenueDailyBrief({
   const nextPayout = upcomingPayouts?.[0];
 
   return (
-    <section className="overflow-hidden rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6 md:p-8">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+    <section className="overflow-hidden rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6">
+      <div className="flex flex-col gap-6">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
             Daily Brief
           </p>
 
-          <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">
+          <h1 className="mt-3 max-w-3xl text-4xl font-black tracking-tight md:text-5xl">
             Revenue is {formatGrowth(monthlyGrowthPercent)} this month.
           </h1>
 

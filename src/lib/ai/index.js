@@ -53,3 +53,7 @@ export { buildRevenueAnalysis } from "./skills/buildRevenueAnalysis";
 export { AI_PRIORITIES } from "./types/priorityTypes";
 
 export { buildCreatorBusinessBrief } from "./brain/buildCreatorBusinessBrief";
+
+export { runWidgetSnapshotSkill } from "./skills/widgetSnapshotSkill";
+
+export { buildWidgetSnapshotAnalysis } from "./skills/buildWidgetSnapshotAnalysis";

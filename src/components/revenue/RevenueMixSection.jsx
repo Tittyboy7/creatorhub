@@ -1,5 +1,7 @@
 "use client";
 
+import SummaryList from "@/components/ui/SummaryList";
+
 import {
   Cell,
   Pie,
@@ -15,9 +17,9 @@ export default function RevenueMixSection({
   totalRevenue,
   chartColors = [],
 }) {
-  const visiblePlatformData = platformChartData.filter(
-    (platform) => Number(platform.revenue || 0) > 0
-  );
+  const visiblePlatformData = platformChartData
+    .filter((platform) => Number(platform.revenue || 0) > 0)
+    .sort((a, b) => Number(b.revenue || 0) - Number(a.revenue || 0));
 
   const visibleTotalRevenue = visiblePlatformData.reduce(
     (sum, platform) => sum + Number(platform.revenue || 0),
@@ -69,16 +71,20 @@ export default function RevenueMixSection({
             </ResponsiveContainer>
           </div>
 
-          <div className="space-y-3">
-            {visiblePlatformData.map((platform, index) => {
+          <SummaryList
+            items={visiblePlatformData}
+            initialVisibleCount={3}
+            getKey={(platform) => platform.platform}
+            expandLabel="Show more revenue sources"
+            collapseLabel="Show fewer revenue sources"
+            renderItem={(platform, index) => {
               const percent = Math.round(
                 (Number(platform.revenue || 0) / visibleTotalRevenue) * 100
               );
 
               return (
                 <div
-                  key={platform.platform}
-                  className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4"
+                  className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3"
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
@@ -99,14 +105,14 @@ export default function RevenueMixSection({
                       </div>
                     </div>
 
-                    <p className="text-lg font-bold">
+                    <p className="shrink-0 text-sm font-bold">
                       {formatCurrency(platform.revenue)}
                     </p>
                   </div>
                 </div>
               );
-            })}
-          </div>
+            }}
+          />
         </div>
       )}
     </section>
