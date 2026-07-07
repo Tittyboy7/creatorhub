@@ -7,17 +7,15 @@ import RevenueEventsSection from "@/components/revenue/RevenueEventsSection";
 import RevenueTimeline from "@/components/revenue/RevenueTimeline";
 import RevenueSidebar from "@/components/revenue/RevenueSidebar";
 import RevenueMainContent from "@/components/revenue/RevenueMainContent";
-import RevenueExecutiveSummary from "@/components/revenue/RevenueExecutiveSummary";
 import RevenueMixSection from "@/components/revenue/RevenueMixSection";
 import TopRevenueDriversSection from "@/components/revenue/TopRevenueDriversSection";
 import UpcomingPayoutsSection from "@/components/revenue/UpcomingPayoutsSection";
 import RevenueOpportunitiesSection from "@/components/revenue/RevenueOpportunitiesSection";
 import CreatorBusinessScoreSection from "@/components/revenue/CreatorBusinessScoreSection";
 import DashboardSection from "@/components/revenue/DashboardSection";
-import RevenueDailyBrief from "@/components/revenue/RevenueDailyBrief";
 import BusinessInsightsSection from "@/components/revenue/BusinessInsightsSection";
-import RevenueControlPanel from "@/components/revenue/RevenueControlPanel";
 import ExpandableSection from "@/components/ui/ExpandableSection";
+import RevenueTodaySection from "@/components/revenue/today/RevenueTodaySection";
 
 import { useRevenueStats } from "@/hooks/useRevenueStats";
 import { useRevenueData } from "@/hooks/useRevenueData";
@@ -224,26 +222,17 @@ export default function RevenuePage() {
           </Link>
         </div>
 
-        <section className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-          <RevenueDailyBrief
-            totalRevenue={totalRevenue}
-            thisMonthRevenue={thisMonthRevenue}
-            monthlyGrowthPercent={monthlyGrowthPercent}
-            bestPlatform={bestPlatform}
-            topPlatformPercent={topPlatformPercent}
-            upcomingPayouts={upcomingPayouts}
-          />
+        <RevenueTodaySection
+          totalRevenue={totalRevenue}
+          thisMonthRevenue={thisMonthRevenue}
+          monthlyGrowthPercent={monthlyGrowthPercent}
+          bestPlatform={bestPlatform}
+          topPlatformPercent={topPlatformPercent}
+          connectedPlatformCount={connectedPlatformCount}
+          syncedEntriesCount={syncedEntriesCount}
+        />
 
-          <RevenueControlPanel
-            totalRevenue={totalRevenue}
-            thisMonthRevenue={thisMonthRevenue}
-            bestPlatform={bestPlatform}
-            monthlyGrowthPercent={monthlyGrowthPercent}
-            connectedPlatformCount={connectedPlatformCount}
-            syncedEntriesCount={syncedEntriesCount}
-          />
-        </section>
-
+      {false&& (
         <DashboardSection
           title="Today's Focus"
           icon={Lightbulb}
@@ -256,6 +245,7 @@ export default function RevenuePage() {
             businessCauses={businessCauses}
           />
         </DashboardSection>
+      )}
 
       {false && (
         <RevenueExecutiveSummary
