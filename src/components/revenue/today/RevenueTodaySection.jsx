@@ -132,9 +132,15 @@ function BriefColumn({ label, children, highlight = false }) {
 
 function BriefItem({ label, detail }) {
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-black/20 px-4 py-3">
-      <p className="text-sm font-semibold text-white">{label}</p>
-      {detail ? <p className="mt-1 text-xs leading-5 text-zinc-500">{detail}</p> : null}
+    <div className="flex gap-3 rounded-2xl border border-zinc-800 bg-black/20 px-4 py-3">
+      <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
+
+<div>
+  <p className="text-sm font-semibold text-white">{label}</p>
+  {detail ? (
+    <p className="mt-1 text-xs leading-5 text-zinc-500">{detail}</p>
+  ) : null}
+</div>
     </div>
   );
 }
