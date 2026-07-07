@@ -16,6 +16,7 @@ import DashboardSection from "@/components/revenue/DashboardSection";
 import BusinessInsightsSection from "@/components/revenue/BusinessInsightsSection";
 import ExpandableSection from "@/components/ui/ExpandableSection";
 import RevenueTodaySection from "@/components/revenue/today/RevenueTodaySection";
+import { buildRevenueBrief } from "@/lib/business/buildRevenueBrief";
 
 import { useRevenueStats } from "@/hooks/useRevenueStats";
 import { useRevenueData } from "@/hooks/useRevenueData";
@@ -50,8 +51,11 @@ export default function RevenuePage() {
 
   const {
     loading,
+    syncing,
+    syncMessage,
     entries,
     connectedAccounts,
+    handleSyncAll,
     handleDeleteEntry,
   } = useRevenueData();
 
@@ -161,6 +165,14 @@ export default function RevenuePage() {
     causes: businessCauses,
   });
 
+  const revenueBrief = buildRevenueBrief({
+    totalRevenue,
+    thisMonthRevenue,
+    monthlyGrowthPercent,
+    bestPlatform,
+    topPlatformPercent,
+  });
+
   const entriesByMonth = groupEntriesByMonth(filteredEntries);
 
   const connectedPlatformCount = connectedAccounts.length;
@@ -223,6 +235,7 @@ export default function RevenuePage() {
         </div>
 
         <RevenueTodaySection
+          brief={revenueBrief}
           totalRevenue={totalRevenue}
           thisMonthRevenue={thisMonthRevenue}
           monthlyGrowthPercent={monthlyGrowthPercent}
@@ -230,6 +243,9 @@ export default function RevenuePage() {
           topPlatformPercent={topPlatformPercent}
           connectedPlatformCount={connectedPlatformCount}
           syncedEntriesCount={syncedEntriesCount}
+          syncing={syncing}
+          onSyncAll={handleSyncAll}
+          syncMessage={syncMessage}
         />
 
       {false&& (

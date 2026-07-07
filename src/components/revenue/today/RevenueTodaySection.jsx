@@ -2,121 +2,126 @@ import { formatCurrency } from "@/lib/formatCurrency";
 
 export default function RevenueTodaySection({
   totalRevenue,
-  thisMonthRevenue,
   monthlyGrowthPercent,
-  bestPlatform,
-  topPlatformPercent,
   connectedPlatformCount,
-  syncedEntriesCount,
+  syncing,
+  onSyncAll,
+  brief,
 }) {
   const growth = Number(monthlyGrowthPercent || 0);
-  const platformName = bestPlatform?.platform || "your top platform";
 
   return (
-    <section className="rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-4 md:p-5">
-      <div className="mb-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <p className="text-sm font-semibold uppercase tracking-wide text-emerald-400">
-            Today&apos;s Revenue Brief
-          </p>
+    <section className="overflow-hidden rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black">
+      <div className="border-b border-zinc-800 px-5 py-4 md:px-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-emerald-400">
+              Revenue Today
+            </p>
 
-          <h2 className="mt-2 text-3xl font-black tracking-tight text-white md:text-4xl">
-            Revenue is {formatGrowth(growth)} this month.
-          </h2>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-white md:text-4xl">
+              {brief?.headline || "Here&apos;s what changed since your last visit."}
+            </h2>
+          </div>
 
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
-            Total tracked revenue is{" "}
-            <span className="font-semibold text-white">
-              {formatCurrency(totalRevenue)}
-            </span>
-            .
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 px-4 py-3">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 px-4 py-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                Data Freshness
+                Data Status
               </p>
+
               <p className="mt-1 text-sm text-zinc-300">
-                {connectedPlatformCount || 0} connected ·{" "}
-                {syncedEntriesCount || 0} synced entries
+                {connectedPlatformCount || 0} connected platforms
               </p>
             </div>
 
             <button
               type="button"
-              className="rounded-2xl bg-white px-4 py-2 text-sm font-bold text-black hover:bg-zinc-200"
+              onClick={onSyncAll}
+              disabled={syncing}
+              className="rounded-2xl bg-white px-5 py-3 text-sm font-bold text-black hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Sync Now
+              {syncing ? "Syncing..." : "Sync Now"}
             </button>
           </div>
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <BriefPanel label="Total Revenue">
+      <div
+        className="grid divide-y divide-zinc-800 md:divide-x md:divide-y-0"
+        style={{
+          gridTemplateColumns: "0.85fr 1.35fr 1fr",
+        }}
+      >
+        <BriefColumn label="Lifetime Revenue">
           <p className="text-4xl font-black tracking-tight text-white md:text-5xl">
             {formatCurrency(totalRevenue)}
           </p>
 
-          <p className={growth >= 0 ? "mt-3 text-sm font-semibold text-emerald-400" : "mt-3 text-sm font-semibold text-red-400"}>
+          <p
+            className={
+              growth >= 0
+                ? "mt-3 text-sm font-semibold text-emerald-400"
+                : "mt-3 text-sm font-semibold text-red-400"
+            }
+          >
             {growth >= 0 ? "▲" : "▼"} {Math.abs(growth)}% this month
           </p>
-        </BriefPanel>
+        </BriefColumn>
 
-        <BriefPanel label="What changed?">
+        <BriefColumn label="Since Your Last Visit">
+          <div className="space-y-3">
+            {(brief?.changes || []).map((change, index) => (
+              <BriefItem
+                key={`${change.type}-${index}`}
+                label={change.title}
+                detail={change.detail}
+              />
+            ))}
+          </div>
+        </BriefColumn>
+
+        <BriefColumn label="Recommended Focus" highlight>
           <h3 className="text-xl font-bold text-white">
-            {formatChangeHeadline(growth)}
-          </h3>
-
-          <p className="mt-3 text-sm leading-6 text-zinc-400">
-            You have tracked{" "}
-            <span className="font-semibold text-white">
-              {formatCurrency(thisMonthRevenue)}
-            </span>{" "}
-            this month. {platformName} is currently your strongest revenue
-            source, contributing about {topPlatformPercent || 0}% of tracked
-            revenue.
-          </p>
-        </BriefPanel>
-
-        <div className="h-full rounded-3xl border border-emerald-500/20 bg-emerald-500/10 p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300">
-            Today&apos;s Priority
-          </p>
-
-          <h3 className="mt-3 text-xl font-bold text-white">
-            {growth >= 0 ? "Find what caused the growth" : "Find where revenue changed"}
+            {brief?.recommendation?.title || "Review your revenue focus"}
           </h3>
 
           <p className="mt-3 text-sm leading-6 text-zinc-300">
-            {growth >= 0
-              ? `${platformName} is leading your tracked revenue. Review the evidence below to identify what is carrying the strongest momentum.`
-              : "Review the evidence below to see which platform or revenue type needs attention first."}
+            {brief?.recommendation?.description ||
+              "Review the evidence below to decide what deserves your attention next."}
           </p>
 
-          <div className="mt-4 rounded-2xl border border-emerald-500/20 bg-black/20 p-4">
+          <div className="mt-4 border-t border-emerald-500/20 pt-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300">
-              Next best step
+              Suggested action
             </p>
 
-            <p className="mt-2 text-sm leading-6 text-zinc-300">
-              Open Revenue Mix or Top Revenue Drivers below to investigate the
-              source of this change.
+            <p className="mt-2 text-sm leading-6 text-emerald-100">
+              Open Revenue Mix or Top Revenue Drivers below to investigate the source of this change.
             </p>
           </div>
-        </div>
+        </BriefColumn>
       </div>
     </section>
   );
 }
 
-function BriefPanel({ label, children }) {
+function BriefColumn({ label, children, highlight = false }) {
   return (
-    <div className="h-full rounded-3xl border border-zinc-800 bg-zinc-950/70 p-5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+    <div
+      className={
+        highlight
+          ? "bg-emerald-500/5 p-5 md:p-6"
+          : "bg-zinc-950/40 p-5 md:p-6"
+      }
+    >
+      <p
+        className={
+          highlight
+            ? "text-xs font-semibold uppercase tracking-wide text-emerald-300"
+            : "text-xs font-semibold uppercase tracking-wide text-zinc-500"
+        }
+      >
         {label}
       </p>
 
@@ -125,14 +130,11 @@ function BriefPanel({ label, children }) {
   );
 }
 
-function formatGrowth(value) {
-  if (value > 0) return `up ${value}%`;
-  if (value < 0) return `down ${Math.abs(value)}%`;
-  return "unchanged";
-}
-
-function formatChangeHeadline(value) {
-  if (value > 0) return "Revenue momentum is positive.";
-  if (value < 0) return "Revenue momentum needs attention.";
-  return "Revenue is holding steady.";
+function BriefItem({ label, detail }) {
+  return (
+    <div className="rounded-2xl border border-zinc-800 bg-black/20 px-4 py-3">
+      <p className="text-sm font-semibold text-white">{label}</p>
+      {detail ? <p className="mt-1 text-xs leading-5 text-zinc-500">{detail}</p> : null}
+    </div>
+  );
 }
