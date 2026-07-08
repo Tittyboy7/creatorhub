@@ -17,6 +17,7 @@ import BusinessInsightsSection from "@/components/revenue/BusinessInsightsSectio
 import ExpandableSection from "@/components/ui/ExpandableSection";
 import RevenueTodaySection from "@/components/revenue/today/RevenueTodaySection";
 import { buildRevenueBrief } from "@/lib/business/buildRevenueBrief";
+import { buildCreatorBusinessBrief } from "@/lib/business/buildCreatorBusinessBrief";
 
 import { useRevenueStats } from "@/hooks/useRevenueStats";
 import { useRevenueData } from "@/hooks/useRevenueData";
@@ -171,6 +172,12 @@ export default function RevenuePage() {
     monthlyGrowthPercent,
     bestPlatform,
     topPlatformPercent,
+  });
+
+  const creatorBusinessBrief = buildCreatorBusinessBrief({
+    businessSignals,
+    businessCauses,
+    revenueBrief,
   });
 
   const entriesByMonth = groupEntriesByMonth(filteredEntries);
