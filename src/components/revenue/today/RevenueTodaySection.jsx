@@ -20,7 +20,7 @@ export default function RevenueTodaySection({
             </p>
 
             <h2 className="mt-2 text-3xl font-black tracking-tight text-white md:text-4xl">
-              {brief?.headline || "Here&apos;s what changed since your last visit."}
+              {brief?.headline || "Here's what changed since your last visit."}
             </h2>
           </div>
 
@@ -76,6 +76,7 @@ export default function RevenueTodaySection({
                 key={`${change.type}-${index}`}
                 label={change.title}
                 detail={change.detail}
+                importance={change.importance}
               />
             ))}
           </div>
@@ -130,17 +131,35 @@ function BriefColumn({ label, children, highlight = false }) {
   );
 }
 
-function BriefItem({ label, detail }) {
+function BriefItem({ label, detail, importance = "medium" }) {
   return (
     <div className="flex gap-3 rounded-2xl border border-zinc-800 bg-black/20 px-4 py-3">
-      <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
+      <span
+        className="mt-1 inline-block h-2.5 w-2.5 min-h-2.5 min-w-2.5 shrink-0 rounded-full"
+        style={{
+          backgroundColor: getImportanceColor(importance),
+          boxShadow: `0 0 10px ${getImportanceGlow(importance)}`,
+        }}
+      />
 
-<div>
-  <p className="text-sm font-semibold text-white">{label}</p>
-  {detail ? (
-    <p className="mt-1 text-xs leading-5 text-zinc-500">{detail}</p>
-  ) : null}
-</div>
+      <div>
+        <p className="text-sm font-semibold text-white">{label}</p>
+        {detail ? (
+          <p className="mt-1 text-xs leading-5 text-zinc-500">{detail}</p>
+        ) : null}
+      </div>
     </div>
   );
+}
+
+function getImportanceColor(importance) {
+  if (importance === "high") return "#34d399";
+  if (importance === "medium") return "#60a5fa";
+  return "#71717a";
+}
+
+function getImportanceGlow(importance) {
+  if (importance === "high") return "rgba(52, 211, 153, 0.7)";
+  if (importance === "medium") return "rgba(96, 165, 250, 0.55)";
+  return "rgba(113, 113, 122, 0.35)";
 }

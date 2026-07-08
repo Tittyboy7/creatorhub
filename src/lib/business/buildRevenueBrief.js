@@ -51,22 +51,36 @@ function buildChanges({
 
   items.push({
     type: "growth",
+    importance: "high",
     title:
-      monthlyGrowthPercent >= 0
+      monthlyGrowthPercent > 0
         ? `Revenue increased ${monthlyGrowthPercent}%`
-        : `Revenue decreased ${Math.abs(monthlyGrowthPercent)}%`,
+        : monthlyGrowthPercent < 0
+        ? `Revenue decreased ${Math.abs(monthlyGrowthPercent)}%`
+        : "Revenue stayed flat",
+    detail:
+      monthlyGrowthPercent > 0
+        ? "Your tracked revenue is trending upward compared with the previous tracked month."
+        : monthlyGrowthPercent < 0
+        ? "Your tracked revenue is below the previous tracked month."
+        : "No major movement compared with the previous tracked month.",
   });
 
   if (bestPlatform) {
     items.push({
       type: "platform",
-      title: `${bestPlatform.platform} remained your strongest revenue source`,
-      detail: `${topPlatformPercent}% of tracked revenue`,
+      importance: "medium",
+      title: `${bestPlatform.platform} is your strongest revenue source`,
+      detail:
+        topPlatformPercent >= 60
+          ? `${topPlatformPercent}% of tracked revenue. This may create platform concentration risk.`
+          : `${topPlatformPercent}% of tracked revenue. Your revenue mix looks reasonably balanced.`,
     });
   }
 
   items.push({
     type: "month",
+    importance: "low",
     title:
       thisMonthRevenue > 0
         ? `${formatCurrency(thisMonthRevenue)} tracked this month`
@@ -86,27 +100,27 @@ function buildRecommendation({
 }) {
   if (monthlyGrowthPercent > 0) {
     return {
-      title: "Investigate the strongest growth driver",
+      title: "Double down carefully",
       description: `${
         bestPlatform?.platform || "Your strongest platform"
-      } appears to be leading your current momentum. Review why that growth happened before planning your next content or campaign.`,
+      } appears to be leading your current momentum. Review what caused the increase, then repeat the strongest pattern without relying on one platform too heavily.`,
     };
   }
 
   if (monthlyGrowthPercent < 0) {
     return {
-      title: "Identify the source of the decline",
+      title: "Find the leak",
       description:
-        "Review your revenue mix and timeline to determine which platform or revenue type changed first.",
+        "Revenue is down, so the priority is to identify where the decline started. Review your revenue mix and timeline before changing your strategy.",
     };
   }
 
   return {
-    title: "Look for your next opportunity",
+    title: "Look for a small growth lever",
     description:
-      "Your revenue is currently stable. Review your highest-performing revenue source and look for one improvement that could compound over time.",
+      "Revenue is stable, which gives you room to improve intentionally. Review your strongest revenue source and choose one small experiment that could increase conversion, retention, or repeat purchases.",
   };
-}
+  }
 
 function formatCurrency(value) {
   return new Intl.NumberFormat("en-US", {
