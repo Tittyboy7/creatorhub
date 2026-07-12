@@ -1,23 +1,101 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+const OAUTH_STATE_COOKIE = "creatorshub_google_oauth_state";
+
+function clearOAuthStateCookie(response) {
+  response.cookies.set(OAUTH_STATE_COOKIE, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  });
+
+  return response;
+}
+
+function createErrorResponse(message, status = 400) {
+  return clearOAuthStateCookie(
+    NextResponse.json(
+      {
+        error: message,
+      },
+      {
+        status,
+      }
+    )
+  );
+}
+
+async function fetchYouTubeChannel(accessToken) {
+  const response = await fetch(
+    "https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&mine=true",
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      cache: "no-store",
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data?.error?.message || "Failed to retrieve the YouTube channel."
+    );
+  }
+
+  const channel = data.items?.[0];
+
+  if (!channel) {
+    throw new Error(
+      "No YouTube channel was found for the connected Google account."
+    );
+  }
+
+  return {
+    channel_id: channel.id,
+    channel_title: channel.snippet?.title || "YouTube",
+    subscriber_count: Number(channel.statistics?.subscriberCount || 0),
+    view_count: Number(channel.statistics?.viewCount || 0),
+    video_count: Number(channel.statistics?.videoCount || 0),
+  };
+}
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
 
   const code = searchParams.get("code");
-  const userId = searchParams.get("state");
+  const returnedState = searchParams.get("state");
+  const providerError = searchParams.get("error");
 
-  if (!code) {
-    return NextResponse.json(
-      { error: "No authorization code received." },
-      { status: 400 }
+  const storedState = request.cookies.get(OAUTH_STATE_COOKIE)?.value;
+
+  if (providerError) {
+    return createErrorResponse(
+      "YouTube authorization was canceled or denied.",
+      400
     );
   }
 
-  if (!userId) {
-    return NextResponse.json(
-      { error: "No user ID received." },
-      { status: 400 }
+  if (!code) {
+    return createErrorResponse(
+      "No authorization code was received from Google.",
+      400
+    );
+  }
+
+  if (
+    !returnedState ||
+    !storedState ||
+    returnedState !== storedState
+  ) {
+    return createErrorResponse(
+      "The YouTube connection request could not be verified. Please try again.",
+      403
     );
   }
 
@@ -26,74 +104,182 @@ export async function GET(request) {
   const redirectUri = process.env.GOOGLE_REDIRECT_URI;
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
-  if (!clientId || !clientSecret || !redirectUri || !supabaseUrl || !serviceRoleKey) {
-    return NextResponse.json(
-      { error: "Missing required environment variables." },
-      { status: 500 }
+  if (
+    !clientId ||
+    !clientSecret ||
+    !redirectUri ||
+    !supabaseUrl ||
+    !serviceRoleKey ||
+    !siteUrl
+  ) {
+    return createErrorResponse(
+      "The YouTube integration is not configured correctly.",
+      500
     );
   }
 
-  const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
+  /*
+   * Determine ownership from the verified Supabase session.
+   * No user ID is accepted from Google state or query parameters.
+   */
+  const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return createErrorResponse(
+      "Your CreatorsHub session expired. Sign in and connect YouTube again.",
+      401
+    );
+  }
+
+  let tokenData;
+
+  try {
+    const tokenResponse = await fetch(
+      "https://oauth2.googleapis.com/token",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          code,
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+          grant_type: "authorization_code",
+        }),
+        cache: "no-store",
+      }
+    );
+
+    tokenData = await tokenResponse.json();
+
+    if (!tokenResponse.ok || !tokenData.access_token) {
+      throw new Error("Google did not return a valid access token.");
+    }
+  } catch (error) {
+    console.error("Google token exchange failed:", error);
+
+    return createErrorResponse(
+      "Google could not complete the YouTube connection. Please try again.",
+      502
+    );
+  }
+
+  let channelStats;
+
+  try {
+    channelStats = await fetchYouTubeChannel(tokenData.access_token);
+  } catch (error) {
+    console.error("YouTube channel lookup failed:", error);
+
+    return createErrorResponse(
+      error.message || "The YouTube channel could not be retrieved.",
+      502
+    );
+  }
+
+  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
     },
-    body: new URLSearchParams({
-      code,
-      client_id: clientId,
-      client_secret: clientSecret,
-      redirect_uri: redirectUri,
-      grant_type: "authorization_code",
-    }),
   });
 
-  const tokenData = await tokenResponse.json();
+  /*
+   * Look up this exact YouTube channel for the authenticated user.
+   * A creator may connect multiple YouTube channels, so platform alone
+   * is not enough to identify the connected account.
+   */
+  const { data: existingAccount, error: existingAccountError } =
+    await supabaseAdmin
+      .from("connected_accounts")
+      .select("id, refresh_token, metadata")
+      .eq("user_id", user.id)
+      .eq("platform", "youtube")
+      .eq("account_id", channelStats.channel_id)
+      .maybeSingle();
 
-  if (!tokenResponse.ok) {
-    return NextResponse.json(
-      {
-        error: "Failed to exchange authorization code.",
-        details: tokenData,
-      },
-      { status: 500 }
+  if (existingAccountError) {
+    console.error(
+      "Failed to inspect existing YouTube account:",
+      existingAccountError
+    );
+
+    return createErrorResponse(
+      "CreatorsHub could not check the existing YouTube connection.",
+      500
     );
   }
 
-  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+  const refreshToken =
+    tokenData.refresh_token || existingAccount?.refresh_token || null;
+
+  if (!refreshToken) {
+    return createErrorResponse(
+      "Google did not provide the long-term access needed to sync YouTube. Remove CreatorsHub from your Google permissions and reconnect.",
+      400
+    );
+  }
 
   const expiresAt = new Date(
     Date.now() + Number(tokenData.expires_in || 3600) * 1000
   ).toISOString();
 
-  const { error } = await supabaseAdmin.from("connected_accounts").upsert(
-    {
-      user_id: userId,
-      platform: "youtube",
-      account_id: "youtube",
-      account_name: "YouTube",
-      access_token: tokenData.access_token,
-      refresh_token: tokenData.refresh_token,
-      expires_at: expiresAt,
-      sync_status: "connected",
-      updated_at: new Date().toISOString(),
+  const accountValues = {
+    user_id: user.id,
+    platform: "youtube",
+    account_id: channelStats.channel_id,
+    account_name: channelStats.channel_title,
+    access_token: tokenData.access_token,
+    refresh_token: refreshToken,
+    expires_at: expiresAt,
+    sync_status: "connected",
+    sync_error: null,
+    metadata: {
+      ...(existingAccount?.metadata || {}),
+      youtube: channelStats,
     },
-    {
-      onConflict: "user_id,platform,account_id",
-    }
-  );
+    updated_at: new Date().toISOString(),
+  };
 
-  if (error) {
-    return NextResponse.json(
-      {
-        error: "Failed to save connected account.",
-        details: error.message,
-      },
-      { status: 500 }
+  let saveError;
+
+  if (existingAccount) {
+    const result = await supabaseAdmin
+      .from("connected_accounts")
+      .update(accountValues)
+      .eq("id", existingAccount.id)
+      .eq("user_id", user.id);
+
+    saveError = result.error;
+  } else {
+    const result = await supabaseAdmin
+      .from("connected_accounts")
+      .insert(accountValues);
+
+    saveError = result.error;
+  }
+
+  if (saveError) {
+    console.error("Failed to save YouTube connection:", saveError);
+
+    return createErrorResponse(
+      "CreatorsHub could not save the YouTube connection.",
+      500
     );
   }
 
-  return NextResponse.redirect(
-    `${process.env.NEXT_PUBLIC_SITE_URL}/connected-accounts`
+  const redirectResponse = NextResponse.redirect(
+    new URL("/connected-accounts", siteUrl)
   );
+
+  return clearOAuthStateCookie(redirectResponse);
 }

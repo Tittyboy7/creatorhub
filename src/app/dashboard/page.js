@@ -12,6 +12,7 @@ import { buildBusinessCauses } from "@/lib/business/buildBusinessCauses";
 import { buildBusinessIntelligence } from "@/lib/business/buildBusinessIntelligence";
 import { buildBusinessMetrics } from "@/lib/business/buildBusinessMetrics";
 import { summarizeBusinessMetrics } from "@/lib/business/summarizeBusinessMetrics";
+import BusinessTodaySection from "@/components/dashboard/today/BusinessTodaySection";
 
 function getNotificationTypeClass(type) {
   if (type === "follow") return "bg-blue-950 text-blue-400";
@@ -367,101 +368,16 @@ export default function DashboardPage() {
           Welcome back, {creator?.display_name || user?.email}
         </p>
 
-        <div className="mt-8 rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black p-6">
-          <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
-                Creator Business Morning Brief
-              </p>
-
-              <h2 className="mt-2 text-4xl font-bold">
-                {formatCurrency(totalRevenue)}
-              </h2>
-
-              <p className="mt-2 text-sm text-zinc-400">
-                Total revenue tracked across all creator income streams.
-              </p>
-
-              <div className="mt-5 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Today's Focus
-                </p>
-
-                <p className="mt-2 text-sm leading-6 text-zinc-300">
-                  {businessIntelligence.summary}
-                </p>
-
-                <p className="mt-3 text-sm leading-6 text-zinc-400">
-                  {businessIntelligence.recommendation}
-                </p>
-              </div>
-
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Link
-                  href="/add-revenue"
-                  className="rounded-2xl bg-white px-5 py-3 font-semibold text-black hover:bg-zinc-200"
-                >
-                  Add Revenue
-                </Link>
-
-                <Link
-                  href="/revenue"
-                  className="rounded-2xl border border-zinc-700 px-5 py-3 hover:bg-zinc-800"
-                >
-                  Review Revenue Intelligence →
-                </Link>
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-zinc-800 bg-zinc-950 p-5">
-              <div className="mb-4 flex items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-xl font-bold">Platform Breakdown</h3>
-                  <p className="mt-1 text-sm text-zinc-500">Revenue by source</p>
-                </div>
-  
-                <Link
-                  href="/revenue"
-                  className="text-sm text-zinc-400 hover:text-white"
-                >
-                  View →
-                </Link>
-              </div>
-
-              {topPlatforms.length === 0 ? (
-               <p className="text-sm text-zinc-400">
-                  Add revenue entries to see your top income sources.
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {topPlatforms.map((platform) => {
-                    const percent =
-                      totalRevenue === 0
-                        ? 0
-                        : Math.round((platform.amount / totalRevenue) * 100);
-
-                    return (
-                      <div key={platform.platform}>
-                        <div className="mb-1 flex items-center justify-between text-sm">
-                          <span className="font-medium">{platform.platform}</span>
-                          <span className="text-zinc-400">
-                            {formatCurrency(platform.amount)}
-                          </span>
-                        </div>
-
-                        <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
-                          <div
-                            className="h-full rounded-full bg-white"
-                            style={{ width: `${percent}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
+        <div className="mt-8">
+          <BusinessTodaySection
+            totalRevenue={totalRevenue}
+            revenueThisMonth={revenueThisMonth}
+            totalFollowers={totalFollowers}
+            productsCount={products.length}
+            notificationsCount={notifications.length}
+            completedSetupCount={completedCount}
+            setupItemCount={checklistItems.length}
+          />
         </div>
       </div>
 

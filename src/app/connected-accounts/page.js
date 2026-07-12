@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { platforms } from "@/lib/platforms";
+import PlatformAccountGroup from "@/components/platforms/accounts/PlatformAccountGroup";
+import AvailablePlatformCard from "@/components/platforms/accounts/AvailablePlatformCard";
 
 function formatDate(value) {
   if (!value) return "Not synced yet";
@@ -16,7 +18,7 @@ export default function ConnectedAccountsPage() {
 
   const [loading, setLoading] = useState(true);
   const [connectedAccounts, setConnectedAccounts] = useState([]);
-  const [syncingPlatform, setSyncingPlatform] = useState("");
+  const [syncingAccountId, setSyncingAccountId] = useState("");
   const [syncMessage, setSyncMessage] = useState("");
   const [syncError, setSyncError] = useState("");
 
@@ -49,39 +51,78 @@ export default function ConnectedAccountsPage() {
     loadConnectedAccounts();
   }, [router]);
 
-  function getAccount(platformKey) {
-    return connectedAccounts.find(
-      (account) => account.platform === platformKey
-    );
-  }
-
-  async function handleSync(platformKey) {
-    const account = getAccount(platformKey);
-
+  async function handleSync(account) {
     if (!account) return;
 
-    setSyncingPlatform(platformKey);
+    const platformKey = account.platform;
+
+    setSyncingAccountId(account.id);
     setSyncMessage("");
     setSyncError("");
 
     try {
-      const response = await fetch(
-        `/api/sync/${platformKey}?user_id=${account.user_id}`
+      const usesSecureAccountSync = ["youtube", "twitch"].includes(
+        platformKey
       );
 
+      const response = usesSecureAccountSync
+        ? await fetch(`/api/sync/${platformKey}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              connectedAccountId: account.id,
+            }),
+          })
+        : await fetch(
+            `/api/sync/${platformKey}?user_id=${account.user_id}`
+          );
+
       const text = await response.text();
-      const data = text ? JSON.parse(text) : {};
+
+      let data = {};
+
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        data = {};
+      }
 
       if (!response.ok) {
-        setSyncError(data.error || "Sync failed.");
+        const accountDisplayName =
+          account.account_name ||
+          account.account_id ||
+          platformKey;
+
+        setSyncError(
+          `${accountDisplayName}: ${data.error || "Sync failed."}`
+        );
         return;
       }
 
-      setSyncMessage(`Sync complete. Imported ${data.imported_rows || 0} rows.`);
+      const warningMessage = Array.isArray(data.warnings)
+        ? data.warnings.join(" ")
+        : "";
+
+      const accountDisplayName =
+        account.account_name ||
+        account.account_id ||
+        platformKey;
+
+      setSyncMessage(
+        [
+          `${accountDisplayName}:`,
+          data.message || "Sync completed successfully.",
+          warningMessage,
+        ]
+          .filter(Boolean)
+          .join(" ")
+      );
 
       setConnectedAccounts((currentAccounts) =>
         currentAccounts.map((currentAccount) =>
-          currentAccount.platform === platformKey
+          currentAccount.id === account.id
             ? {
                 ...currentAccount,
                 last_synced_at: new Date().toISOString(),
@@ -95,13 +136,46 @@ export default function ConnectedAccountsPage() {
     } catch (error) {
       setSyncError(error.message || "Sync failed.");
     } finally {
-      setSyncingPlatform("");
+      setSyncingAccountId("");
     }
   }
 
-  const connectedCount = connectedAccounts.length;
-  const availableCount = platforms.filter((platform) => platform.available).length;
-  const errorCount = connectedAccounts.filter((account) => account.sync_error).length;
+  const connectedAccountCount = connectedAccounts.length;
+
+  const connectedPlatformCount = new Set(
+    connectedAccounts.map((account) => account.platform)
+  ).size;
+
+  const errorCount = connectedAccounts.filter(
+    (account) => account.sync_error
+  ).length;
+
+  const orderedPlatforms = [...platforms].sort((a, b) => {
+    const aAccounts = connectedAccounts.filter(
+      (account) => account.platform === a.key
+    );
+
+    const bAccounts = connectedAccounts.filter(
+      (account) => account.platform === b.key
+    );
+
+    const aHasError = aAccounts.some((account) => account.sync_error);
+    const bHasError = bAccounts.some((account) => account.sync_error);
+
+    if (aHasError !== bHasError) {
+      return aHasError ? -1 : 1;
+    }
+
+    if (aAccounts.length !== bAccounts.length) {
+      return bAccounts.length - aAccounts.length;
+    }
+
+    if (a.available !== b.available) {
+      return a.available ? -1 : 1;
+    }
+
+    return a.name.localeCompare(b.name);
+  });
 
   if (loading) {
     return <p className="text-zinc-400">Loading connected accounts...</p>;
@@ -133,18 +207,21 @@ export default function ConnectedAccountsPage() {
 
           <div className="grid grid-cols-3 gap-3">
             <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-              <p className="text-xs text-zinc-500">Connected</p>
-              <p className="mt-1 text-xl font-bold">{connectedCount}</p>
+              <p className="text-xs text-zinc-500">Accounts</p>
+              <p className="mt-1 text-xl font-bold">{connectedAccountCount}</p>
+              <p className="mt-1 text-xs text-zinc-600">Connected</p>
             </div>
 
             <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-              <p className="text-xs text-zinc-500">Live</p>
-              <p className="mt-1 text-xl font-bold">{availableCount}</p>
+              <p className="text-xs text-zinc-500">Platforms</p>
+              <p className="mt-1 text-xl font-bold">{connectedPlatformCount}</p>
+              <p className="mt-1 text-xs text-zinc-600">In use</p>
             </div>
 
             <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-              <p className="text-xs text-zinc-500">Errors</p>
+              <p className="text-xs text-zinc-500">Attention</p>
               <p className="mt-1 text-xl font-bold">{errorCount}</p>
+              <p className="mt-1 text-xs text-zinc-600">Sync errors</p>
             </div>
           </div>
         </div>
@@ -162,121 +239,83 @@ export default function ConnectedAccountsPage() {
         </div>
       )}
 
-      <section className="grid gap-4 md:grid-cols-2">
-        {platforms.map((platform) => {
-          const account = getAccount(platform.key);
-          const isConnected = Boolean(account);
-          const hasError = Boolean(account?.sync_error);
-          const isSynced = Boolean(account?.last_synced_at);
+      <div className="space-y-6">
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-xl font-bold text-white">
+              Connected Platforms
+            </h2>
 
-          return (
-            <div
-              key={platform.key}
-              className="rounded-3xl border border-zinc-800 bg-zinc-900 p-5"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="text-2xl font-bold">{platform.name}</h2>
+            <p className="mt-1 text-sm text-zinc-500">
+              Manage each connected channel, store, or account independently.
+            </p>
+          </div>
 
-                  <p className="mt-2 text-sm text-zinc-400">
-                    {platform.description}
-                  </p>
-                </div>
+          {connectedPlatformCount > 0 ? (
+            <div className="grid gap-4 xl:grid-cols-2">
+              {orderedPlatforms
+                .filter((platform) =>
+                  connectedAccounts.some(
+                    (account) => account.platform === platform.key
+                  )
+                )
+                .map((platform) => {
+                  const platformAccounts = connectedAccounts.filter(
+                    (account) => account.platform === platform.key
+                  );
 
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                    hasError
-                      ? "bg-red-950 text-red-400"
-                      : isConnected
-                      ? "bg-green-950 text-green-400"
-                      : platform.available
-                      ? "bg-blue-950 text-blue-400"
-                      : "bg-zinc-800 text-zinc-400"
-                  }`}
-                >
-                  {hasError
-                    ? "Error"
-                    : isSynced
-                    ? "Synced"
-                    : isConnected
-                    ? "Connected"
-                    : platform.available
-                    ? "Available"
-                    : "Coming Soon"}
-                </span>
-              </div>
-
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                  <p className="text-xs text-zinc-500">Status</p>
-                  <p className="mt-1 font-semibold capitalize">
-                    {account?.sync_status || "Not connected"}
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                  <p className="text-xs text-zinc-500">Last Sync</p>
-                  <p className="mt-1 text-sm font-semibold">
-                    {formatDate(account?.last_synced_at)}
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                  <p className="text-xs text-zinc-500">Last Attempt</p>
-                  <p className="mt-1 text-sm font-semibold">
-                    {account?.last_sync_attempt_at
-                      ? formatDate(account.last_sync_attempt_at)
-                      : "No attempts yet"}
-                  </p>
-                </div>
-              </div>
-
-              {account && (
-                <div className="mt-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                  <p className="text-sm text-zinc-500">Connected Account</p>
-
-                  <p className="mt-1 font-semibold">
-                    {account.account_name || account.account_id || platform.name}
-                  </p>
-
-                  <p
-                    className={`mt-3 text-sm ${
-                      account.sync_error ? "text-red-400" : "text-green-400"
-                    }`}
-                  >
-                    {account.sync_error
-                      ? `Error: ${account.sync_error}`
-                      : "No sync errors"}
-                  </p>
-                </div>
-              )}
-
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Link
-                  href={`/connected-accounts/${platform.key}`}
-                  className={`rounded-2xl px-5 py-3 font-semibold ${
-                    platform.available
-                      ? "bg-white text-black hover:bg-zinc-200"
-                      : "border border-zinc-700 text-zinc-500"
-                  }`}
-                >
-                  {isConnected ? "Manage" : platform.available ? "Connect" : "Preview"}
-                </Link>
-
-                {account && (
-                  <button
-                    onClick={() => handleSync(platform.key)}
-                    disabled={syncingPlatform === platform.key}
-                    className="rounded-2xl border border-zinc-700 px-5 py-3 font-semibold hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {syncingPlatform === platform.key ? "Syncing..." : "Sync Now"}
-                  </button>
-                )}
-              </div>
+                  return (
+                    <PlatformAccountGroup
+                      key={platform.key}
+                      platform={platform}
+                      accounts={platformAccounts}
+                      syncingAccountId={syncingAccountId}
+                      onSync={handleSync}
+                    />
+                  );
+                })}
             </div>
-          );
-        })}
-      </section>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900 p-6">
+              <p className="font-semibold text-white">
+                No connected platforms yet
+              </p>
+
+              <p className="mt-2 text-sm text-zinc-500">
+                Connect your first platform below to begin syncing creator-business data.
+              </p>
+            </div>
+          )}
+        </section>
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-xl font-bold text-white">
+              Available Connections
+            </h2>
+
+            <p className="mt-1 text-sm text-zinc-500">
+              Add more platforms when they help complete your business picture.
+            </p>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {orderedPlatforms
+              .filter(
+                (platform) =>
+                  !connectedAccounts.some(
+                    (account) => account.platform === platform.key
+                  )
+              )
+              .map((platform) => (
+                <AvailablePlatformCard
+                  key={platform.key}
+                  platform={platform}
+                />
+              ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getOwnedConnectedAccount } from "@/lib/integrations/core/getOwnedConnectedAccount";
+import { updateIntegrationSyncStatus } from "@/lib/integrations/core/updateIntegrationSyncStatus";
 
 async function refreshTwitchAccessToken(refreshToken) {
   const response = await fetch("https://id.twitch.tv/oauth2/token", {
@@ -13,12 +16,33 @@ async function refreshTwitchAccessToken(refreshToken) {
       refresh_token: refreshToken,
       grant_type: "refresh_token",
     }),
+    cache: "no-store",
   });
 
   const data = await response.json();
 
+  if (!response.ok || !data.access_token) {
+    throw new Error("Twitch could not refresh the access token.");
+  }
+
+  return data;
+}
+
+async function validateTwitchAccessToken(accessToken) {
+  const response = await fetch(
+    "https://id.twitch.tv/oauth2/validate",
+    {
+      headers: {
+        Authorization: `OAuth ${accessToken}`,
+      },
+      cache: "no-store",
+    }
+  );
+
+  const data = await response.json();
+
   if (!response.ok) {
-    throw new Error(JSON.stringify(data));
+    throw new Error("Twitch could not validate the access token.");
   }
 
   return data;
@@ -30,34 +54,37 @@ async function fetchTwitchUser(accessToken, clientId) {
       Authorization: `Bearer ${accessToken}`,
       "Client-Id": clientId,
     },
+    cache: "no-store",
   });
 
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(JSON.stringify(data));
+    throw new Error(
+      data?.message || "Failed to retrieve the Twitch account."
+    );
   }
 
-  return data.data?.[0] || null;
+  const twitchUser = data.data?.[0];
+
+  if (!twitchUser) {
+    throw new Error(
+      "No Twitch account was returned for the connected user."
+    );
+  }
+
+  return twitchUser;
 }
 
-async function updateSyncStatus(supabaseAdmin, accountId, updates) {
-  await supabaseAdmin
-    .from("connected_accounts")
-    .update({
-      last_sync_attempt_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      ...updates,
-    })
-    .eq("id", accountId);
-}
+export async function POST(request) {
+  const body = await request.json().catch(() => ({}));
+  const connectedAccountId = body.connectedAccountId;
 
-export async function GET(request) {
-  const { searchParams } = new URL(request.url);
-  const userId = searchParams.get("user_id");
-
-  if (!userId) {
-    return NextResponse.json({ error: "Missing user_id." }, { status: 400 });
+  if (!connectedAccountId) {
+    return NextResponse.json(
+      { error: "Missing connected account ID." },
+      { status: 400 }
+    );
   }
 
   const clientId = process.env.TWITCH_CLIENT_ID;
@@ -65,42 +92,102 @@ export async function GET(request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!clientId || !clientSecret || !supabaseUrl || !serviceRoleKey) {
+  if (
+    !clientId ||
+    !clientSecret ||
+    !supabaseUrl ||
+    !serviceRoleKey
+  ) {
     return NextResponse.json(
-      { error: "Missing required Twitch sync environment variables." },
+      { error: "The Twitch integration is not configured correctly." },
       { status: 500 }
     );
   }
 
-  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+  /*
+   * Verify the currently signed-in CreatorsHub user.
+   * Ownership is never accepted from the request body or URL.
+   */
+  const supabase = await createSupabaseServerClient();
 
-  const { data: account, error: accountError } = await supabaseAdmin
-    .from("connected_accounts")
-    .select("*")
-    .eq("user_id", userId)
-    .eq("platform", "twitch")
-    .single();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-  if (accountError || !account) {
+  if (userError || !user) {
     return NextResponse.json(
-      { error: "No connected Twitch account found." },
+      { error: "You must be signed in to sync Twitch." },
+      { status: 401 }
+    );
+  }
+
+  const supabaseAdmin = createClient(
+    supabaseUrl,
+    serviceRoleKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    }
+  );
+
+  /*
+   * Retrieve only the exact Twitch account belonging to the
+   * authenticated CreatorsHub user.
+   */
+  let account;
+
+  try {
+    account = await getOwnedConnectedAccount({
+      supabaseAdmin,
+      connectedAccountId,
+      userId: user.id,
+      platform: "twitch",
+    });
+  } catch (error) {
+    console.error("Failed to retrieve the Twitch connection:", error);
+
+    return NextResponse.json(
+      { error: "CreatorsHub could not retrieve the Twitch connection." },
+      { status: 500 }
+    );
+  }
+
+  if (!account) {
+    return NextResponse.json(
+      { error: "No connected Twitch account was found." },
       { status: 404 }
     );
   }
 
-  await updateSyncStatus(supabaseAdmin, account.id, {
-    sync_status: "syncing",
-    sync_error: null,
+  await updateIntegrationSyncStatus({
+    supabaseAdmin,
+    connectedAccountId: account.id,
+    userId: user.id,
+    platform: "twitch",
+    updates: {
+      sync_status: "syncing",
+      sync_error: null,
+    },
   });
 
   if (!account.refresh_token) {
-    await updateSyncStatus(supabaseAdmin, account.id, {
-      sync_status: "error",
-      sync_error: "No Twitch refresh token found. Reconnect Twitch.",
+    await updateIntegrationSyncStatus({
+      supabaseAdmin,
+      connectedAccountId: account.id,
+      userId: user.id,
+      platform: "twitch",
+      updates: {
+        sync_status: "error",
+        sync_error:
+          "No Twitch refresh token was found. Reconnect Twitch.",
+      },
     });
 
     return NextResponse.json(
-      { error: "No Twitch refresh token found. Reconnect Twitch." },
+      { error: "Reconnect Twitch before syncing again." },
       { status: 400 }
     );
   }
@@ -108,58 +195,153 @@ export async function GET(request) {
   let freshTokenData;
 
   try {
-    freshTokenData = await refreshTwitchAccessToken(account.refresh_token);
+    freshTokenData = await refreshTwitchAccessToken(
+      account.refresh_token
+    );
   } catch (error) {
-    await updateSyncStatus(supabaseAdmin, account.id, {
-      sync_status: "error",
-      sync_error: "Failed to refresh Twitch access token.",
+    console.error("Twitch token refresh failed:", error);
+
+    await updateIntegrationSyncStatus({
+      supabaseAdmin,
+      connectedAccountId: account.id,
+      userId: user.id,
+      platform: "twitch",
+      updates: {
+        sync_status: "error",
+        sync_error: "Failed to refresh the Twitch access token.",
+      },
     });
 
     return NextResponse.json(
       {
-        error: "Failed to refresh Twitch access token.",
-        details: error.message,
+        error:
+          "Twitch authentication expired. Reconnect and try again.",
       },
-      { status: 500 }
+      { status: 502 }
     );
   }
 
   const freshAccessToken = freshTokenData.access_token;
 
-  const expiresAt = new Date(
-    Date.now() + Number(freshTokenData.expires_in || 3600) * 1000
-  ).toISOString();
+    let tokenValidation;
 
-  let twitchUser = null;
+      try {
+        tokenValidation = await validateTwitchAccessToken(
+          freshAccessToken
+        );
+      } catch (error) {
+        console.error("Twitch token validation failed:", error);
+
+        await updateIntegrationSyncStatus({
+          supabaseAdmin,
+          connectedAccountId: account.id,
+          userId: user.id,
+          platform: "twitch",
+          updates: {
+            sync_status: "error",
+            sync_error: "Twitch could not validate the refreshed token.",
+          },
+        });
+
+        return NextResponse.json(
+          {
+            error: "Twitch could not validate the refreshed connection.",
+          },
+          { status: 502 }
+        );
+      }
+
+      /*
+       * Confirm that Twitch issued the token for this application
+       * and for the exact Twitch account being synced.
+       */
+      if (
+        tokenValidation.client_id !== clientId ||
+        tokenValidation.user_id !== account.account_id
+      ) {
+        await updateIntegrationSyncStatus({
+          supabaseAdmin,
+          connectedAccountId: account.id,
+          userId: user.id,
+          platform: "twitch",
+          updates: {
+            sync_status: "error",
+            sync_error:
+              "The Twitch token did not match the connected account.",
+          },
+        });
+
+        return NextResponse.json(
+          {
+            error:
+              "The Twitch connection could not be verified. Reconnect this account.",
+          },
+          { status: 403 }
+        );
+      }
+
+  let twitchUser;
 
   try {
-    twitchUser = await fetchTwitchUser(freshAccessToken, clientId);
+    twitchUser = await fetchTwitchUser(
+      freshAccessToken,
+      clientId
+    );
   } catch (error) {
-    await updateSyncStatus(supabaseAdmin, account.id, {
-      sync_status: "error",
-      sync_error: "Failed to fetch Twitch user data.",
+    console.error("Twitch account sync failed:", error);
+
+    await updateIntegrationSyncStatus({
+      supabaseAdmin,
+      connectedAccountId: account.id,
+      userId: user.id,
+      platform: "twitch",
+      updates: {
+        sync_status: "error",
+        sync_error: "Failed to retrieve Twitch account data.",
+      },
     });
 
     return NextResponse.json(
       {
-        error: "Failed to fetch Twitch user data.",
-        details: error.message,
+        error: "Twitch account data could not be retrieved.",
       },
-      { status: 500 }
+      { status: 502 }
     );
   }
 
-  if (!twitchUser) {
-    await updateSyncStatus(supabaseAdmin, account.id, {
-      sync_status: "error",
-      sync_error: "No Twitch user returned.",
+  if (twitchUser.id !== account.account_id) {
+    await updateIntegrationSyncStatus({
+      supabaseAdmin,
+      connectedAccountId: account.id,
+      userId: user.id,
+      platform: "twitch",
+      updates: {
+        sync_status: "error",
+        sync_error:
+          "The returned Twitch account did not match the connection.",
+      },
     });
 
     return NextResponse.json(
-      { error: "No Twitch user returned." },
-      { status: 500 }
+      {
+        error:
+          "The returned Twitch account did not match this connection.",
+      },
+      { status: 403 }
     );
   }
+
+  const syncedAt = new Date().toISOString();
+
+  const expiresAt = new Date(
+    Date.now() +
+      Number(
+        freshTokenData.expires_in ||
+          tokenValidation.expires_in ||
+          3600
+      ) *
+        1000
+  ).toISOString();
 
   const twitchMetadata = {
     user_id: twitchUser.id,
@@ -174,27 +356,38 @@ export async function GET(request) {
     .from("connected_accounts")
     .update({
       access_token: freshAccessToken,
-      refresh_token: freshTokenData.refresh_token || account.refresh_token,
+      refresh_token:
+        freshTokenData.refresh_token || account.refresh_token,
       expires_at: expiresAt,
       account_id: twitchUser.id,
-      account_name: twitchUser.display_name || twitchUser.login || "Twitch",
+      account_name:
+        twitchUser.display_name ||
+        twitchUser.login ||
+        "Twitch",
       metadata: {
         ...(account.metadata || {}),
         twitch: twitchMetadata,
       },
-      last_synced_at: new Date().toISOString(),
-      last_sync_attempt_at: new Date().toISOString(),
+      last_synced_at: syncedAt,
+      last_sync_attempt_at: syncedAt,
       sync_status: "connected",
       sync_error: null,
-      updated_at: new Date().toISOString(),
+      updated_at: syncedAt,
     })
-    .eq("id", account.id);
+    .eq("id", account.id)
+    .eq("user_id", user.id)
+    .eq("platform", "twitch");
 
   if (updateError) {
+    console.error(
+      "Failed to finalize the Twitch sync:",
+      updateError
+    );
+
     return NextResponse.json(
       {
-        error: "Failed to update Twitch connected account.",
-        details: updateError.message,
+        error:
+          "Twitch data synced, but the connection status could not be updated.",
       },
       { status: 500 }
     );
@@ -202,7 +395,7 @@ export async function GET(request) {
 
   return NextResponse.json({
     success: true,
-    message: "Twitch sync completed.",
+    message: "Twitch synced successfully.",
     imported_rows: 0,
     twitch: twitchMetadata,
   });

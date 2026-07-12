@@ -4,54 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-
-const platformInfo = {
-  youtube: {
-    name: "YouTube",
-    description:
-      "Connect YouTube to automatically sync analytics and revenue data.",
-  },
-  twitch: {
-    name: "Twitch",
-    description:
-      "Connect Twitch to sync subscriptions, donations, and creator revenue.",
-  },
-  kick: {
-    name: "Kick",
-    description:
-      "Connect Kick to sync followers, subscribers, stream activity, and revenue.",
-  },
-  stripe: {
-    name: "Stripe",
-    description:
-      "Connect Stripe to sync payments, customers, subscriptions, payouts, and revenue.",
-  },
-  shopify: {
-    name: "Shopify",
-    description:
-      "Connect Shopify to sync product sales and store revenue.",
-  },
-  streamlabs: {
-    name: "Streamlabs",
-    description:
-      "Connect Streamlabs to sync donations, tips, donor activity, and creator support revenue.",
-  },
-  paypal: {
-    name: "PayPal",
-    description:
-      "Connect PayPal to sync direct payments, sponsor payments, refunds, and creator income.",
-  },
-  streamelements: {
-    name: "StreamElements",
-    description:
-      "Connect StreamElements to sync donations, campaign revenue, overlay activity, and creator support data.",
-  },
-  patreon: {
-    name: "Patreon",
-    description:
-      "Connect Patreon to sync memberships and recurring income.",
-  },
-};
+import { getPlatform } from "@/lib/platforms";
 
 export default function PlatformConnectionPage() {
   const params = useParams();
@@ -62,7 +15,7 @@ export default function PlatformConnectionPage() {
   const [shopDomain, setShopDomain] = useState("");
 
   const platform = params.platform;
-  const details = platformInfo[platform];
+  const details = getPlatform(platform);
 
   useEffect(() => {
     async function loadUser() {
@@ -142,63 +95,7 @@ export default function PlatformConnectionPage() {
           </p>
 
           <div className="mt-6">
-            {platform === "youtube" ? (
-              <Link
-                href={`/api/auth/google/start?user_id=${user.id}`}
-                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
-              >
-                Connect YouTube
-              </Link>
-            ) : platform === "twitch" ? (
-              <Link
-                href={`/api/auth/twitch/start?user_id=${user.id}`}
-                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
-              >
-                Connect Twitch
-              </Link>
-            ) : platform === "kick" ? (
-              <Link
-                href={`/api/auth/kick/start?user_id=${user.id}`}
-                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
-              >
-                Connect Kick
-              </Link>
-            ) : platform === "patreon" ? (
-              <Link
-                href={`/api/auth/patreon/start?user_id=${user.id}`}
-                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
-              >
-                Connect Patreon
-              </Link>
-            ) : platform === "stripe" ? (
-              <Link
-                href={`/api/auth/stripe/start?user_id=${user.id}`}
-                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
-              >
-                Connect Stripe
-              </Link> 
-            ) : platform === "streamlabs" ? (
-              <Link
-                href={`/api/auth/streamlabs/start?user_id=${user.id}`}
-                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
-              >
-                Connect Streamlabs
-              </Link>
-            ) : platform === "paypal" ? (
-              <Link
-                href={`/api/auth/paypal/start?user_id=${user.id}`}
-                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
-              >
-                Connect PayPal
-              </Link>
-            ) : platform === "streamelements" ? (
-              <Link
-                href={`/api/auth/streamelements/start?user_id=${user.id}`}
-                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
-              >
-                Connect StreamElements
-              </Link>   
-            ) : platform === "shopify" ? (
+            {platform === "shopify" ? (
               <div className="space-y-4">
                 <input
                   type="text"
@@ -219,6 +116,13 @@ export default function PlatformConnectionPage() {
                   Connect Shopify
                 </Link>
               </div>
+            ) : details.available && details.connectRoute ? (
+              <Link
+                href={details.connectRoute}
+                className="inline-block rounded-2xl bg-white px-6 py-3 font-semibold text-black hover:bg-zinc-200"
+              >
+                Connect {details.name}
+              </Link>
             ) : (
               <button
                 disabled

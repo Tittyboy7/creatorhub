@@ -1,3 +1,26 @@
+# The CreatorsHub Loop
+
+CreatorsHub exists to help creators make better business decisions.
+
+Every feature should move creators through this loop:
+
+1. Collect business data.
+2. Transform data into intelligence.
+3. Help the creator make a decision.
+4. Encourage the creator to take action.
+5. Measure the result.
+6. Improve future recommendations.
+
+If a feature does not strengthen this loop, it should be reconsidered.
+
+# The First Screen Rule
+
+The first screen of every major page should answer today's most important question.
+
+The creator should know what to do next without scrolling.
+
+Everything below the first screen is supporting evidence.
+
 # CreatorsHub Architecture
 
 > CreatorsHub is an AI-powered Creator Operating System.
@@ -549,6 +572,65 @@ Increase creator revenue.
 Reduce decision fatigue.
 
 If a feature satisfies none of these goals, it should not be prioritized before launch.
+
+7. Briefings over dashboards.
+
+# System Architecture
+
+CreatorsHub consists of four engines.
+
+## Data Engine
+
+Collects business information.
+
+## Intelligence Engine
+
+Explains what the data means.
+
+## Decision Engine
+
+Helps creators decide what to do.
+
+## Action Engine
+
+Helps creators improve their business.
+
+# Design Language
+Every major intelligence page follows the same structure.
+
+1. Today
+
+What happened?
+
+2. Why
+
+Why does it matter?
+
+3. Recommendation
+
+What should I do next?
+
+4. Supporting Evidence
+
+Metrics, charts, comparisons.
+
+5. Details on Demand
+
+Deep analytics.
+
+The first screen should always answer today's decision.
+
+Everything below supports that decision.
+
+CreatorsHub should explain what matters before asking creators to explore charts.
+
+Every intelligence page should follow this structure:
+
+1. Anchor metric
+2. What changed
+3. Recommended focus
+4. Supporting evidence
+5. Details on demand
 
 
 1. Simplicity over complexity.
