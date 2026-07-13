@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createIntegrationAdminClient } from "@/lib/integrations/core/createIntegrationAdminClient";
+import { authenticateIntegrationUser } from "@/lib/integrations/core/authenticateIntegrationUser";
 import { getOwnedConnectedAccount } from "@/lib/integrations/core/getOwnedConnectedAccount";
 import { updateIntegrationSyncStatus } from "@/lib/integrations/core/updateIntegrationSyncStatus";
+import { getConnectedAccountIdFromRequest } from "@/lib/integrations/core/getConnectedAccountIdFromRequest";
 
 async function refreshTwitchAccessToken(refreshToken) {
   const response = await fetch("https://id.twitch.tv/oauth2/token", {
@@ -77,10 +78,12 @@ async function fetchTwitchUser(accessToken, clientId) {
 }
 
 export async function POST(request) {
-  const body = await request.json().catch(() => ({}));
-  const connectedAccountId = body.connectedAccountId;
+  const {
+    connectedAccountId,
+    error: requestError,
+  } = await getConnectedAccountIdFromRequest(request);
 
-  if (!connectedAccountId) {
+  if (requestError || !connectedAccountId) {
     return NextResponse.json(
       { error: "Missing connected account ID." },
       { status: 400 }
@@ -89,15 +92,8 @@ export async function POST(request) {
 
   const clientId = process.env.TWITCH_CLIENT_ID;
   const clientSecret = process.env.TWITCH_CLIENT_SECRET;
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (
-    !clientId ||
-    !clientSecret ||
-    !supabaseUrl ||
-    !serviceRoleKey
-  ) {
+  if (!clientId || !clientSecret) {
     return NextResponse.json(
       { error: "The Twitch integration is not configured correctly." },
       { status: 500 }
@@ -108,12 +104,8 @@ export async function POST(request) {
    * Verify the currently signed-in CreatorsHub user.
    * Ownership is never accepted from the request body or URL.
    */
-  const supabase = await createSupabaseServerClient();
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  const { user, error: userError } =
+    await authenticateIntegrationUser();
 
   if (userError || !user) {
     return NextResponse.json(
@@ -122,16 +114,18 @@ export async function POST(request) {
     );
   }
 
-  const supabaseAdmin = createClient(
-    supabaseUrl,
-    serviceRoleKey,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    }
-  );
+  let supabaseAdmin;
+
+  try {
+    supabaseAdmin = createIntegrationAdminClient();
+  } catch (error) {
+    console.error("Failed to create integration admin client:", error);
+
+    return NextResponse.json(
+      { error: "CreatorsHub could not access integration storage." },
+      { status: 500 }
+    );
+  }
 
   /*
    * Retrieve only the exact Twitch account belonging to the

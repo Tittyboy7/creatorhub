@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { authenticateIntegrationUser } from "@/lib/integrations/core/authenticateIntegrationUser";
+import {
+  createOAuthState,
+  setOAuthStateCookie,
+} from "@/lib/integrations/oauth/oauthStateCookies";
 
-const OAUTH_STATE_COOKIE = "creatorshub_twitch_oauth_state";
+const TWITCH_OAUTH_STATE_COOKIE =
+  "creatorshub_twitch_oauth_state";
 
 export async function GET() {
   const clientId = process.env.TWITCH_CLIENT_ID;
@@ -14,12 +19,8 @@ export async function GET() {
     );
   }
 
-  const supabase = await createSupabaseServerClient();
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  const { user, error: userError } =
+    await authenticateIntegrationUser();
 
   if (userError || !user) {
     return NextResponse.json(
@@ -28,12 +29,13 @@ export async function GET() {
     );
   }
 
-  const state = crypto.randomUUID();
+  const state = createOAuthState();
 
   const params = new URLSearchParams({
     client_id: clientId,
     redirect_uri: redirectUri,
     response_type: "code",
+    force_verify: "true",
     state,
     scope: [
       "user:read:email",
@@ -45,13 +47,9 @@ export async function GET() {
     `https://id.twitch.tv/oauth2/authorize?${params.toString()}`
   );
 
-  response.cookies.set(OAUTH_STATE_COOKIE, state, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 10 * 60,
+  return setOAuthStateCookie({
+    response,
+    cookieName: TWITCH_OAUTH_STATE_COOKIE,
+    state,
   });
-
-  return response;
 }

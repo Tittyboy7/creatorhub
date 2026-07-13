@@ -1,32 +1,29 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createIntegrationAdminClient } from "@/lib/integrations/core/createIntegrationAdminClient";
+import { authenticateIntegrationUser } from "@/lib/integrations/core/authenticateIntegrationUser";
+import {
+  clearOAuthStateCookie,
+  getStoredOAuthState,
+  isValidOAuthState,
+} from "@/lib/integrations/oauth/oauthStateCookies";
 
-const OAUTH_STATE_COOKIE = "creatorshub_google_oauth_state";
-
-function clearOAuthStateCookie(response) {
-  response.cookies.set(OAUTH_STATE_COOKIE, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 0,
-  });
-
-  return response;
-}
+const GOOGLE_OAUTH_STATE_COOKIE =
+  "creatorshub_google_oauth_state";
 
 function createErrorResponse(message, status = 400) {
-  return clearOAuthStateCookie(
-    NextResponse.json(
-      {
-        error: message,
-      },
-      {
-        status,
-      }
-    )
+  const response = NextResponse.json(
+    {
+      error: message,
+    },
+    {
+      status,
+    }
   );
+
+  return clearOAuthStateCookie({
+    response,
+    cookieName: GOOGLE_OAUTH_STATE_COOKIE,
+  });
 }
 
 async function fetchYouTubeChannel(accessToken) {
@@ -72,7 +69,10 @@ export async function GET(request) {
   const returnedState = searchParams.get("state");
   const providerError = searchParams.get("error");
 
-  const storedState = request.cookies.get(OAUTH_STATE_COOKIE)?.value;
+  const storedState = getStoredOAuthState(
+    request,
+    GOOGLE_OAUTH_STATE_COOKIE
+  );
 
   if (providerError) {
     return createErrorResponse(
@@ -89,9 +89,10 @@ export async function GET(request) {
   }
 
   if (
-    !returnedState ||
-    !storedState ||
-    returnedState !== storedState
+    !isValidOAuthState({
+      returnedState,
+      storedState,
+    })
   ) {
     return createErrorResponse(
       "The YouTube connection request could not be verified. Please try again.",
@@ -102,16 +103,12 @@ export async function GET(request) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
   const redirectUri = process.env.GOOGLE_REDIRECT_URI;
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
   if (
     !clientId ||
     !clientSecret ||
     !redirectUri ||
-    !supabaseUrl ||
-    !serviceRoleKey ||
     !siteUrl
   ) {
     return createErrorResponse(
@@ -124,12 +121,8 @@ export async function GET(request) {
    * Determine ownership from the verified Supabase session.
    * No user ID is accepted from Google state or query parameters.
    */
-  const supabase = await createSupabaseServerClient();
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  const { user, error: userError } =
+    await authenticateIntegrationUser();
 
   if (userError || !user) {
     return createErrorResponse(
@@ -186,12 +179,18 @@ export async function GET(request) {
     );
   }
 
-  const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  });
+  let supabaseAdmin;
+
+  try {
+    supabaseAdmin = createIntegrationAdminClient();
+  } catch (error) {
+    console.error("Failed to create integration admin client:", error);
+
+    return createErrorResponse(
+      "CreatorsHub could not access integration storage.",
+      500
+    );
+  }
 
   /*
    * Look up this exact YouTube channel for the authenticated user.
@@ -281,5 +280,8 @@ export async function GET(request) {
     new URL("/connected-accounts", siteUrl)
   );
 
-  return clearOAuthStateCookie(redirectResponse);
+  return clearOAuthStateCookie({
+    response: redirectResponse,
+    cookieName: GOOGLE_OAUTH_STATE_COOKIE,
+  });
 }
