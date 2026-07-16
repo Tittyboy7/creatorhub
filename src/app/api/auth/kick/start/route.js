@@ -1,61 +1,71 @@
 import { NextResponse } from "next/server";
-import crypto from "crypto";
+import { authenticateIntegrationUser } from "@/lib/integrations/core/authenticateIntegrationUser";
+import {
+  createOAuthState,
+  setOAuthStateCookie,
+} from "@/lib/integrations/oauth/oauthStateCookies";
+import {
+  createPkcePair,
+  setPkceVerifierCookie,
+} from "@/lib/integrations/oauth/oauthPkce";
 
-function base64UrlEncode(buffer) {
-  return buffer
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
-}
+const KICK_OAUTH_STATE_COOKIE =
+  "creatorshub_kick_oauth_state";
 
-function createCodeVerifier() {
-  return base64UrlEncode(crypto.randomBytes(32));
-}
+const KICK_PKCE_VERIFIER_COOKIE =
+  "creatorshub_kick_pkce_verifier";
 
-function createCodeChallenge(codeVerifier) {
-  return base64UrlEncode(
-    crypto.createHash("sha256").update(codeVerifier).digest()
-  );
-}
-
-export async function GET(request) {
-  const { searchParams } = new URL(request.url);
-  const userId = searchParams.get("user_id");
-
+export async function GET() {
   const clientId = process.env.KICK_CLIENT_ID;
   const redirectUri = process.env.KICK_REDIRECT_URI;
 
   if (!clientId || !redirectUri) {
     return NextResponse.json(
-      { error: "Missing Kick OAuth environment variables." },
+      { error: "The Kick integration is not configured correctly." },
       { status: 500 }
     );
   }
 
-  if (!userId) {
-    return NextResponse.json({ error: "Missing user ID." }, { status: 400 });
+  const { user, error: userError } =
+    await authenticateIntegrationUser();
+
+  if (userError || !user) {
+    return NextResponse.json(
+      { error: "You must be signed in to connect Kick." },
+      { status: 401 }
+    );
   }
 
-  const codeVerifier = createCodeVerifier();
-  const codeChallenge = createCodeChallenge(codeVerifier);
+  const state = createOAuthState();
 
-  const state = JSON.stringify({
-    user_id: userId,
-    code_verifier: codeVerifier,
-  });
+  const {
+    codeVerifier,
+    codeChallenge,
+  } = createPkcePair();
 
   const params = new URLSearchParams({
     client_id: clientId,
     redirect_uri: redirectUri,
     response_type: "code",
     scope: "user:read",
-    state: Buffer.from(state).toString("base64url"),
+    state,
     code_challenge: codeChallenge,
     code_challenge_method: "S256",
   });
 
-  return NextResponse.redirect(
+  const response = NextResponse.redirect(
     `https://id.kick.com/oauth/authorize?${params.toString()}`
   );
+
+  setOAuthStateCookie({
+    response,
+    cookieName: KICK_OAUTH_STATE_COOKIE,
+    state,
+  });
+
+  return setPkceVerifierCookie({
+    response,
+    cookieName: KICK_PKCE_VERIFIER_COOKIE,
+    codeVerifier,
+  });
 }

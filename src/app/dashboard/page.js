@@ -9,9 +9,8 @@ import { getAccentBadgeClass } from "@/lib/accentColors";
 import SuspendedAccountMessage from "@/components/SuspendedAccountMessage";
 import { buildBusinessSignals } from "@/lib/business/buildBusinessSignals";
 import { buildBusinessCauses } from "@/lib/business/buildBusinessCauses";
-import { buildBusinessIntelligence } from "@/lib/business/buildBusinessIntelligence";
 import { buildBusinessMetrics } from "@/lib/business/buildBusinessMetrics";
-import { summarizeBusinessMetrics } from "@/lib/business/summarizeBusinessMetrics";
+import { buildBusinessSummary } from "@/lib/business/buildBusinessSummary";
 import BusinessTodaySection from "@/components/dashboard/today/BusinessTodaySection";
 
 function getNotificationTypeClass(type) {
@@ -42,6 +41,7 @@ export default function DashboardPage() {
   const [totalFavorites, setTotalFavorites] = useState(0);
   const [totalFollowers, setTotalFollowers] = useState(0);
   const [revenueEntries, setRevenueEntries] = useState([]);
+  const [connectedAccounts, setConnectedAccounts] = useState([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [notifications, setNotifications] = useState([]);
   const [verificationRequest, setVerificationRequest] = useState(null);
@@ -148,6 +148,14 @@ export default function DashboardPage() {
         setVerificationRequest(latestRequest);
       }
 
+      const { data: connectedAccountData } = await supabase
+        .from("connected_accounts")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: true });
+
+      setConnectedAccounts(connectedAccountData || []);
+
       const { data: notificationData } = await supabase
         .from("notifications")
         .select("*")
@@ -188,6 +196,11 @@ export default function DashboardPage() {
 
   const currentMonth = new Date().toISOString().slice(0, 7);
 
+  const previousMonthDate = new Date();
+  previousMonthDate.setMonth(previousMonthDate.getMonth() - 1);
+
+  const previousMonth = previousMonthDate.toISOString().slice(0, 7);
+
   const currentMonthLabel = new Date().toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
@@ -195,6 +208,10 @@ export default function DashboardPage() {
 
   const revenueThisMonth = revenueEntries
     .filter((entry) => entry.entry_month === currentMonth)
+    .reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+
+  const revenuePreviousMonth = revenueEntries
+    .filter((entry) => entry.entry_month === previousMonth)
     .reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
 
   const announcementsThisMonth = announcements.filter((announcement) =>
@@ -226,6 +243,10 @@ export default function DashboardPage() {
     (value) => value && value.trim() !== ""
   );
 
+  const connectedPlatformCount = new Set(
+    connectedAccounts.map((account) => account.platform).filter(Boolean)
+  ).size;
+
   const bestPlatform = topPlatforms[0];
 
   const topPlatformPercent =
@@ -233,18 +254,58 @@ export default function DashboardPage() {
       ? 0
       : Math.round((bestPlatform.amount / totalRevenue) * 100);
 
-  const monthlyGrowthPercent =
-    totalRevenue === 0
-      ? 0
-      : Math.round((revenueThisMonth / totalRevenue) * 100);
+  const hasCurrentMonthRevenueData = revenueEntries.some(
+    (entry) => entry.entry_month === currentMonth
+  );
 
-  const businessSignals = buildBusinessSignals({
-    totalRevenue,
+  const hasPreviousMonthRevenueData = revenueEntries.some(
+    (entry) => entry.entry_month === previousMonth
+  );
+
+  const monthlyGrowthPercent =
+    !hasCurrentMonthRevenueData || !hasPreviousMonthRevenueData
+      ? 0
+      : revenuePreviousMonth === 0
+        ? revenueThisMonth > 0
+          ? 100
+          : 0
+        : Math.round(
+            ((revenueThisMonth - revenuePreviousMonth) /
+              revenuePreviousMonth) *
+              100
+          );
+
+  const businessMetrics = buildBusinessMetrics({
+    revenueEntries,
+    connectedAccounts,
+    products,
+  });
+
+  const businessSummary = buildBusinessSummary({
+    metrics: businessMetrics,
     monthlyGrowthPercent,
     topPlatformPercent,
     bestPlatform,
-    platformCount: topPlatforms.length,
+  });
+
+  const businessSignals = buildBusinessSignals({
+    totalRevenue: businessSummary.revenue.total,
+    monthlyGrowthPercent:
+      businessSummary.revenue.monthlyGrowthPercent,
+    topPlatformPercent:
+      businessSummary.revenue.concentrationPercent,
+    bestPlatform: businessSummary.revenue.strongestPlatform
+      ? {
+          platform: businessSummary.revenue.strongestPlatform,
+          amount: businessSummary.revenue.strongestPlatformAmount,
+        }
+      : null,
+    platformCount: connectedPlatformCount,
     revenueStreak: revenueEntries.length > 0 ? 1 : 0,
+    connectionsNeedingAttention:
+      businessSummary.integrations.connectionsNeedingAttention,
+    affectedPlatforms:
+      businessSummary.integrations.affectedPlatforms,
   });
 
   const businessCauses = buildBusinessCauses({
@@ -252,20 +313,6 @@ export default function DashboardPage() {
     bestPlatform,
     monthlyGrowthPercent,
     topPlatformPercent,
-  });
-
-  const businessIntelligence = buildBusinessIntelligence({
-    signals: businessSignals,
-    causes: businessCauses,
-  });
-
-  const businessMetrics = buildBusinessMetrics({
-    revenueEntries,
-    products,
-  });
-
-  const businessMetricSummary = summarizeBusinessMetrics({
-    metrics: businessMetrics,
   });
 
   const checklistItems = [
@@ -370,8 +417,12 @@ export default function DashboardPage() {
 
         <div className="mt-8">
           <BusinessTodaySection
+            businessSummary={businessSummary}
+            businessSignals={businessSignals}
+            businessCauses={businessCauses}
             totalRevenue={totalRevenue}
             revenueThisMonth={revenueThisMonth}
+            hasCurrentMonthRevenueData={hasCurrentMonthRevenueData}
             totalFollowers={totalFollowers}
             productsCount={products.length}
             notificationsCount={notifications.length}

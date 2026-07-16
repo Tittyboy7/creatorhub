@@ -11,6 +11,7 @@ export function buildPlatformComparisonMetrics({ metrics = [] } = {}) {
       period: metric.period,
       date: metric.date,
       category: metric.category,
+      domain: metric.domain,
       metadata: metric.metadata || {},
     }));
 }

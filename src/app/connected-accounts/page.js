@@ -61,9 +61,11 @@ export default function ConnectedAccountsPage() {
     setSyncError("");
 
     try {
-      const usesSecureAccountSync = ["youtube", "twitch"].includes(
-        platformKey
-      );
+      const usesSecureAccountSync = [
+        "youtube",
+        "twitch",
+        "kick",
+      ].includes(platformKey);
 
       const response = usesSecureAccountSync
         ? await fetch(`/api/sync/${platformKey}`, {

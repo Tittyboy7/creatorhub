@@ -1,4 +1,4 @@
-export function buildCreatorBusinessBrief({
+export function buildCreatorAIContext({
   summary = "",
   healthScore = null,
   opportunity = null,

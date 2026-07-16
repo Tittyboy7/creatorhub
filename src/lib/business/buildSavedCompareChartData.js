@@ -35,7 +35,7 @@ export function buildSavedCompareChartData({ chart, metrics = [] } = {}) {
     .filter((item) => item.value > 0)
     .sort((a, b) => {
       if (chart.compare_by === "month") {
-        return a.label.localeCompare(b.label);
+        return a.rawLabel.localeCompare(b.rawLabel);
       }
 
       return b.value - a.value;

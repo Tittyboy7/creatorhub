@@ -119,7 +119,7 @@ function buildRecommendation({
     title: "Look for a small growth lever",
     description:
       "Revenue is stable, which gives you room to improve intentionally. Review your strongest revenue source and choose one small experiment that could increase conversion, retention, or repeat purchases.",
-  };
+    };
   }
 
 function formatCurrency(value) {

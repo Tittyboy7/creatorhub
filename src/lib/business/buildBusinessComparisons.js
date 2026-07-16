@@ -17,8 +17,14 @@ export function buildBusinessComparisons({
   }
 
   const revenueByPlatform = revenueMetrics.reduce((totals, metric) => {
-    totals[metric.platform] =
-      (totals[metric.platform] || 0) + Number(metric.value || 0);
+    const platform = metric.platform;
+
+    if (!platform) {
+      return totals;
+    }
+
+    totals[platform] =
+      (totals[platform] || 0) + Number(metric.value || 0);
 
     return totals;
   }, {});

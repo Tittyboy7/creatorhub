@@ -1,3 +1,26 @@
+function formatPlatformName(platform) {
+  const platformNames = {
+    youtube: "YouTube",
+    twitch: "Twitch",
+    kick: "Kick",
+    shopify: "Shopify",
+    patreon: "Patreon",
+    stripe: "Stripe",
+    paypal: "PayPal",
+    streamlabs: "Streamlabs",
+    streamelements: "StreamElements",
+  };
+
+  const key = String(platform || "").toLowerCase();
+
+  return (
+    platformNames[key] ||
+    String(platform || "")
+      .replace(/[-_]/g, " ")
+      .replace(/\b\w/g, (character) => character.toUpperCase())
+  );
+}
+
 export function buildBusinessSignals({
   totalRevenue = 0,
   monthlyGrowthPercent = 0,
@@ -5,8 +28,48 @@ export function buildBusinessSignals({
   bestPlatform,
   platformCount = 0,
   revenueStreak = 0,
+  connectionsNeedingAttention = 0,
+  affectedPlatforms = [],
 } = {}) {
+
   const signals = [];
+
+  if (connectionsNeedingAttention > 0) {
+    const platformNames = affectedPlatforms
+      .filter(Boolean)
+      .map(formatPlatformName);
+
+    const platformLabel =
+      platformNames.length > 0
+        ? platformNames.join(", ")
+        : "A connected platform";
+
+    signals.push({
+      id: "integration-health-warning",
+      source: "connected_accounts",
+      category: "risk",
+      severity: "high",
+      title:
+        connectionsNeedingAttention === 1
+          ? `${platformLabel} needs to be reconnected`
+          : `${connectionsNeedingAttention} platform connections need attention`,
+      reason:
+        connectionsNeedingAttention === 1
+          ? `${platformLabel} currently has a sync error, so some business data may be incomplete or outdated.`
+          : `${connectionsNeedingAttention} connected accounts currently have sync errors, so parts of your business intelligence may be incomplete or outdated.`,
+      recommendation:
+        "Repair the affected connection before relying on its latest metrics or recommendations.",
+      metric: connectionsNeedingAttention,
+      action: {
+        label: "Review connected accounts",
+        href: "/connected-accounts",
+      },
+      metadata: {
+        connectionsNeedingAttention,
+        affectedPlatforms: platformNames,
+      },
+    });
+  }
 
   if (monthlyGrowthPercent > 0) {
     signals.push({

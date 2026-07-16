@@ -17,7 +17,6 @@ import BusinessInsightsSection from "@/components/revenue/BusinessInsightsSectio
 import ExpandableSection from "@/components/ui/ExpandableSection";
 import RevenueTodaySection from "@/components/revenue/today/RevenueTodaySection";
 import { buildRevenueBrief } from "@/lib/business/buildRevenueBrief";
-import { buildCreatorBusinessBrief } from "@/lib/business/buildCreatorBusinessBrief";
 
 import { useRevenueStats } from "@/hooks/useRevenueStats";
 import { useRevenueData } from "@/hooks/useRevenueData";
@@ -38,7 +37,6 @@ import { calculateRevenueTotals } from "@/lib/revenue/calculateRevenueTotals";
 import { hasActiveRevenueFilters } from "@/lib/revenue/hasActiveRevenueFilters";
 import { buildBusinessSignals } from "@/lib/business/buildBusinessSignals";
 import { buildBusinessCauses } from "@/lib/business/buildBusinessCauses";
-import { buildBusinessIntelligence } from "@/lib/business/buildBusinessIntelligence";
 
 import {
   Lightbulb,
@@ -161,23 +159,12 @@ export default function RevenuePage() {
     topPlatformPercent,
   });
 
-  const businessIntelligence = buildBusinessIntelligence({
-    signals: businessSignals,
-    causes: businessCauses,
-  });
-
   const revenueBrief = buildRevenueBrief({
     totalRevenue,
     thisMonthRevenue,
     monthlyGrowthPercent,
     bestPlatform,
     topPlatformPercent,
-  });
-
-  const creatorBusinessBrief = buildCreatorBusinessBrief({
-    businessSignals,
-    businessCauses,
-    revenueBrief,
   });
 
   const entriesByMonth = groupEntriesByMonth(filteredEntries);

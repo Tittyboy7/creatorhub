@@ -1,12 +1,22 @@
+import { getBusinessDomainForMetric } from "./businessDomains";
+
 function pushMetric(metrics, metric) {
   if (metric.value === null || metric.value === undefined) return;
+
+  const numericValue = Number(metric.value);
+
+  if (!Number.isFinite(numericValue)) return;
 
   metrics.push({
     period: null,
     date: null,
     metadata: {},
+    domain:
+      metric.domain ||
+      getBusinessDomainForMetric(metric.metric) ||
+      null,
     ...metric,
-    value: Number(metric.value || 0),
+    value: numericValue,
   });
 }
 
@@ -74,7 +84,7 @@ export function buildBusinessMetrics({
       pushMetric(metrics, {
         id: `youtube-views-${account.id}`,
         source: "YouTube",
-        category: "audience",
+        category: "content",
         metric: "views",
         label: "YouTube Views",
         value: metadata.youtube.view_count,
