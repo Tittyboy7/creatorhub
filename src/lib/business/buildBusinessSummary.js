@@ -37,14 +37,18 @@ function getUniqueSources(metrics) {
   ];
 }
 
-function buildDataQuality(metrics) {
+function buildDataQuality({
+  metrics = [],
+  integrationMetrics = [],
+} = {}) {
+  // Include only business domains currently supported by live data sources.
+  // Add "sponsorships" once sponsorship tracking is implemented.
   const expectedDomains = [
     "revenue",
     "audience",
     "commerce",
     "content",
     "community",
-    "sponsorships",
   ];
 
   const availableDomains = expectedDomains.filter((domain) =>
@@ -55,17 +59,38 @@ function buildDataQuality(metrics) {
     (domain) => !availableDomains.includes(domain)
   );
 
-  const confidence =
+  const healthyConnections = integrationMetrics.filter(
+    (metric) => Number(metric.value) === 1
+  ).length;
+
+  const connectionsNeedingAttention = integrationMetrics.filter(
+    (metric) => Number(metric.value) === 0
+  ).length;
+
+  let confidence =
     availableDomains.length >= 5
       ? "high"
       : availableDomains.length >= 2
         ? "medium"
         : "low";
 
+  if (connectionsNeedingAttention > 0 && confidence === "high") {
+    confidence = "medium";
+  }
+
+  if (
+    integrationMetrics.length > 0 &&
+    healthyConnections === 0
+  ) {
+    confidence = "low";
+  }
+
   return {
     availableDomains,
     missingDomains,
     confidence,
+    healthyConnections,
+    connectionsNeedingAttention,
   };
 }
 
@@ -269,6 +294,9 @@ export function buildBusinessSummary({
       ),
     },
 
-    dataQuality: buildDataQuality(metrics),
+    dataQuality: buildDataQuality({
+      metrics,
+      integrationMetrics,
+    }),
   };
 }

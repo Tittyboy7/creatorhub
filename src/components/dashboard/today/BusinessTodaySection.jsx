@@ -1,129 +1,16 @@
 import Link from "next/link";
 
 export default function BusinessTodaySection({
-  businessSummary,
-  businessSignals = [],
-  businessCauses = [],
-  totalRevenue = 0,
-  revenueThisMonth = 0,
-  hasCurrentMonthRevenueData = false,
-  totalFollowers = 0,
-  productsCount = 0,
-  completedSetupCount = 0,
-  setupItemCount = 0,
+  businessToday,
 }) {
-  const setupScore =
-    setupItemCount > 0
-      ? Math.round(
-          (Number(completedSetupCount || 0) / setupItemCount) * 100
-        )
-      : 0;
-
-  const integrationSummary = businessSummary?.integrations || {};
-  const revenueSummary = businessSummary?.revenue || {};
-  const dataQuality = businessSummary?.dataQuality || {};
-
-  const healthyConnections = Number(
-    integrationSummary.healthyConnections || 0
-  );
-
-  const connectionsNeedingAttention = Number(
-    integrationSummary.connectionsNeedingAttention || 0
-  );
-
-  const connectedAccounts = Number(
-    integrationSummary.connectedAccounts || 0
-  );
-
-  const dataConfidenceScore = {
-    high: 100,
-    medium: 70,
-    low: 40,
-  }[dataQuality.confidence] || 40;
-
-  const integrationHealthScore =
-    connectedAccounts === 0
-      ? 35
-      : Math.round(
-          (healthyConnections / connectedAccounts) * 100
-        );
-
-  const revenueHealthScore =
-    Number(revenueSummary.total || totalRevenue) > 0 ? 100 : 35;
-
-  const baseBusinessHealthScore = Math.min(
-    100,
-    Math.round(
-      setupScore * 0.2 +
-        integrationHealthScore * 0.3 +
-        revenueHealthScore * 0.3 +
-        dataConfidenceScore * 0.2
-    )
-  );
-
-  const connectionPenalty =
-    connectionsNeedingAttention > 0
-      ? Math.min(30, connectionsNeedingAttention * 10)
-      : 0;
-
-  const businessHealthScore = Math.max(
-    0,
-    baseBusinessHealthScore - connectionPenalty
-  );
-
-  const healthLabel = getHealthLabel({
-    score: businessHealthScore,
-    connectionsNeedingAttention,
-  });
-
-  const prioritySignal = businessSignals[0] || null;
-
-  const priorityCause =
-    businessCauses.find(
-      (cause) =>
-        cause.signalId === prioritySignal?.id &&
-        cause.metadata?.primary
-    ) ||
-    businessCauses.find(
-      (cause) => cause.signalId === prioritySignal?.id
-    ) ||
-    null;
-
-  const briefItems = buildBriefItems({
-    businessSummary,
-    businessSignals,
-    prioritySignalId: prioritySignal?.id,
-    totalRevenue,
-    revenueThisMonth,
-    hasCurrentMonthRevenueData,
-    totalFollowers,
-    productsCount,
-  });
-
-  const briefNarrative = buildBriefNarrative({
-    businessSummary,
-    prioritySignal,
-    revenueThisMonth,
-  });
-
-  const recommendationTitle =
-    prioritySignal?.title || "Build a stronger business data foundation";
-
-  const recommendationDetail =
-    priorityCause?.explanation ||
-    prioritySignal?.reason ||
-    "Connect platforms and track your revenue consistently so CreatorsHub can identify stronger opportunities and risks.";
-
-  const recommendedAction = prioritySignal?.action || {
-    label:
-      connectedAccounts > 0
-        ? "Open Revenue Intelligence"
-        : "Connect a Platform",
-    href:
-      connectedAccounts > 0
-        ? "/revenue"
-        : "/connected-accounts",
-  };
+  const priority = businessToday?.priority || {};
+  const confidence = businessToday?.confidence || {};
+  const evidence = Array.isArray(businessToday?.evidence)
+    ? businessToday.evidence
+    : [];
+  const snapshot = Array.isArray(businessToday?.snapshot)
+    ? businessToday.snapshot
+    : [];
 
   return (
     <section className="overflow-hidden rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black">
@@ -137,80 +24,111 @@ export default function BusinessTodaySection({
         </h2>
       </div>
 
-      <div
-        className="grid divide-y divide-zinc-800 md:divide-x md:divide-y-0"
-        style={{
-          gridTemplateColumns: "0.8fr 1.2fr 1fr",
-        }}
-      >
+      <div className="border-b border-zinc-800 bg-emerald-500/5 px-5 py-6 md:px-7 md:py-8">
+        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300">
+          {priority.eyebrow || "Today’s Priority"}
+        </p>
+
+        <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <h3 className="text-2xl font-black tracking-tight text-white md:text-3xl">
+              {priority.title ||
+                "Build a stronger business data foundation"}
+            </h3>
+
+            <p className="mt-3 text-sm leading-6 text-zinc-300 md:text-base">
+              {priority.explanation ||
+                "Connect platforms and track your business consistently so CreatorsHub can identify stronger risks and opportunities."}
+            </p>
+          </div>
+
+          <Link
+            href={priority.action?.href || "/connected-accounts"}
+            className="inline-flex w-fit shrink-0 items-center justify-center rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-5 py-3 text-sm font-semibold text-emerald-100 transition hover:border-emerald-300/50 hover:bg-emerald-400/15 hover:text-white"
+          >
+            {priority.action?.label || "Review Connected Accounts"} →
+          </Link>
+        </div>
+      </div>
+
+      <div className="grid divide-y divide-zinc-800 lg:grid-cols-3 lg:divide-x lg:divide-y-0">
         <div className="bg-zinc-950/40 p-5 md:p-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-            Business Health
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              Business Confidence
+            </p>
+
+            <ConfidenceTooltip />
+          </div>
 
           <p className="mt-3 text-5xl font-black text-white">
-            {businessHealthScore}
+            {Number(confidence.score || 0)}
           </p>
 
           <p
-            className={`mt-2 text-sm font-semibold ${getHealthTextClass(
-              healthLabel
+            className={`mt-2 text-sm font-semibold ${getConfidenceTextClass(
+              confidence.label
             )}`}
           >
-            {healthLabel}
+            {confidence.label || "Low confidence"}
           </p>
 
-          <p className="mt-4 text-sm leading-6 text-zinc-400">
-            Based on integration health, tracked revenue, available business
-            data, and account setup.
-          </p>
+          <div className="mt-5 space-y-2 border-t border-zinc-800 pt-4">
+            <DetailRow
+              label="Data confidence"
+              value={confidence.dataConfidence || "Limited"}
+            />
+
+            <DetailRow
+              label="Healthy connections"
+              value={`${Number(
+                confidence.healthyConnections || 0
+              )}/${Number(confidence.connectedAccounts || 0)}`}
+            />
+
+            <DetailRow
+              label="Business coverage"
+              value={confidence.businessCoverage || "Limited"}
+            />
+          </div>
         </div>
 
         <div className="bg-zinc-950/40 p-5 md:p-6">
           <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-            Today&apos;s Brief
-          </p>
-
-          <p className="mt-3 text-sm leading-6 text-zinc-300">
-            {briefNarrative}
+            Supporting Evidence
           </p>
 
           <div className="mt-4 space-y-3">
-            {briefItems.map((item) => (
-              <BriefItem
-                key={item.id}
-                label={item.label}
-                detail={item.detail}
-                importance={item.importance}
-              />
-            ))}
+            {evidence.length > 0 ? (
+              evidence.map((item) => (
+                <EvidenceItem
+                  key={item.id}
+                  text={item.text}
+                  importance={item.importance}
+                />
+              ))
+            ) : (
+              <p className="text-sm leading-6 text-zinc-400">
+                CreatorsHub is still gathering enough information to
+                support today&apos;s recommendation.
+              </p>
+            )}
           </div>
         </div>
 
-        <div className="bg-emerald-500/5 p-5 md:p-6">
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300">
-            Recommended Focus
+        <div className="bg-zinc-950/40 p-5 md:p-6">
+          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            Business Snapshot
           </p>
 
-          <h3 className="mt-3 text-xl font-bold text-white">
-            {recommendationTitle}
-          </h3>
-
-          <p className="mt-3 text-sm leading-6 text-zinc-300">
-            {recommendationDetail}
-          </p>
-
-          <div className="mt-4 border-t border-emerald-500/20 pt-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300">
-              Suggested action
-            </p>
-
-            <Link
-              href={recommendedAction.href}
-              className="mt-2 inline-flex text-sm font-semibold text-emerald-100 hover:text-white"
-            >
-              {recommendedAction.label} →
-            </Link>
+          <div className="mt-4 divide-y divide-zinc-800">
+            {snapshot.map((item) => (
+              <SnapshotRow
+                key={item.id}
+                label={item.label}
+                value={item.value}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -218,262 +136,42 @@ export default function BusinessTodaySection({
   );
 }
 
-function buildBriefNarrative({
-  businessSummary,
-  prioritySignal,
-  revenueThisMonth,
-}) {
-  const integrations = businessSummary?.integrations || {};
-  const revenue = businessSummary?.revenue || {};
-  const dataQuality = businessSummary?.dataQuality || {};
+function ConfidenceTooltip() {
+  return (
+    <span className="group relative inline-flex">
+      <button
+        type="button"
+        aria-label="What is Business Confidence?"
+        className="flex h-5 w-5 items-center justify-center rounded-full border border-zinc-700 text-[11px] font-bold text-zinc-400 transition hover:border-zinc-500 hover:text-white"
+      >
+        i
+      </button>
 
-  const connectionsNeedingAttention = Number(
-    integrations.connectionsNeedingAttention || 0
+      <span className="pointer-events-none absolute left-1/2 top-7 z-20 hidden w-72 -translate-x-1/2 rounded-2xl border border-zinc-700 bg-zinc-900 p-4 text-left shadow-2xl group-hover:block group-focus-within:block">
+        <span className="block text-sm font-semibold text-white">
+          Business Confidence
+        </span>
+
+        <span className="mt-2 block text-xs leading-5 text-zinc-400">
+          Shows how much CreatorsHub can trust today&apos;s analysis
+          based on data coverage, connection health, and data
+          reliability. It does not rate the health of your business.
+        </span>
+      </span>
+    </span>
   );
-
-  const monthlyGrowthPercent = Number(
-    revenue.monthlyGrowthPercent || 0
-  );
-
-  if (
-    prioritySignal?.id === "integration-health-warning" &&
-    connectionsNeedingAttention > 0
-  ) {
-    return connectionsNeedingAttention === 1
-      ? "One connected platform needs attention, so parts of today’s business analysis may be incomplete. Repair that connection before relying on its newest metrics."
-      : `${connectionsNeedingAttention} connected platforms need attention, so parts of today’s business analysis may be incomplete. Repair those connections before relying on their newest metrics.`;
-  }
-
-  if (monthlyGrowthPercent > 0) {
-    return `Tracked revenue increased ${monthlyGrowthPercent}% compared with the previous tracked month. Review the strongest revenue sources to identify what may be worth repeating.`;
-  }
-
-  if (monthlyGrowthPercent < 0) {
-    return `Tracked revenue decreased ${Math.abs(
-      monthlyGrowthPercent
-    )}% compared with the previous tracked month. Review the revenue timeline before changing your strategy.`;
-  }
-
-  if (Number(revenueThisMonth || 0) > 0) {
-    return `${formatCurrency(
-      revenueThisMonth
-    )} has been tracked this month. CreatorsHub has not detected a major month-over-month movement yet.`;
-  }
-
-  if (dataQuality.confidence === "low") {
-    return "CreatorsHub is still building a reliable picture of your business. Connecting more platforms and tracking revenue consistently will improve today’s recommendations.";
-  }
-
-  return "No major business movement has been confirmed for the current period. Review the supporting metrics below and keep your connected platforms synchronized.";
 }
 
-function buildBriefItems({
-  businessSummary,
-  businessSignals,
-  prioritySignalId,
-  totalRevenue,
-  revenueThisMonth,
-  hasCurrentMonthRevenueData,
-  totalFollowers,
-  productsCount,
-}) {
-
-  const items = [];
-
-  const audienceSummary = businessSummary?.audience || {};
-
-  const commerceSummary = businessSummary?.commerce || {};
-
-  const commerceRevenue = Number(
-    commerceSummary.revenue || 0
+function DetailRow({ label, value }) {
+  return (
+    <div className="flex items-center justify-between gap-4 text-xs">
+      <span className="text-zinc-500">{label}</span>
+      <span className="font-semibold text-zinc-300">{value}</span>
+    </div>
   );
-
-  const commerceOrders = Number(
-    commerceSummary.orders || 0
-  );
-
-  const commerceProducts = Number(
-    commerceSummary.products || 0
-  );
-
-  const averageOrderValue = Number(
-    commerceSummary.averageOrderValue || 0
-  );
-
-  const platformSubscribers = Number(
-    audienceSummary.subscribers || 0
-  );
-
-  const platformFollowers = Number(
-    audienceSummary.followers || 0
-  );
-
-  const platformViews = Number(
-    audienceSummary.views || 0
-  );
-
-  const monthlyGrowthPercent = Number(
-    businessSummary?.revenue?.monthlyGrowthPercent || 0
-  );
-
-  items.push({
-    id: "revenue",
-    label:
-      monthlyGrowthPercent > 0
-        ? `Revenue increased ${monthlyGrowthPercent}%`
-        : monthlyGrowthPercent < 0
-          ? `Revenue decreased ${Math.abs(monthlyGrowthPercent)}%`
-          : hasCurrentMonthRevenueData
-            ? `Revenue this month: ${formatCurrency(revenueThisMonth)}`
-            : "No revenue recorded this month yet",
-
-    detail: hasCurrentMonthRevenueData
-      ? `Lifetime tracked revenue: ${formatCurrency(
-          businessSummary?.revenue?.total || totalRevenue
-        )}`
-      : `CreatorsHub needs a current-month entry before comparing revenue with the previous month. Lifetime tracked revenue is ${formatCurrency(
-          businessSummary?.revenue?.total || totalRevenue
-        )}.`,
-    importance:
-      monthlyGrowthPercent < 0
-        ? "high"
-        : monthlyGrowthPercent > 0
-          ? "medium"
-          : "low",
-  });
-
-  const additionalSignals = businessSignals
-    .filter((signal) => signal.id !== prioritySignalId)
-    .filter((signal) => signal.id !== "revenue-growth-positive")
-    .filter((signal) => signal.id !== "revenue-growth-negative")
-    .slice(0, 2);
-
-  additionalSignals.forEach((signal) => {
-    items.push({
-      id: signal.id,
-      label: signal.title,
-      detail: signal.reason,
-      importance: getSignalImportance(signal.severity),
-    });
-  });
-
-  if (items.length < 3) {
-    const audienceCount =
-      platformSubscribers ||
-      platformFollowers ||
-      Number(totalFollowers || 0);
-
-    const audienceLabel = platformSubscribers
-      ? `${formatNumber(platformSubscribers)} platform subscribers tracked`
-      : platformFollowers
-        ? `${formatNumber(platformFollowers)} platform followers tracked`
-        : `${formatNumber(totalFollowers)} marketplace followers tracked`;
-
-    const audienceDetail =
-      platformViews > 0
-        ? `${formatNumber(
-            platformViews
-          )} total platform views are currently available for audience analysis.`
-        : "Audience intelligence will become more detailed as historical platform snapshots are collected.";
-
-    items.push({
-      id: "audience",
-      label:
-        audienceCount > 0
-          ? audienceLabel
-          : "Audience data is still limited",
-      detail: audienceDetail,
-      importance: audienceCount > 0 ? "medium" : "low",
-    });
-  }
-
-  if (items.length < 3) {
-    const marketplaceProducts = Number(productsCount || 0);
-
-    const hasConnectedCommerceProducts =
-      commerceProducts > 0;
-
-    const trackedProducts = hasConnectedCommerceProducts
-      ? commerceProducts
-      : marketplaceProducts;
-
-    let label = hasConnectedCommerceProducts
-      ? `${formatNumber(
-          trackedProducts
-        )} connected commerce products tracked`
-      : `${formatNumber(
-          trackedProducts
-        )} marketplace products listed`;
-
-    let detail = hasConnectedCommerceProducts
-      ? `${formatNumber(
-          marketplaceProducts
-        )} additional products are listed in the CreatorsHub marketplace.`
-      : "Commerce recommendations will improve as product, order, and customer data expands.";
-
-    let importance = "low";
-
-    if (commerceOrders > 0) {
-      label = `${formatNumber(commerceOrders)} commerce orders tracked`;
-      detail =
-        averageOrderValue > 0
-          ? `Average order value is ${formatCurrency(
-              averageOrderValue
-            )}.`
-          : `${formatCurrency(
-              commerceRevenue
-            )} in connected commerce revenue is currently available.`;
-        importance = "medium";
-    } else if (commerceRevenue > 0) {
-      label = `${formatCurrency(
-        commerceRevenue
-      )} in commerce revenue tracked`;
-      detail =
-        trackedProducts > 0
-          ? hasConnectedCommerceProducts
-            ? `${formatNumber(
-                trackedProducts
-              )} connected commerce products are currently available for analysis.`
-            : `${formatNumber(
-                trackedProducts
-              )} marketplace products are currently available for analysis.`
-          : "Connect order and product data to improve commerce recommendations.";
-            importance = "medium";
-    }
-
-    items.push({
-      id: "commerce",
-      label,
-      detail,
-      importance,
-    });
-  }
-
-  return items.slice(0, 3);
 }
 
-function getSignalImportance(severity) {
-  if (severity === "high") return "high";
-  if (severity === "medium") return "medium";
-  return "low";
-}
-
-function getHealthLabel({ score, connectionsNeedingAttention }) {
-  if (connectionsNeedingAttention > 0) return "Needs attention";
-  if (score >= 80) return "Strong";
-  if (score >= 60) return "Stable";
-  if (score >= 40) return "Developing";
-  return "Limited data";
-}
-
-function getHealthTextClass(label) {
-  if (label === "Strong") return "text-emerald-400";
-  if (label === "Stable") return "text-blue-400";
-  if (label === "Needs attention") return "text-amber-400";
-  return "text-zinc-400";
-}
-
-function BriefItem({ label, detail, importance = "medium" }) {
+function EvidenceItem({ text, importance = "low" }) {
   return (
     <div className="flex gap-3 rounded-2xl border border-zinc-800 bg-black/20 px-4 py-3">
       <span
@@ -484,14 +182,42 @@ function BriefItem({ label, detail, importance = "medium" }) {
         }}
       />
 
-      <div>
-        <p className="text-sm font-semibold text-white">{label}</p>
-        <p className="mt-1 text-xs leading-5 text-zinc-500">
-          {detail}
-        </p>
-      </div>
+      <p className="text-sm leading-6 text-zinc-300">
+        {text}
+      </p>
     </div>
   );
+}
+
+function SnapshotRow({ label, value }) {
+  return (
+    <div className="flex items-center justify-between gap-5 py-3 first:pt-0 last:pb-0">
+      <span className="text-sm text-zinc-500">{label}</span>
+      <span className="text-right text-sm font-bold text-white">
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function getConfidenceTextClass(label) {
+  if (label === "High confidence") {
+    return "text-emerald-400";
+  }
+
+  if (label === "Good confidence") {
+    return "text-blue-400";
+  }
+
+  if (label === "Needs attention") {
+    return "text-amber-400";
+  }
+
+  if (label === "Limited confidence") {
+    return "text-zinc-400";
+  }
+
+  return "text-zinc-500";
 }
 
 function getImportanceColor(importance) {
@@ -510,18 +236,4 @@ function getImportanceGlow(importance) {
   }
 
   return "rgba(113, 113, 122, 0.35)";
-}
-
-function formatNumber(value) {
-  return new Intl.NumberFormat("en-US", {
-    notation: Number(value || 0) >= 10000 ? "compact" : "standard",
-    maximumFractionDigits: 1,
-  }).format(Number(value || 0));
-}
-
-function formatCurrency(value) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(Number(value || 0));
 }

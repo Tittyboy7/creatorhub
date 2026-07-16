@@ -21,6 +21,33 @@ function formatPlatformName(platform) {
   );
 }
 
+function getAffectedBusinessAreas(platforms = []) {
+  const platformAreaMap = {
+    youtube: "audience and content",
+    twitch: "audience and content",
+    kick: "audience and content",
+    shopify: "commerce",
+    fourthwall: "commerce",
+    gumroad: "commerce",
+    patreon: "community and membership",
+    stripe: "revenue and payments",
+    paypal: "revenue and payments",
+    streamlabs: "donations and revenue",
+    streamelements: "donations and revenue",
+  };
+
+  return [
+    ...new Set(
+      platforms
+        .map((platform) => {
+          const key = String(platform || "").toLowerCase();
+          return platformAreaMap[key] || null;
+        })
+        .filter(Boolean)
+    ),
+  ];
+}
+
 export function buildBusinessSignals({
   totalRevenue = 0,
   monthlyGrowthPercent = 0,
@@ -35,9 +62,17 @@ export function buildBusinessSignals({
   const signals = [];
 
   if (connectionsNeedingAttention > 0) {
-    const platformNames = affectedPlatforms
-      .filter(Boolean)
-      .map(formatPlatformName);
+    const rawPlatformNames = affectedPlatforms.filter(Boolean);
+
+    const platformNames = rawPlatformNames.map(formatPlatformName);
+
+    const affectedBusinessAreas =
+      getAffectedBusinessAreas(rawPlatformNames);
+
+    const businessAreaLabel =
+      affectedBusinessAreas.length > 0
+        ? affectedBusinessAreas.join(", ")
+        : "business";
 
     const platformLabel =
       platformNames.length > 0
@@ -55,8 +90,8 @@ export function buildBusinessSignals({
           : `${connectionsNeedingAttention} platform connections need attention`,
       reason:
         connectionsNeedingAttention === 1
-          ? `${platformLabel} currently has a sync error, so some business data may be incomplete or outdated.`
-          : `${connectionsNeedingAttention} connected accounts currently have sync errors, so parts of your business intelligence may be incomplete or outdated.`,
+          ? `${platformLabel} currently has a sync error, so its ${businessAreaLabel} data may be incomplete or outdated.`
+          : `${connectionsNeedingAttention} connected accounts currently have sync errors, so parts of your ${businessAreaLabel} intelligence may be incomplete or outdated.`,
       recommendation:
         "Repair the affected connection before relying on its latest metrics or recommendations.",
       metric: connectionsNeedingAttention,
@@ -67,6 +102,7 @@ export function buildBusinessSignals({
       metadata: {
         connectionsNeedingAttention,
         affectedPlatforms: platformNames,
+        affectedBusinessAreas,
       },
     });
   }

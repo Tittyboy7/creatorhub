@@ -11,6 +11,7 @@ import { buildBusinessSignals } from "@/lib/business/buildBusinessSignals";
 import { buildBusinessCauses } from "@/lib/business/buildBusinessCauses";
 import { buildBusinessMetrics } from "@/lib/business/buildBusinessMetrics";
 import { buildBusinessSummary } from "@/lib/business/buildBusinessSummary";
+import { buildBusinessToday } from "@/lib/business/buildBusinessToday";
 import BusinessTodaySection from "@/components/dashboard/today/BusinessTodaySection";
 
 function getNotificationTypeClass(type) {
@@ -315,6 +316,16 @@ export default function DashboardPage() {
     topPlatformPercent,
   });
 
+  const businessToday = buildBusinessToday({
+    businessSummary,
+    businessSignals,
+    businessCauses,
+    hasCurrentMonthRevenueData,
+    revenueThisMonth,
+    totalFollowers,
+    productsCount: products.length,
+  });
+
   const checklistItems = [
     {
       label: "Create your creator profile",
@@ -417,17 +428,7 @@ export default function DashboardPage() {
 
         <div className="mt-8">
           <BusinessTodaySection
-            businessSummary={businessSummary}
-            businessSignals={businessSignals}
-            businessCauses={businessCauses}
-            totalRevenue={totalRevenue}
-            revenueThisMonth={revenueThisMonth}
-            hasCurrentMonthRevenueData={hasCurrentMonthRevenueData}
-            totalFollowers={totalFollowers}
-            productsCount={products.length}
-            notificationsCount={notifications.length}
-            completedSetupCount={completedCount}
-            setupItemCount={checklistItems.length}
+            businessToday={businessToday}
           />
         </div>
       </div>
