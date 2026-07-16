@@ -435,29 +435,26 @@ export default function DashboardPage() {
 
       {creator && (
         <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-              <p className="text-sm text-zinc-400">This Month</p>
-              <p className="mt-1 break-words text-2xl font-bold">
-                {formatCurrency(revenueThisMonth)}
-              </p>
-            </div>
+          <button
+            type="button"
+            onClick={() => setShowMoreAnalytics((current) => !current)}
+            aria-expanded={showMoreAnalytics}
+            className="flex w-full items-center justify-between rounded-2xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-left transition hover:border-zinc-700 hover:bg-zinc-900"
+          >
+            <span>
+              <span className="block text-sm font-semibold text-zinc-200">
+                Additional analytics
+              </span>
 
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-              <p className="text-sm text-zinc-400">Followers</p>
-              <p className="mt-1 text-2xl font-bold">{totalFollowers}</p>
-            </div>
+              <span className="mt-1 block text-xs text-zinc-500">
+                Favorites, ratings, checkout activity, and tracking records.
+              </span>
+            </span>
 
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-              <p className="text-sm text-zinc-400">Views</p>
-              <p className="mt-1 text-2xl font-bold">{totalViews}</p>
-            </div>
-
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
-              <p className="text-sm text-zinc-400">Products</p>
-              <p className="mt-1 text-2xl font-bold">{products.length}</p>
-            </div>
-          </div>
+            <span className="ml-4 shrink-0 text-sm font-semibold text-zinc-400">
+              {showMoreAnalytics ? "Hide ↑" : "View ↓"}
+            </span>
+          </button>
 
           {showMoreAnalytics && (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -496,15 +493,6 @@ export default function DashboardPage() {
               </div>
             </div>
           )}
-
-          <button
-            onClick={() => setShowMoreAnalytics(!showMoreAnalytics)}
-            className="text-sm font-semibold text-zinc-400 hover:text-white"
-          >
-            {showMoreAnalytics
-              ? "Show less analytics ↑"
-              : "Show more analytics ↓"}
-          </button>
         </div>
       )}
 

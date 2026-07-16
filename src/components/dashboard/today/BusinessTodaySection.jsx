@@ -40,6 +40,18 @@ export default function BusinessTodaySection({
               {priority.explanation ||
                 "Connect platforms and track your business consistently so CreatorsHub can identify stronger risks and opportunities."}
             </p>
+
+            {priority.impact && (
+              <div className="mt-5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                  Estimated impact
+                </p>
+
+                <p className="mt-2 text-sm font-semibold capitalize text-amber-300">
+                  {priority.impact}
+                </p>
+              </div>
+            )}
           </div>
 
           <Link

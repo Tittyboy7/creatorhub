@@ -150,20 +150,45 @@ function buildPriority({
   }
 
   return {
-    id: signal.id,
-    eyebrow: "Today’s Priority",
-    title: signal.title,
-    explanation:
-      cause?.explanation ||
-      signal.reason ||
-      signal.recommendation,
-    action: signal.action || {
-      label: "Review Business Intelligence",
-      href: "/dashboard",
-    },
-    severity: signal.severity || "low",
-  };
-}
+      id: signal.id,
+
+      eyebrow: "Today’s Priority",
+
+      title:
+        signal.id === "integration-health-warning" &&
+        signal.metadata?.affectedPlatforms?.length === 1
+          ? `Reconnect ${signal.metadata.affectedPlatforms[0]}`
+          : signal.title,
+
+      explanation:
+        cause?.explanation ||
+        signal.reason ||
+        signal.recommendation,
+
+      impact:
+        signal.metadata?.affectedBusinessAreas?.length > 0
+          ? `${signal.metadata.affectedBusinessAreas.join(
+              ", "
+            )} intelligence`
+          : signal.category,
+
+      action:
+        signal.id === "integration-health-warning" &&
+        signal.metadata?.affectedPlatforms?.length === 1
+          ? {
+              label: `Reconnect ${signal.metadata.affectedPlatforms[0]}`,
+              href: `/connected-accounts/${String(
+                signal.metadata.affectedPlatforms[0]
+              ).toLowerCase()}`,
+            }
+          : signal.action || {
+              label: "Review Business Intelligence",
+              href: "/dashboard",
+            },
+
+      severity: signal.severity || "low",
+    };
+  }
 
 function buildEvidence({
   businessSummary,
@@ -303,14 +328,55 @@ function buildSnapshot({
   const commerce = businessSummary?.commerce || {};
   const integrations = businessSummary?.integrations || {};
 
-  const audienceCount =
-    Number(audience.subscribers || 0) ||
-    Number(audience.followers || 0) ||
-    Number(totalFollowers || 0);
+  const platformSubscribers = Number(
+    audience.subscribers || 0
+  );
 
-  const productCount =
-    Number(commerce.products || 0) ||
-    Number(productsCount || 0);
+  const platformFollowers = Number(
+    audience.followers || 0
+  );
+
+  const marketplaceFollowers = Number(
+    totalFollowers || 0
+  );
+
+  const audienceSnapshotValue =
+    platformSubscribers > 0
+      ? `${formatNumber(platformSubscribers)} subscribers`
+      : platformFollowers > 0
+        ? `${formatNumber(platformFollowers)} followers`
+        : `${formatNumber(marketplaceFollowers)} marketplace`;
+
+  const connectedCommerceProducts = Number(
+      commerce.products || 0
+    );
+
+    const marketplaceProducts = Number(
+      productsCount || 0
+    );
+
+    const affectedPlatforms = Array.isArray(
+      integrations.affectedPlatforms
+    )
+      ? integrations.affectedPlatforms
+      : [];
+
+    const hasCommerceConnectionIssue = affectedPlatforms.some(
+      (platform) =>
+        ["shopify", "fourthwall", "gumroad"].includes(
+          String(platform || "").toLowerCase()
+        )
+    );
+
+    const productSnapshotValue =
+      connectedCommerceProducts > 0 &&
+      !hasCommerceConnectionIssue
+        ? `${formatNumber(
+            connectedCommerceProducts
+          )} connected`
+        : `${formatNumber(
+            marketplaceProducts
+          )} marketplace`;
 
   return [
     {
@@ -321,12 +387,12 @@ function buildSnapshot({
     {
       id: "audience",
       label: "Audience",
-      value: formatNumber(audienceCount),
+      value: audienceSnapshotValue,
     },
     {
       id: "commerce",
       label: "Products",
-      value: formatNumber(productCount),
+      value: productSnapshotValue,
     },
     {
       id: "connections",
