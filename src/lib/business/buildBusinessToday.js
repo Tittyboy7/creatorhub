@@ -1,11 +1,4 @@
-function getConfidenceLabel({
-  score,
-  connectionsNeedingAttention,
-}) {
-  if (connectionsNeedingAttention > 0) {
-    return "Needs attention";
-  }
-
+function getConfidenceLabel({ score }) {
   if (score >= 80) return "High confidence";
   if (score >= 60) return "Good confidence";
   if (score >= 40) return "Limited confidence";
@@ -90,7 +83,6 @@ function buildConfidence({
 
     label: getConfidenceLabel({
       score,
-      connectionsNeedingAttention,
     }),
 
     dataConfidence:
@@ -129,25 +121,36 @@ function buildPriority({
     null;
 
   if (!signal) {
-    return {
-      id: "business-foundation",
-      eyebrow: "Today’s Priority",
-      title: "Build a stronger business data foundation",
-      explanation:
-        "Connect platforms and track revenue consistently so CreatorsHub can identify stronger risks and opportunities.",
-      action: {
-        label:
-          connectedAccounts > 0
-            ? "Open Revenue Intelligence"
-            : "Connect a Platform",
-        href:
-          connectedAccounts > 0
-            ? "/revenue"
-            : "/connected-accounts",
-      },
-      severity: "low",
-    };
-  }
+    if (connectedAccounts > 0) {
+      return {
+        id: "no-urgent-action",
+        eyebrow: "Today’s Priority",
+        title: "No urgent business action detected",
+        explanation:
+          "CreatorsHub has not identified a high-priority risk or opportunity from the currently available data. Keep your platforms synchronized and review the supporting snapshot for smaller changes.",
+        impact: "Business monitoring",
+        action: {
+          label: "Review Revenue Intelligence",
+          href: "/revenue",
+        },
+        severity: "low",
+      };
+    }
+
+  return {
+    id: "business-foundation",
+    eyebrow: "Today’s Priority",
+    title: "Build a stronger business data foundation",
+    explanation:
+      "Connect platforms and track revenue consistently so CreatorsHub can identify stronger risks and opportunities.",
+    impact: "Recommendation quality",
+    action: {
+      label: "Connect a Platform",
+      href: "/connected-accounts",
+    },
+    severity: "low",
+  };
+}
 
   return {
       id: signal.id,
@@ -213,30 +216,37 @@ function buildEvidence({
   if (monthlyGrowthPercent > 0) {
     evidence.push({
       id: "revenue-growth",
-      text: `Revenue increased ${monthlyGrowthPercent}% compared with the previous tracked month.`,
+      title: `Revenue increased ${monthlyGrowthPercent}%`,
+      detail:
+        "Tracked revenue increased compared with the previous tracked month.",
       importance: "medium",
     });
   } else if (monthlyGrowthPercent < 0) {
     evidence.push({
       id: "revenue-decline",
-      text: `Revenue decreased ${Math.abs(
+      title: `Revenue decreased ${Math.abs(
         monthlyGrowthPercent
-      )}% compared with the previous tracked month.`,
+      )}%`,
+      detail:
+        "Tracked revenue declined compared with the previous tracked month.",
       importance: "high",
     });
   } else if (hasCurrentMonthRevenueData) {
     evidence.push({
       id: "revenue-current-month",
-      text: `${formatCurrency(
+      title: `${formatCurrency(
         revenueThisMonth
-      )} has been recorded this month.`,
+      )} recorded this month`,
+      detail:
+        "No significant month-over-month movement has been confirmed yet.",
       importance: "low",
     });
   } else {
     evidence.push({
       id: "revenue-missing-current-month",
-      text:
-        "No current-month revenue entry has been recorded yet.",
+      title: "No revenue recorded this month",
+      detail:
+        "A current-month entry is needed before CreatorsHub can calculate a month-over-month change.",
       importance: "low",
     });
   }
@@ -252,7 +262,8 @@ function buildEvidence({
     .forEach((signal) => {
       evidence.push({
         id: signal.id,
-        text: signal.reason || signal.title,
+        title: signal.title,
+        detail: signal.reason || signal.recommendation,
         importance:
           signal.severity === "high"
             ? "high"
@@ -263,20 +274,58 @@ function buildEvidence({
     });
 
   if (evidence.length < 3) {
-    const audienceCount =
-      Number(audience.subscribers || 0) ||
-      Number(audience.followers || 0) ||
-      Number(totalFollowers || 0);
+    const platformSubscribers = Number(
+      audience.subscribers || 0
+    );
+
+    const platformFollowers = Number(
+      audience.followers || 0
+    );
+
+    const marketplaceFollowers = Number(
+      totalFollowers || 0
+    );
+
+    let audienceText = "Audience data is currently limited.";
+    let hasAudienceData = false;
+
+    if (platformSubscribers > 0) {
+      audienceText = `${formatNumber(
+        platformSubscribers
+      )} connected-platform subscribers are currently available for analysis.`;
+
+      hasAudienceData = true;
+    } else if (platformFollowers > 0) {
+      audienceText = `${formatNumber(
+        platformFollowers
+      )} connected-platform followers are currently available for analysis.`;
+
+      hasAudienceData = true;
+    } else if (marketplaceFollowers > 0) {
+      audienceText = `${formatNumber(
+        marketplaceFollowers
+      )} CreatorsHub marketplace followers are currently tracked. Connected audience data will improve this analysis.`;
+
+      hasAudienceData = true;
+    }
 
     evidence.push({
       id: "audience",
-      text:
-        audienceCount > 0
-          ? `${formatNumber(
-              audienceCount
-            )} audience members are currently available for analysis.`
-          : "Audience data is currently limited.",
-      importance: audienceCount > 0 ? "medium" : "low",
+      title:
+        platformSubscribers > 0
+          ? `${formatNumber(platformSubscribers)} platform subscribers`
+          : platformFollowers > 0
+            ? `${formatNumber(platformFollowers)} platform followers`
+            : marketplaceFollowers > 0
+              ? `${formatNumber(marketplaceFollowers)} marketplace followers`
+              : "Audience data is limited",
+      detail:
+        platformSubscribers > 0 || platformFollowers > 0
+          ? "Connected audience data is currently available for analysis."
+          : marketplaceFollowers > 0
+            ? "Connecting audience platforms will improve audience intelligence."
+            : "Connect YouTube, Twitch, Kick, or another audience platform to improve recommendations.",
+      importance: hasAudienceData ? "medium" : "low",
     });
   }
 
@@ -287,30 +336,49 @@ function buildEvidence({
     const marketplaceProducts =
       Number(productsCount || 0);
 
-    const affectedPlatforms =
-      integrations.affectedPlatforms || [];
+    const affectedPlatforms = Array.isArray(
+      integrations.affectedPlatforms
+    )
+      ? integrations.affectedPlatforms
+      : [];
 
-    const hasCommerceIssue = affectedPlatforms.some(
+    const affectedCommercePlatforms = affectedPlatforms.filter(
       (platform) =>
         ["shopify", "fourthwall", "gumroad"].includes(
           String(platform || "").toLowerCase()
         )
     );
 
+    const hasCommerceIssue =
+      affectedCommercePlatforms.length > 0;
+
+    const affectedCommerceLabel =
+      affectedCommercePlatforms
+        .map(formatPlatformName)
+        .join(", ");
+
     evidence.push({
       id: "commerce",
-      text:
+      title:
         commerceProducts > 0
           ? hasCommerceIssue
             ? `${formatNumber(
                 commerceProducts
-              )} previously synced commerce products may be outdated.`
+              )} previously synced commerce products`
             : `${formatNumber(
                 commerceProducts
-              )} connected commerce products are available for analysis.`
+              )} connected commerce products`
           : `${formatNumber(
               marketplaceProducts
-            )} marketplace products are currently listed.`,
+            )} marketplace products`,
+      detail:
+        commerceProducts > 0 && hasCommerceIssue
+          ? `This commerce data may be outdated until ${
+              affectedCommerceLabel || "the affected platform"
+            } reconnects.`
+          : commerceProducts > 0
+            ? "Connected commerce data is currently available for analysis."
+            : "Connect a commerce platform to add order and storefront intelligence.",
       importance: hasCommerceIssue ? "medium" : "low",
     });
   }
@@ -340,12 +408,21 @@ function buildSnapshot({
     totalFollowers || 0
   );
 
-  const audienceSnapshotValue =
+  const audienceSnapshot =
     platformSubscribers > 0
-      ? `${formatNumber(platformSubscribers)} subscribers`
+      ? {
+          label: "Platform Subscribers",
+          value: formatNumber(platformSubscribers),
+        }
       : platformFollowers > 0
-        ? `${formatNumber(platformFollowers)} followers`
-        : `${formatNumber(marketplaceFollowers)} marketplace`;
+        ? {
+            label: "Platform Followers",
+            value: formatNumber(platformFollowers),
+          }
+        : {
+            label: "Marketplace Followers",
+            value: formatNumber(marketplaceFollowers),
+          };
 
   const connectedCommerceProducts = Number(
       commerce.products || 0
@@ -368,35 +445,37 @@ function buildSnapshot({
         )
     );
 
-    const productSnapshotValue =
+    const productSnapshot =
       connectedCommerceProducts > 0 &&
       !hasCommerceConnectionIssue
-        ? `${formatNumber(
-            connectedCommerceProducts
-          )} connected`
-        : `${formatNumber(
-            marketplaceProducts
-          )} marketplace`;
+        ? {
+            label: "Commerce Products",
+            value: formatNumber(connectedCommerceProducts),
+          }
+        : {
+            label: "Marketplace Products",
+            value: formatNumber(marketplaceProducts),
+          };
 
   return [
     {
       id: "revenue",
-      label: "Tracked Revenue",
+      label: "Lifetime Revenue",
       value: formatCurrency(revenue.total),
     },
     {
       id: "audience",
-      label: "Audience",
-      value: audienceSnapshotValue,
+      label: audienceSnapshot.label,
+      value: audienceSnapshot.value,
     },
     {
       id: "commerce",
-      label: "Products",
-      value: productSnapshotValue,
+      label: productSnapshot.label,
+      value: productSnapshot.value,
     },
     {
       id: "connections",
-      label: "Healthy Platforms",
+      label: "Healthy Connections",
       value: `${Number(
         integrations.healthyConnections || 0
       )}/${Number(integrations.connectedAccounts || 0)}`,
@@ -448,6 +527,33 @@ export function buildBusinessToday({
       productsCount,
     }),
   };
+}
+
+function formatPlatformName(platform) {
+  const platformNames = {
+    youtube: "YouTube",
+    twitch: "Twitch",
+    kick: "Kick",
+    shopify: "Shopify",
+    fourthwall: "Fourthwall",
+    gumroad: "Gumroad",
+    patreon: "Patreon",
+    stripe: "Stripe",
+    paypal: "PayPal",
+    streamlabs: "Streamlabs",
+    streamelements: "StreamElements",
+  };
+
+  const key = String(platform || "").toLowerCase();
+
+  return (
+    platformNames[key] ||
+    String(platform || "")
+      .replace(/[-_]/g, " ")
+      .replace(/\b\w/g, (character) =>
+        character.toUpperCase()
+      )
+  );
 }
 
 function formatCurrency(value) {

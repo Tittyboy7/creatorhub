@@ -11,6 +11,9 @@ export default function BusinessTodaySection({
   const snapshot = Array.isArray(businessToday?.snapshot)
     ? businessToday.snapshot
     : [];
+  const priorityStyles = getPriorityStyles(
+    priority.severity
+  );
 
   return (
     <section className="overflow-hidden rounded-[2rem] border border-zinc-800 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black">
@@ -24,8 +27,12 @@ export default function BusinessTodaySection({
         </h2>
       </div>
 
-      <div className="border-b border-zinc-800 bg-emerald-500/5 px-5 py-6 md:px-7 md:py-8">
-        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300">
+      <div
+        className={`border-b border-zinc-800 px-5 py-6 md:px-7 md:py-8 ${priorityStyles.background}`}
+      >
+        <p
+          className={`text-xs font-semibold uppercase tracking-wide ${priorityStyles.eyebrow}`}
+        >
           {priority.eyebrow || "Today’s Priority"}
         </p>
 
@@ -47,7 +54,9 @@ export default function BusinessTodaySection({
                   Estimated impact
                 </p>
 
-                <p className="mt-2 text-sm font-semibold capitalize text-amber-300">
+                <p
+                  className={`mt-2 text-sm font-semibold capitalize ${priorityStyles.impact}`}
+                >
                   {priority.impact}
                 </p>
               </div>
@@ -56,7 +65,7 @@ export default function BusinessTodaySection({
 
           <Link
             href={priority.action?.href || "/connected-accounts"}
-            className="inline-flex w-fit shrink-0 items-center justify-center rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-5 py-3 text-sm font-semibold text-emerald-100 transition hover:border-emerald-300/50 hover:bg-emerald-400/15 hover:text-white"
+            className={`inline-flex w-fit shrink-0 items-center justify-center rounded-2xl border px-5 py-3 text-sm font-semibold transition hover:text-white ${priorityStyles.button}`}
           >
             {priority.action?.label || "Review Connected Accounts"} →
           </Link>
@@ -115,7 +124,8 @@ export default function BusinessTodaySection({
               evidence.map((item) => (
                 <EvidenceItem
                   key={item.id}
-                  text={item.text}
+                  title={item.title}
+                  detail={item.detail}
                   importance={item.importance}
                 />
               ))
@@ -183,7 +193,11 @@ function DetailRow({ label, value }) {
   );
 }
 
-function EvidenceItem({ text, importance = "low" }) {
+function EvidenceItem({
+  title,
+  detail,
+  importance = "low",
+}) {
   return (
     <div className="flex gap-3 rounded-2xl border border-zinc-800 bg-black/20 px-4 py-3">
       <span
@@ -194,9 +208,17 @@ function EvidenceItem({ text, importance = "low" }) {
         }}
       />
 
-      <p className="text-sm leading-6 text-zinc-300">
-        {text}
-      </p>
+      <div>
+        <p className="text-sm font-semibold text-white">
+          {title}
+        </p>
+
+        {detail && (
+          <p className="mt-1 text-xs leading-5 text-zinc-500">
+            {detail}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
@@ -210,6 +232,36 @@ function SnapshotRow({ label, value }) {
       </span>
     </div>
   );
+}
+
+function getPriorityStyles(severity) {
+  if (severity === "high") {
+    return {
+      background: "bg-amber-500/5",
+      eyebrow: "text-amber-300",
+      impact: "text-amber-300",
+      button:
+        "border-amber-400/30 bg-amber-400/10 text-amber-100 hover:border-amber-300/50 hover:bg-amber-400/15",
+    };
+  }
+
+  if (severity === "medium") {
+    return {
+      background: "bg-blue-500/5",
+      eyebrow: "text-blue-300",
+      impact: "text-blue-300",
+      button:
+        "border-blue-400/30 bg-blue-400/10 text-blue-100 hover:border-blue-300/50 hover:bg-blue-400/15",
+    };
+  }
+
+  return {
+    background: "bg-emerald-500/5",
+    eyebrow: "text-emerald-300",
+    impact: "text-emerald-300",
+    button:
+      "border-emerald-400/30 bg-emerald-400/10 text-emerald-100 hover:border-emerald-300/50 hover:bg-emerald-400/15",
+  };
 }
 
 function getConfidenceTextClass(label) {
