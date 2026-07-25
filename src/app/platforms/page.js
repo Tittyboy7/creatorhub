@@ -10,8 +10,8 @@ import {
 
 export default function PlatformsPage() {
   return (
-    <div className="min-h-screen bg-zinc-950 px-5 py-6 text-white md:px-10 md:py-8">
-      <div className="mx-auto max-w-7xl space-y-5">
+    <div className="min-h-screen bg-zinc-950 px-4 py-6 text-white sm:px-6 lg:px-8 lg:py-8">
+      <div className="mx-auto max-w-[1480px] space-y-6">
         <PlatformHero />
 
         <PlatformSummaryBar platforms={platformHubMockData} />

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import UserMenu from "@/components/UserMenu";
+import AppNavbar from "@/components/navigation/AppNavbar";
 
 export default function Navbar() {
   const router = useRouter();
@@ -124,6 +125,25 @@ export default function Navbar() {
     notificationCount > 0
       ? `Notifications (${notificationCount})`
       : "Notifications";
+
+    if (user) {
+      return (
+        <AppNavbar
+          user={user}
+          notificationCount={notificationCount}
+          notificationLabel={notificationLabel}
+          purchaseListLabel={purchaseListLabel}
+          isAdmin={isAdmin}
+          userMenuOpen={userMenuOpen}
+          setUserMenuOpen={setUserMenuOpen}
+          userMenuRef={userMenuRef}
+          onLogout={handleLogout}
+          menuOpen={menuOpen}
+          setMenuOpen={setMenuOpen}
+          onCloseMenu={closeMenu}
+        />
+      );
+    }
 
   return (
     <header className="sticky top-0 z-50 bg-zinc-950/90 backdrop-blur border-b border-zinc-800">

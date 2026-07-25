@@ -1,9 +1,15 @@
 import PlatformCard from "./PlatformCard";
 
 function getGridClass(count) {
-  if (count <= 1) return "grid gap-3 lg:grid-cols-[minmax(0,420px)]";
-  if (count === 2) return "grid gap-3 lg:grid-cols-2";
-  return "grid gap-3 lg:grid-cols-3";
+  if (count <= 1) {
+    return "grid gap-4 lg:grid-cols-[minmax(0,480px)]";
+  }
+
+  if (count === 2) {
+    return "grid gap-4 lg:grid-cols-2";
+  }
+
+  return "grid gap-4 lg:grid-cols-3";
 }
 
 export default function PlatformGrid({ platforms }) {

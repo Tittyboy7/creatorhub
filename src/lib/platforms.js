@@ -19,11 +19,92 @@ const platformRegistry = [
     brandColor: "#FF0000",
     connectRoute: "/api/auth/google/start",
     detailRoute: "/platforms/youtube",
+
+    externalDashboard: {
+      label: "Open YouTube Studio",
+      href: "https://studio.youtube.com",
+    },
+
     intelligenceAvailable: true,
     supportsMultipleAccounts: true,
     connectionLabel: "Channel",
     connectionLabelPlural: "Channels",
     domains: ["revenue", "audience", "content"],
+
+    detailSections: [
+      {
+        key: "overview",
+        label: "Overview",
+        description:
+          "Review YouTube’s most important performance, audience, and revenue signals.",
+        importance: "primary",
+        layout: "full",
+        defaultExpanded: true,
+      },
+      {
+        key: "content",
+        label: "Content Performance",
+        description:
+          "Understand which videos, Shorts, and live streams are driving results.",
+        importance: "primary",
+        layout: "full",
+        defaultExpanded: true,
+      },
+      {
+        key: "audience",
+        label: "Audience",
+        description:
+          "Track viewer growth, returning viewers, subscribers, and audience behavior.",
+        importance: "primary",
+        layout: "full",
+        defaultExpanded: true,
+      },
+      {
+        key: "revenue",
+        label: "Revenue",
+        description:
+          "Review advertising, memberships, Supers, and other YouTube earnings.",
+        importance: "primary",
+        layout: "full",
+        defaultExpanded: true,
+      },
+      {
+        key: "reach",
+        label: "Reach",
+        description:
+          "Review impressions, click-through rate, discovery, and content reach.",
+        importance: "supporting",
+        layout: "half",
+        defaultExpanded: false,
+      },
+      {
+        key: "engagement",
+        label: "Engagement",
+        description:
+          "Track watch time, likes, comments, shares, and audience interaction.",
+        importance: "supporting",
+        layout: "half",
+        defaultExpanded: false,
+      },
+      {
+        key: "traffic",
+        label: "Traffic Sources",
+        description:
+          "Understand how viewers discover your content across YouTube and external sources.",
+        importance: "supporting",
+        layout: "half",
+        defaultExpanded: false,
+      },
+      {
+        key: "retention",
+        label: "Viewer Retention",
+        description:
+          "Identify where viewers stay engaged, lose interest, or leave your content.",
+        importance: "supporting",
+        layout: "half",
+        defaultExpanded: false,
+      },
+    ],
   },
   {
     key: "twitch",

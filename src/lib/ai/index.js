@@ -57,3 +57,12 @@ export { buildCreatorAIContext } from "./brain/buildCreatorAIContext";
 export { runWidgetSnapshotSkill } from "./skills/widgetSnapshotSkill";
 
 export { buildWidgetSnapshotAnalysis } from "./skills/buildWidgetSnapshotAnalysis";
+
+export { runBusinessBriefSkill } from "./skills/businessBriefSkill";
+
+export {
+  AI_SKILL_NAMES,
+  getAISkill,
+  hasAISkill,
+  getRegisteredAISkillNames,
+} from "./skills/skillRegistry";
