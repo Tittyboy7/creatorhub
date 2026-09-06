@@ -5,7 +5,7 @@ import buildBusinessBrief from "./intelligence/buildBusinessBrief";
 export default function buildSimulationSnapshot(
   creator,
   {
-    totalWeeks = 8,
+    totalWeeks = 52,
     currentPeriodWeeks = 4,
   } = {}
 ) {

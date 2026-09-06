@@ -52,12 +52,13 @@ function getAccentClasses(accent) {
   };
 }
 
-export default function PlatformInsightCard({
-  insight,
-  actionLabel,
-  accent = "violet",
-  onAction,
-  className = "",
+export default function PlatformInsightCard({ 
+  insight, 
+  actionLabel, 
+  accent = "violet", 
+  eyebrow = "What Matters",
+  onAction, 
+  className = "", 
 }) {
   const styles = getAccentClasses(accent);
 
@@ -68,7 +69,7 @@ export default function PlatformInsightCard({
       <p
         className={`text-xs font-semibold uppercase tracking-wide ${styles.eyebrow}`}
       >
-        AI Insight
+        {eyebrow}
       </p>
 
       <p className="mt-3 text-sm leading-6 text-zinc-300">{insight}</p>

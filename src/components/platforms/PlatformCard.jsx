@@ -1,4 +1,15 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import PlatformTrendChart from "./PlatformTrendChart";
+
+import {
+  getAvailablePlatformMetrics,
+  getDefaultPlatformMetricKeys,
+  getPlatformMetricKey,
+  resolvePlatformMetricKeys,
+} from "./platformMetricRegistry";
 
 const PLATFORM_VISUALS = {
   youtube: {
@@ -219,9 +230,14 @@ function PlatformLogo({ platform, className = "" }) {
   );
 }
 
-function Metric({ stat }) {
-  return (
-    <div className="min-w-0 border-r border-zinc-800/80 pr-3 last:border-r-0 last:pr-0">
+function Metric({
+  stat,
+  isSelected = false,
+  onSelect = null,
+  accentColor,
+}) {
+  const content = (
+    <>
       <p className="truncate text-[11px] font-medium text-zinc-500">
         {stat.label}
       </p>
@@ -236,15 +252,72 @@ function Metric({ stat }) {
             stat.trend
           )}`}
         >
-          {getTrendSymbol(stat.trend)}{" "}
-          {stat.trend.replace(/^[↑↓]/, "")}
+          {getTrendSymbol(
+            stat.trend
+          )}{" "}
+          {stat.trend.replace(
+            /^[↑↓]/,
+            ""
+          )}
         </p>
       ) : null}
-    </div>
+    </>
+  );
+
+  const className = `
+    relative
+    min-w-0
+    border-r
+    border-zinc-800/80
+    pr-3
+    text-left
+    last:border-r-0
+    last:pr-0
+    ${
+      onSelect
+        ? "cursor-pointer rounded-lg transition hover:bg-white/[0.025]"
+        : ""
+    }
+  `;
+
+  if (!onSelect) {
+    return (
+      <div className={className}>
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={isSelected}
+      className={className}
+    >
+      {content}
+
+      {isSelected ? (
+        <span
+          aria-hidden="true"
+          className="absolute -bottom-2 left-0 h-0.5 w-7 rounded-full"
+          style={{
+            backgroundColor:
+              accentColor,
+            boxShadow: `0 0 8px ${accentColor}`,
+          }}
+        />
+      ) : null}
+    </button>
   );
 }
 
-function MiniTrendChart({ color }) {
+function LegacyMiniTrendChart({ color }) {
+  const gradientId = `legacy-trend-${color.replace(
+    "#",
+    ""
+  )}`;
+
   return (
     <div className="relative h-16 overflow-hidden">
       <svg
@@ -255,7 +328,7 @@ function MiniTrendChart({ color }) {
       >
         <defs>
           <linearGradient
-            id={`trend-${color.replace("#", "")}`}
+            id={gradientId}
             x1="0"
             y1="0"
             x2="0"
@@ -277,7 +350,7 @@ function MiniTrendChart({ color }) {
 
         <path
           d="M0 54 C25 51, 34 40, 58 44 C84 48, 91 30, 116 35 C143 40, 155 22, 181 29 C208 36, 216 18, 241 27 C268 37, 279 25, 302 31 C327 37, 345 20, 367 27 C389 33, 401 22, 420 17 L420 72 L0 72 Z"
-          fill={`url(#trend-${color.replace("#", "")})`}
+          fill={`url(#${gradientId})`}
         />
 
         <path
@@ -292,10 +365,221 @@ function MiniTrendChart({ color }) {
   );
 }
 
-export default function PlatformCard({ platform }) {
+export default function PlatformCard({
+  platform,
+  selectedMetricKeys: preferredMetricKeys = null,
+}) {
   const visual =
     PLATFORM_VISUALS[platform.key] ||
     DEFAULT_VISUAL;
+
+  const availableMetricKeys =
+    Array.from(
+      new Set(
+        [
+          ...(platform.todayStats || [])
+            .map(
+              (stat) =>
+                stat.metricKey ||
+                getPlatformMetricKey(
+                  platform.key,
+                  stat.label
+                )
+            ),
+
+          ...(
+            platform.trendHistory?.[
+              platform.trendHistory.length -
+                1
+            ]?.metrics
+              ? Object.keys(
+                  platform.trendHistory[
+                    platform.trendHistory.length -
+                      1
+                  ].metrics
+                )
+              : []
+          ),
+        ].filter(Boolean)
+      )
+    );
+
+  const [
+    customMetricKeys,
+    setCustomMetricKeys,
+  ] = useState(
+    preferredMetricKeys || []
+  );  
+
+  const selectedMetricKeys =
+    resolvePlatformMetricKeys({
+      platformKey:
+        platform.key,
+
+      preferredMetricKeys:
+        customMetricKeys,
+
+      availableMetricKeys,
+    });
+
+  const availableMetrics =
+    getAvailablePlatformMetrics({
+      platformKey:
+        platform.key,
+
+      availableMetricKeys,
+    });
+
+  const defaultMetricKeys =
+    getDefaultPlatformMetricKeys(
+      platform.key
+    );
+
+  const defaultMetricKey =
+    selectedMetricKeys[0] ||
+    "views";
+
+  const [selectedMetricKey, setSelectedMetricKey] =
+    useState(defaultMetricKey);
+
+  const [isMetricTransitioning, setIsMetricTransitioning] =
+    useState(false);
+
+  const [
+    isMetricCustomizerOpen,
+    setIsMetricCustomizerOpen,
+  ] = useState(false);
+
+  const [
+    draftMetricKeys,
+    setDraftMetricKeys,
+  ] = useState([]);
+
+function openMetricCustomizer() {
+  setDraftMetricKeys(
+    selectedMetricKeys
+  );
+
+  setIsMetricCustomizerOpen(
+    true
+  );
+}
+
+function toggleDraftMetric(
+  metricKey
+) {
+  setDraftMetricKeys(
+    (currentKeys) => {
+      if (
+        currentKeys.includes(
+          metricKey
+        )
+      ) {
+        return currentKeys.filter(
+          (key) =>
+            key !== metricKey
+        );
+      }
+
+      if (
+        currentKeys.length >= 4
+      ) {
+        return currentKeys;
+      }
+
+      return [
+        ...currentKeys,
+        metricKey,
+      ];
+    }
+  );
+}
+
+async function applyMetricCustomization() {
+  if (
+    draftMetricKeys.length !== 4
+  ) {
+    return;
+  }
+
+  setCustomMetricKeys(
+    draftMetricKeys
+  );
+
+  if (
+    !draftMetricKeys.includes(
+      selectedMetricKey
+    )
+  ) {
+    setSelectedMetricKey(
+      draftMetricKeys[0]
+    );
+  }
+
+  setIsMetricCustomizerOpen(
+    false
+  );
+
+  try {
+    const response =
+      await fetch(
+        "/api/preferences/platform-hub",
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            platformKey:
+              platform.key,
+
+            metricKeys:
+              draftMetricKeys,
+          }),
+        }
+      );
+
+    if (!response.ok) {
+      const result =
+        await response.json();
+
+      console.warn(
+        "Unable to save Platform Hub metric preferences.",
+        result
+      );
+    }
+  } catch (error) {
+    console.warn(
+      "Unable to save Platform Hub metric preferences.",
+      error
+    );
+  }
+}
+
+  const hasInteractiveTrend =
+    Boolean(
+      platform.trendHistory?.length
+    );
+
+  const orderedTodayStats =
+    selectedMetricKeys.length
+      ? selectedMetricKeys
+          .map((metricKey) =>
+            platform.todayStats.find(
+              (stat) =>
+                stat.metricKey ===
+                  metricKey ||
+                getPlatformMetricKey(
+                  platform.key,
+                  stat.label
+                ) === metricKey
+            )
+          )
+          .filter(Boolean)
+      : platform.todayStats.slice(0, 4);
 
   return (
     <article
@@ -326,20 +610,20 @@ export default function PlatformCard({ platform }) {
       `}
     >
       <div
-  aria-hidden="true"
-  className={`
-    absolute
-    inset-y-5
-    left-0
-    w-[2px]
-    rounded-full
-    bg-gradient-to-b
-    from-current
-    via-current/70
-    to-transparent
-    ${visual.accentText}
-  `}
-/>
+        aria-hidden="true"
+        className={`
+          absolute
+          inset-y-5
+          left-0
+          w-[2px]
+          rounded-full
+          bg-gradient-to-b
+          from-current
+          via-current/70
+          to-transparent
+          ${visual.accentText}
+        `}
+      />
 
       <header className="flex items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
@@ -379,6 +663,12 @@ export default function PlatformCard({ platform }) {
         </div>
 
         <span
+          title={
+            platform.status === "attention"
+              ? platform.attentionReason ||
+                `Needs attention. Last synced ${platform.lastSynced}.`
+              : undefined
+          }
           className={`
             inline-flex
             shrink-0
@@ -404,29 +694,394 @@ export default function PlatformCard({ platform }) {
       </header>
 
       <section className="mt-6">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-          Today
-        </p>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+            Today
+          </p>
+
+          {availableMetricKeys.length > 4 ? (
+            <button
+              type="button"
+              onClick={() => {
+                if (
+                  isMetricCustomizerOpen
+                ) {
+                  setIsMetricCustomizerOpen(
+                    false
+                  );
+
+                  return;
+                }
+
+                openMetricCustomizer();
+              }}
+              aria-expanded={
+                isMetricCustomizerOpen
+              }
+              className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[11px] font-medium text-zinc-500 transition hover:bg-white/[0.035] hover:text-zinc-300"
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                className="h-3.5 w-3.5"
+              >
+                <path
+                  d="M4 7h10"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                />
+
+                <path
+                  d="M18 7h2"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                />
+
+                <path
+                  d="M4 17h2"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                />
+
+                <path
+                  d="M10 17h10"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                  strokeLinecap="round"
+                />
+
+                <circle
+                  cx="16"
+                  cy="7"
+                  r="2"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                />
+
+                <circle
+                  cx="8"
+                  cy="17"
+                  r="2"
+                  stroke="currentColor"
+                  strokeWidth="1.7"
+                />
+              </svg>
+              
+              Customize
+            </button>
+          ) : null}
+        </div>
+
+        {isMetricCustomizerOpen ? (
+          <div
+            className="
+              mt-3
+              rounded-xl
+              border
+              border-zinc-800
+              bg-black/25
+              p-3
+            "
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold text-zinc-200">
+                  Customize metrics
+                </p>
+
+                <p className="mt-1 text-[11px] leading-4 text-zinc-500">
+                  Choose exactly 4 metrics to show on this card.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setIsMetricCustomizerOpen(
+                    false
+                  )
+                }
+                aria-label="Close metric customization"
+                className="
+                  flex
+                  h-7
+                  w-7
+                  shrink-0
+                  items-center
+                  justify-center
+                  rounded-lg
+                  text-zinc-500
+                  transition
+                  hover:bg-white/[0.04]
+                  hover:text-zinc-300
+                "
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="h-4 w-4"
+                >
+                  <path
+                    d="M6 6l12 12M18 6 6 18"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mt-3">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[11px] text-zinc-500">
+                  {draftMetricKeys.length} of 4 selected
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDraftMetricKeys(
+                      defaultMetricKeys
+                    )
+                  }
+                  className="
+                    text-[11px]
+                    font-medium
+                    text-zinc-500
+                    transition
+                    hover:text-zinc-300
+                  "
+                >
+                  Restore defaults
+                </button>
+              </div>
+
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                {availableMetrics.map(
+                  (metric) => {
+                    const isSelected =
+                      draftMetricKeys.includes(
+                        metric.key
+                      );
+
+                    const isDisabled =
+                      !isSelected &&
+                      draftMetricKeys.length >=
+                        4;
+
+                    return (
+                      <button
+                        key={metric.key}
+                        type="button"
+                        disabled={
+                          isDisabled
+                        }
+                        onClick={() =>
+                          toggleDraftMetric(
+                            metric.key
+                          )
+                        }
+                        className={`
+                          flex
+                          min-w-0
+                          items-center
+                          gap-2.5
+                          rounded-lg
+                          border
+                          px-3
+                          py-2.5
+                          text-left
+                          transition
+                          ${
+                            isSelected
+                              ? "border-zinc-600 bg-white/[0.05] text-zinc-200"
+                              : "border-zinc-800 bg-black/10 text-zinc-500"
+                          }
+                          ${
+                            isDisabled
+                              ? "cursor-not-allowed opacity-40"
+                              : "hover:border-zinc-700 hover:bg-white/[0.03]"
+                          }
+                        `}
+                      >
+                        <span
+                          className={`
+                            flex
+                            h-4
+                            w-4
+                            shrink-0
+                            items-center
+                            justify-center
+                            rounded
+                            border
+                            text-[10px]
+                            ${
+                              isSelected
+                                ? "border-zinc-500 bg-zinc-700 text-white"
+                                : "border-zinc-700"
+                            }
+                          `}
+                        >
+                          {isSelected
+                            ? "✓"
+                            : ""}
+                        </span>
+                          
+                        <span className="truncate text-xs font-medium">
+                          {metric.displayLabel}
+                        </span>
+                      </button>
+                    );
+                  }
+                )}
+              </div>
+
+              <div className="mt-3 flex items-center justify-end gap-2 border-t border-zinc-800/80 pt-3">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setIsMetricCustomizerOpen(
+                      false
+                    )
+                  }
+                  className="
+                    rounded-lg
+                    px-3
+                    py-2
+                    text-xs
+                    font-medium
+                    text-zinc-500
+                    transition
+                    hover:bg-white/[0.03]
+                    hover:text-zinc-300
+                  "
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  disabled={
+                    draftMetricKeys.length !==
+                    4
+                  }
+                  onClick={
+                    applyMetricCustomization
+                  }
+                  className="
+                    rounded-lg
+                    border
+                    border-zinc-700
+                    bg-zinc-800
+                    px-3
+                    py-2
+                    text-xs
+                    font-semibold
+                    text-white
+                    transition
+                    hover:border-zinc-600
+                    hover:bg-zinc-700
+                    disabled:cursor-not-allowed
+                    disabled:opacity-40
+                  "
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
-          {platform.todayStats
+          {orderedTodayStats
             .slice(0, 4)
-            .map((stat) => (
-              <Metric
-                key={stat.label}
-                stat={stat}
-              />
-            ))}
+            .map((stat) => {
+              const metricKey =
+                stat.metricKey ||
+                getPlatformMetricKey(
+                  platform.key,
+                  stat.label
+                );
+
+              return (
+                <Metric
+                  key={stat.label}
+                  stat={stat}
+                  isSelected={
+                    hasInteractiveTrend &&
+                    metricKey ===
+                      selectedMetricKey
+                  }
+                  onSelect={
+                    hasInteractiveTrend
+                      ? () => {
+                          if (
+                            metricKey === selectedMetricKey ||
+                            isMetricTransitioning
+                          ) {
+                            return;
+                          }
+
+                          setIsMetricTransitioning(true);
+
+                          window.setTimeout(() => {
+                            setSelectedMetricKey(
+                              metricKey
+                            );
+
+                            window.setTimeout(() => {
+                              setIsMetricTransitioning(
+                                false
+                              );
+                            }, 40);
+                          }, 120);
+                        }
+                      : null
+                  }
+                  accentColor={
+                    visual.lineColor
+                  }
+                />
+              );
+            })}
         </div>
       </section>
 
       <div className="mt-5 border-y border-zinc-800/80 py-3">
-        <MiniTrendChart color={visual.lineColor} />
+        {platform.trendHistory?.length ? (
+          <div
+            className={`
+              transition-all
+              duration-200
+              ${
+                isMetricTransitioning
+                  ? "translate-y-1 opacity-30"
+                  : "translate-y-0 opacity-100"
+              }
+            `}
+          >
+            <PlatformTrendChart
+              color={visual.lineColor}
+              history={platform.trendHistory}
+              metricKey={selectedMetricKey}
+              platformKey={platform.key}
+            />
+          </div>
+        ) : (
+          <LegacyMiniTrendChart
+            color={visual.lineColor}
+          />
+        )}
       </div>
 
       <section className="mt-5">
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-          Lifetime
+          {platform.summaryLabel || "Lifetime"}
         </p>
 
         <div className="mt-3 grid gap-2 sm:grid-cols-2">

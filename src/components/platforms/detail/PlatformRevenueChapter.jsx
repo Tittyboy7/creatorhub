@@ -3,8 +3,16 @@
 import PlatformChapterLayout from "./PlatformChapterLayout";
 import PlatformInsightCard from "./design-system/insight/PlatformInsightCard";
 import PlatformMetricTile from "./design-system/metric/PlatformMetricTile";
+import gamingStreamer from "@/lib/simulation/creators/gamingStreamer";
+import buildSimulationSnapshot from "@/lib/simulation/buildSimulationSnapshot";
+import buildYouTubePlatformData from "@/lib/simulation/adapters/youtube/buildPlatformData";
+import buildBusinessSignals from "@/lib/simulation/engine/buildBusinessSignals";
+import buildYouTubeRevenue from "@/lib/simulation/adapters/youtube/buildRevenue";
+import PlatformTrendChart from "./design-system/visualization/PlatformTrendChart";
 
 function RevenueTrendChart({
+  totalRevenue,
+  history = [],
   analyticsMode = false,
 }) {
   return (
@@ -23,77 +31,34 @@ function RevenueTrendChart({
                   : "text-2xl"
               }`}
             >
-              $4,128
+              {totalRevenue.value}
             </p>
 
             <p className="pb-1 text-xs font-semibold text-green-400">
-              +22%
+              {totalRevenue.trend}
             </p>
           </div>
         </div>
 
         <p className="text-xs text-zinc-600">
-          Last 28 days
+          {totalRevenue.periodLabel}
         </p>
       </div>
 
-      <svg
-        viewBox="0 0 320 130"
-        aria-hidden="true"
-        className={`mt-4 w-full text-green-400 transition-all duration-300 ${
-          analyticsMode ? "h-44" : "h-32"
-        }`}
-      >
-        <defs>
-          <linearGradient
-            id={
-              analyticsMode
-                ? "revenueAnalyticsArea"
-                : "revenueInsightsArea"
-            }
-            x1="0"
-            y1="0"
-            x2="0"
-            y2="1"
-          >
-            <stop
-              offset="0%"
-              stopColor="currentColor"
-              stopOpacity="0.3"
-            />
-
-            <stop
-              offset="100%"
-              stopColor="currentColor"
-              stopOpacity="0"
-            />
-          </linearGradient>
-        </defs>
-
-        <path
-          d="M8 116 L8 99 L34 91 L57 104 L82 74 L106 88 L132 52 L158 69 L184 34 L209 57 L235 22 L260 48 L286 16 L312 39 L312 116 Z"
-          fill={`url(#${
-            analyticsMode
-              ? "revenueAnalyticsArea"
-              : "revenueInsightsArea"
-          })`}
-        />
-
-        <path
-          d="M8 99 L34 91 L57 104 L82 74 L106 88 L132 52 L158 69 L184 34 L209 57 L235 22 L260 48 L286 16 L312 39"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={analyticsMode ? "3" : "2.5"}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-
-        <path
-          d="M8 116 H312"
-          stroke="currentColor"
-          strokeOpacity="0.12"
-        />
-      </svg>
+      <PlatformTrendChart
+        values={history.map(
+          (week) => week.revenue
+        )}
+        accent="green"
+        height={
+          analyticsMode
+            ? "h-44"
+            : "h-32"
+        }
+        strokeWidth={
+          analyticsMode ? 3 : 2.5
+        }
+      />
 
       <div className="mt-1 flex items-center justify-between text-xs text-zinc-600">
         <span>Period start</span>
@@ -104,35 +69,39 @@ function RevenueTrendChart({
 }
 
 function RevenueInsightsLayout({
-  metrics,
+  revenue,
 }) {
   return (
     <div>
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_170px]">
-        <RevenueTrendChart />
+        <RevenueTrendChart
+          totalRevenue={revenue.totalRevenue}
+          history={revenue.history}
+        />
 
         <div>
-          {metrics.map((metric, index) => (
-            <PlatformMetricTile
-              key={
-                metric.id ||
-                metric.label ||
-                `revenue-insight-${index}`
-              }
-              label={metric.label}
-              value={metric.value}
-              trend={metric.trend}
-              detail={metric.detail}
-              layout="row"
-              size="small"
-            />
-          ))}
+          <PlatformMetricTile
+            label={revenue.revenueToday.label}
+            value={revenue.revenueToday.value}
+            detail={revenue.revenueToday.detail}
+            layout="row"
+            size="small"
+          />
+
+          <PlatformMetricTile
+            label={revenue.previousRevenue.label}
+            value={revenue.previousRevenue.value}
+            detail={revenue.previousRevenue.detail}
+            layout="row"
+            size="small"
+          />
         </div>
       </div>
 
       <PlatformInsightCard
+        eyebrow="What Matters"
         accent="green"
-        insight="YouTube revenue is trending upward, supported by stronger advertising earnings and increased Supers activity. Membership growth is positive, but it is contributing less than your other revenue sources."
+        insight={revenue.summary.text}
         actionLabel="View Full Revenue Report"
         className="mt-5 p-4"
       />
@@ -141,7 +110,7 @@ function RevenueInsightsLayout({
 }
 
 function RevenueAnalyticsLayout({
-  metrics,
+  revenue,
 }) {
   return (
     <div className="space-y-5">
@@ -149,13 +118,11 @@ function RevenueAnalyticsLayout({
         <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-green-300">
-              Insight Summary
+              Revenue Overview
             </p>
 
             <p className="mt-1 text-sm leading-6 text-zinc-300">
-              Revenue increased across advertising,
-              memberships, and Supers, with advertising
-              remaining the largest contributor.
+              {revenue.summary.text}
             </p>
           </div>
 
@@ -172,46 +139,29 @@ function RevenueAnalyticsLayout({
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_minmax(320px,0.75fr)]">
-        <RevenueTrendChart analyticsMode />
+        <RevenueTrendChart
+          totalRevenue={revenue.totalRevenue}
+          history={revenue.history}
+          analyticsMode
+        />
 
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-          {metrics.map((metric, index) => (
-            <PlatformMetricTile
-              key={
-                metric.id ||
-                metric.label ||
-                `revenue-analytics-${index}`
-              }
-              label={metric.label}
-              value={metric.value}
-              trend={metric.trend}
-              detail={
-                metric.detail ||
-                "Compared with the previous reporting period."
-              }
-              layout="card"
-              size="large"
-            />
-          ))}
+          <PlatformMetricTile
+            label={revenue.revenueToday.label}
+            value={revenue.revenueToday.value}
+            detail={revenue.revenueToday.detail}
+            layout="card"
+            size="large"
+          />
+
+          <PlatformMetricTile
+            label={revenue.previousRevenue.label}
+            value={revenue.previousRevenue.value}
+            detail={revenue.previousRevenue.detail}
+            layout="card"
+            size="large"
+          />
         </div>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <PlatformMetricTile
-          label="Largest Revenue Source"
-          value="Advertising"
-          trend="+11%"
-          detail="Advertising remains the strongest contributor to YouTube earnings."
-          layout="card"
-        />
-
-        <PlatformMetricTile
-          label="Revenue Momentum"
-          value="Strong"
-          trend="+22%"
-          detail="Total YouTube earnings continue to trend above the previous period."
-          layout="card"
-        />
       </div>
     </div>
   );
@@ -220,7 +170,40 @@ function RevenueAnalyticsLayout({
 export default function PlatformRevenueChapter({
   section,
 }) {
-  const metrics = section.items || [];
+  const simulation =
+    buildSimulationSnapshot(gamingStreamer);
+
+  const youtubePlatformData =
+    buildYouTubePlatformData({
+      creator: gamingStreamer,
+      simulation,
+    });
+
+  if (!simulation || !youtubePlatformData) {
+    return null;
+  }
+
+  const simulatedCreator = {
+    ...gamingStreamer,
+
+    platforms: {
+      ...gamingStreamer.platforms,
+      youtube: youtubePlatformData,
+    },
+  };
+
+  const signals =
+    buildBusinessSignals(simulatedCreator);
+
+  const revenue =
+    buildYouTubeRevenue({
+      creator: simulatedCreator,
+      signals,
+    });
+
+  if (!revenue) {
+    return null;
+  }
 
   return (
     <PlatformChapterLayout
@@ -235,10 +218,14 @@ export default function PlatformRevenueChapter({
         section.defaultExpanded !== false
       }
       insightsContent={
-        <RevenueInsightsLayout metrics={metrics} />
+        <RevenueInsightsLayout
+          revenue={revenue}
+        />
       }
       analyticsContent={
-        <RevenueAnalyticsLayout metrics={metrics} />
+        <RevenueAnalyticsLayout
+          revenue={revenue}
+        />
       }
     />
   );

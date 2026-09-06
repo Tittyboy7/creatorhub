@@ -1,12 +1,8 @@
 export default function PlatformHero() {
   return (
-    <section className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+    <section className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
       <div className="min-w-0">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-rose-400">
-          Platform Intelligence
-        </p>
-
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-white md:text-4xl">
+        <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
           Platform Hub
         </h1>
 
@@ -26,16 +22,18 @@ export default function PlatformHero() {
             gap-2
             rounded-2xl
             border
-            border-white/80
-            bg-white
+            border-zinc-700
+            bg-zinc-900/80
             px-5
             py-3
             text-sm
             font-semibold
-            text-zinc-950
-            shadow-[0_0_30px_rgba(255,255,255,0.08)]
+            text-zinc-200
+            shadow-[0_10px_30px_rgba(0,0,0,0.18)]
             transition
-            hover:bg-zinc-200
+            hover:border-zinc-600
+            hover:bg-zinc-800
+            hover:text-white
           "
         >
           <svg
@@ -101,12 +99,12 @@ export default function PlatformHero() {
           />
 
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
-              Last sync
+            <p className="text-sm font-medium text-zinc-200">
+              Synced 2 minutes ago
             </p>
 
-            <p className="mt-0.5 text-sm font-medium text-zinc-200">
-              2 minutes ago
+            <p className="mt-0.5 text-xs text-zinc-500">
+              All platform data up to date
             </p>
           </div>
         </div>

@@ -187,6 +187,18 @@ function StandardAnalyticsChapter({ section }) {
           id={contentId}
           className="border-t border-zinc-800 px-5 pb-5 pt-5 md:px-6 md:pb-6"
         >
+          {section.overview?.text ? (
+            <div className="mb-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-blue-300">
+                {section.overview.label}
+              </p>
+
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
+                {section.overview.text}
+              </p>
+            </div>
+          ) : null}
+
           <SectionItems section={section} />
         </div>
       )}

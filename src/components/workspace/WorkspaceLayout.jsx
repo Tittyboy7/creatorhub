@@ -11,13 +11,14 @@ function WorkspaceLayoutContent({
   children,
   workspaceHeader = null,
   showHeader = true,
+  showFloatingModeToggle = true,
 }) {
   const hasGenericHeader =
     showHeader && (eyebrow || title || description);
 
   return (
-    <div className="min-h-screen bg-zinc-950 px-5 py-6 text-white md:px-10 md:py-8">
-      <div className="mx-auto max-w-7xl space-y-6">
+    <div className="min-h-screen bg-zinc-950 px-4 py-6 text-white sm:px-6 lg:px-8 lg:py-8">
+      <div className="mx-auto max-w-[1480px] space-y-6">
         {workspaceHeader}
 
         {hasGenericHeader && (
@@ -43,20 +44,22 @@ function WorkspaceLayoutContent({
         )}
 
         <div
-          className={`grid items-start gap-6 ${
+          className={`grid gap-6 ${
             sidebar
-              ? "lg:grid-cols-[280px_minmax(0,1fr)]"
+              ? "xl:grid-cols-[300px_minmax(0,1fr)]"
               : "grid-cols-1"
           }`}
         >
           {sidebar && (
-            <aside className="h-fit lg:sticky lg:top-6">
+            <aside className="min-w-0 self-stretch">
               {sidebar}
             </aside>
           )}
 
           <main className="min-w-0 space-y-6">
-            <WorkspaceModeFloatingToggle />
+            {showFloatingModeToggle && (
+              <WorkspaceModeFloatingToggle />
+            )}
 
             {children}
           </main>

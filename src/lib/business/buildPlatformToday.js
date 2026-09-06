@@ -167,6 +167,9 @@ function buildSnapshot({
       label: metric.label,
       value: metric.value,
       trend: metric.trend || null,
+      history: Array.isArray(metric.history)
+        ? metric.history
+        : [],
     })
   );
   return snapshot;

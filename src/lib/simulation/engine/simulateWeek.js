@@ -1,5 +1,6 @@
 import createSeededRandom from "./createSeededRandom";
 import generateBusinessEvents from "./generateBusinessEvents";
+import buildMomentumState from "./buildMomentumState";
 
 function randomVariation(random, percent) {
   return (random() * 2 - 1) * percent;
@@ -173,6 +174,12 @@ export default function simulateWeek(
   const totalRevenue =
     youtubeRevenue + sponsorshipRevenue;
 
+  const momentum = buildMomentumState({
+    creator,
+    previousState,
+    events,
+  });  
+
   const nextState = {
     baseline: {
       weeklyYouTubeViews: blendBaseline({
@@ -210,6 +217,8 @@ export default function simulateWeek(
         carryoverRate: 0.1,
       }),
     },
+
+    momentum,
   };
 
   return {
@@ -232,6 +241,7 @@ export default function simulateWeek(
     },
 
     events,
+    momentum,
     nextState,
   };
 }

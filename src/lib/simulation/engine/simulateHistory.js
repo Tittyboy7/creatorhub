@@ -62,7 +62,7 @@ function buildPeriodSummary(weeks) {
 export default function simulateHistory(
   creator,
   {
-    totalWeeks = 8,
+    totalWeeks = 52,
     currentPeriodWeeks = 4,
   } = {}
 ) {

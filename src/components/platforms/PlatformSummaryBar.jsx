@@ -1,3 +1,11 @@
+function formatCurrency(value) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value || 0);
+}
+
 function SummaryCard({
   label,
   value,
@@ -112,6 +120,18 @@ export default function PlatformSummaryBar({
       platform.status === "attention"
   ).length;
 
+  const trackedRevenue =
+    platforms.reduce(
+      (total, platform) =>
+        total +
+        (
+          Number(
+            platform.summaryRevenue
+          ) || 0
+        ),
+      0
+    );
+
   return (
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <SummaryCard
@@ -165,27 +185,27 @@ export default function PlatformSummaryBar({
         }
         icon={
           <svg
-  aria-hidden="true"
-  viewBox="0 0 24 24"
-  fill="none"
-  className="h-5 w-5"
->
-  <path
-    d="M20.8 5.8a5.4 5.4 0 0 0-7.6 0L12 7l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 22l8.8-8.6a5.4 5.4 0 0 0 0-7.6Z"
-    stroke="currentColor"
-    strokeWidth="1.7"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  />
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            className="h-5 w-5"
+          >
+            <path
+              d="M20.8 5.8a5.4 5.4 0 0 0-7.6 0L12 7l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 22l8.8-8.6a5.4 5.4 0 0 0 0-7.6Z"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
 
-  <path
-    d="M7 12h2.3l1.2-2.6 2.1 5.2 1.3-2.6H17"
-    stroke="currentColor"
-    strokeWidth="1.7"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  />
-</svg>
+            <path
+              d="M7 12h2.3l1.2-2.6 2.1 5.2 1.3-2.6H17"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         }
       />
 
@@ -229,8 +249,10 @@ export default function PlatformSummaryBar({
 
       <SummaryCard
         label="Tracked Revenue"
-        value="$1,148"
-        helper="Across connected platforms today"
+        value={formatCurrency(
+          trackedRevenue
+        )}
+        helper="Across supported revenue sources today"
         tone="violet"
         icon={
           <svg

@@ -44,6 +44,53 @@ export default function buildYouTubeAudience({
   const current = youtube.currentPeriod;
   const previous = youtube.previousPeriod;
 
+  const generatedHistory =
+    youtube.generatedHistory || [];
+
+  const currentPeriodWeeks =
+    youtube.reporting
+      ?.currentPeriodWeeks || 4;
+
+  const currentHistory =
+    generatedHistory.slice(
+      -currentPeriodWeeks
+    );
+
+  const returningViewerHistory =
+    currentHistory.map((week) =>
+      Math.round(
+        (week.views || 0) * 0.38
+      )
+    );
+
+  const newViewerHistory =
+    currentHistory.map((week) =>
+      Math.round(
+        (week.views || 0) * 0.62
+      )
+    );
+
+  const subscriberGrowthHistory =
+    currentHistory.map(
+      (week) =>
+        week.netSubscriberGrowth || 0
+    );
+
+  const latestWeek =
+    generatedHistory[
+      generatedHistory.length - 1
+    ] || null;
+
+  const subscribersToday = latestWeek
+    ? Math.max(
+        0,
+        Math.round(
+          (latestWeek.netSubscriberGrowth || 0) /
+            7
+        )
+      )
+    : 0;
+
   const returningViewers = Math.round(
     current.views * 0.38
   );
@@ -78,6 +125,8 @@ export default function buildYouTubeAudience({
             previousReturningViewers
           )
         ),
+        history:
+          returningViewerHistory,
       },
 
       newViewers: {
@@ -89,6 +138,8 @@ export default function buildYouTubeAudience({
             previousNewViewers
           )
         ),
+        history:
+          newViewerHistory,
       },
 
       subscriberGrowth: {
@@ -99,11 +150,22 @@ export default function buildYouTubeAudience({
         trend: formatPercentChange(
           youtubeSignals.subscriberGrowthChange
         ),
+        history:
+          subscriberGrowthHistory,
       },
-    },
+
+      subscribersToday: {
+        label: "Subscribers Today",
+        value: `+${formatCompactNumber(
+          subscribersToday
+        )}`,
+        detail:
+          "Estimated net subscriber growth today.",
+      },
+      },
 
     summary: {
-      label: "Insight Summary",
+      label: "Audience Overview",
       text: `Your audience reached ${formatCompactNumber(
         current.views
       )} viewers during the last 28 days. New viewers represented 62% of that audience, while returning viewers represented 38%.`,

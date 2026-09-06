@@ -3,76 +3,31 @@
 import PlatformChapterLayout from "./PlatformChapterLayout";
 import PlatformInsightCard from "./design-system/insight/PlatformInsightCard";
 import PlatformMetricTile from "./design-system/metric/PlatformMetricTile";
+import AudienceOverviewCard from "./design-system/audience/AudienceOverviewCard";
+import PlatformTrendChart from "./design-system/visualization/PlatformTrendChart";
 
 import gamingStreamer from "@/lib/simulation/creators/gamingStreamer";
 import buildBusinessSignals from "@/lib/simulation/engine/buildBusinessSignals";
 import buildYouTubeAudience from "@/lib/simulation/adapters/youtube/buildAudience";
-
-function AudienceDonut({
-  total = "24.9K",
-  analyticsMode = false,
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center">
-      <div
-        className={`relative flex items-center justify-center rounded-full transition-all duration-300 ${
-          analyticsMode
-            ? "h-44 w-44"
-            : "h-36 w-36"
-        }`}
-        style={{
-          background:
-            "conic-gradient(#8b5cf6 0deg 225deg, #3b82f6 225deg 360deg)",
-        }}
-      >
-        <div
-          className={`flex flex-col items-center justify-center rounded-full bg-zinc-950 transition-all duration-300 ${
-            analyticsMode
-              ? "h-[126px] w-[126px]"
-              : "h-[104px] w-[104px]"
-          }`}
-        >
-          <p
-            className={`font-bold text-white transition-all duration-300 ${
-              analyticsMode
-                ? "text-3xl"
-                : "text-2xl"
-            }`}
-          >
-            {total}
-          </p>
-
-          <p className="mt-1 text-xs text-zinc-500">
-            Viewers
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2 text-xs">
-        <div className="flex items-center gap-2 text-zinc-400">
-          <span className="h-2.5 w-2.5 rounded-full bg-violet-500" />
-          New viewers
-        </div>
-
-        <div className="flex items-center gap-2 text-zinc-400">
-          <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
-          Returning viewers
-        </div>
-      </div>
-    </div>
-  );
-}
+import buildSimulationSnapshot from "@/lib/simulation/buildSimulationSnapshot";
+import buildYouTubePlatformData from "@/lib/simulation/adapters/youtube/buildPlatformData";
 
 function InsightsAudienceLayout({
   audienceTotal,
+  composition,
   returningViewers,
   newViewers,
   subscriberGrowth,
   insight,
 }) {
   return (
-    <div className="grid gap-6 xl:grid-cols-[180px_minmax(0,1fr)_240px]">
-      <AudienceDonut total={audienceTotal} />
+    <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)_240px]">
+      <AudienceOverviewCard
+        totalAudience={audienceTotal}
+        composition={composition}
+        subscriberGrowth={subscriberGrowth}
+        compact
+      />
 
       <div>
         {returningViewers && (
@@ -110,6 +65,7 @@ function InsightsAudienceLayout({
       </div>
 
       <PlatformInsightCard
+        eyebrow="What Matters"
         accent={insight.accent}
         insight={insight.text}
         actionLabel={insight.actionLabel}
@@ -124,6 +80,7 @@ function AnalyticsAudienceLayout({
   returningViewers,
   newViewers,
   subscriberGrowth,
+  subscribersToday,
   summary,
   composition,
 }) {
@@ -138,13 +95,19 @@ function AnalyticsAudienceLayout({
       <div className="rounded-2xl border border-violet-500/20 bg-violet-500/10 px-4 py-3">
         <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-violet-300">
-              {summary.label}
-            </p>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-violet-300">
+                Audience Overview
+              </p>
 
-            <p className="mt-1 text-sm leading-6 text-zinc-300">
-              {summary.text}
-            </p>
+              <h3 className="mt-2 text-xl font-bold text-white">
+                Discovery continues to outperform your returning audience.
+              </h3>
+
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">
+                {summary.text}
+              </p>
+            </div>
           </div>
 
           <button
@@ -159,43 +122,12 @@ function AnalyticsAudienceLayout({
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[240px_minmax(0,1fr)]">
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-            Viewer Distribution
-          </p>
-
-          <div className="mt-5">
-            <AudienceDonut
-              total={audienceTotal}
-              analyticsMode
-            />
-          </div>
-
-          <div className="mt-6 space-y-3 border-t border-zinc-800 pt-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2 text-sm text-zinc-400">
-                <span className="h-2.5 w-2.5 rounded-full bg-violet-500" />
-                New viewers
-              </div>
-
-              <p className="font-semibold text-white">
-                {composition.newViewerPercent}%
-              </p>
-            </div>
-
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2 text-sm text-zinc-400">
-                <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
-                Returning viewers
-              </div>
-
-              <p className="font-semibold text-white">
-                40%
-              </p>
-            </div>
-          </div>
-        </div>
+      <div className="grid gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
+        <AudienceOverviewCard
+          totalAudience={audienceTotal}
+          composition={composition}
+          subscriberGrowth={subscriberGrowth}
+        />
 
         <div className="grid gap-3 sm:grid-cols-2">
           {analyticsMetrics.map((metric) => (
@@ -210,17 +142,29 @@ function AnalyticsAudienceLayout({
               }
               layout="card"
               size="large"
+              visualization={
+                metric.history?.length ? (
+                  <PlatformTrendChart
+                    values={metric.history}
+                    accent="blue"
+                    height="h-12"
+                    strokeWidth={2.5}
+                    showArea={false}
+                  />
+                ) : null
+              }
             />
           ))}
 
-          <PlatformMetricTile
-            label="Audience Momentum"
-            value="Strong"
-            trend="+14%"
-            detail="Audience growth remains positive across both new and returning viewers."
-            layout="card"
-            size="large"
-          />
+          {subscribersToday ? (
+            <PlatformMetricTile
+              label={subscribersToday.label}
+              value={subscribersToday.value}
+              detail={subscribersToday.detail}
+              layout="card"
+              size="large"
+            />
+          ) : null}
         </div>
       </div>
     </div>
@@ -230,13 +174,38 @@ function AnalyticsAudienceLayout({
 export default function PlatformAudienceChapter({
   section,
 }) {
-  const signals = buildBusinessSignals(gamingStreamer);
 
-  const audience = buildYouTubeAudience({
-    creator: gamingStreamer,
-    signals,
-  });
+  const simulation =
+    buildSimulationSnapshot(gamingStreamer);
 
+  const youtubePlatformData =
+    buildYouTubePlatformData({
+      creator: gamingStreamer,
+      simulation,
+    });
+
+  if (!simulation || !youtubePlatformData) {
+    return null;
+  }
+
+  const simulatedCreator = {
+    ...gamingStreamer,
+
+    platforms: {
+      ...gamingStreamer.platforms,
+      youtube: youtubePlatformData,
+    },
+  };
+
+  const signals =
+    buildBusinessSignals(simulatedCreator);
+
+  const audience =
+    buildYouTubeAudience({
+      creator: simulatedCreator,
+      signals,
+    });
+  
   if (!audience) {
     return null;
   }
@@ -245,6 +214,7 @@ export default function PlatformAudienceChapter({
     returningViewers,
     newViewers,
     subscriberGrowth,
+    subscribersToday,
   } = audience.metrics;
 
   return (
@@ -260,6 +230,7 @@ export default function PlatformAudienceChapter({
       insightsContent={
         <InsightsAudienceLayout
           audienceTotal={audience.totalAudience}
+          composition={audience.composition}
           returningViewers={returningViewers}
           newViewers={newViewers}
           subscriberGrowth={subscriberGrowth}
@@ -272,6 +243,7 @@ export default function PlatformAudienceChapter({
           returningViewers={returningViewers}
           newViewers={newViewers}
           subscriberGrowth={subscriberGrowth}
+          subscribersToday={subscribersToday}
           summary={audience.summary}
           composition={audience.composition}
         />

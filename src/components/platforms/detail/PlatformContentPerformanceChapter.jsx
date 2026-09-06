@@ -3,96 +3,63 @@
 import PlatformChapterLayout from "./PlatformChapterLayout";
 import PlatformInsightCard from "./design-system/insight/PlatformInsightCard";
 import PlatformMetricTile from "./design-system/metric/PlatformMetricTile";
+import FeaturedContentHero from "./design-system/content/FeaturedContentHero";
+import RecentUploadsStrip from "./design-system/content/RecentUploadsStrip";
+import PerformanceLeaders from "./design-system/content/PerformanceLeaders";
+
 import gamingStreamer from "@/lib/simulation/creators/gamingStreamer";
 import buildBusinessSignals from "@/lib/simulation/engine/buildBusinessSignals";
 import buildYouTubeContentPerformance from "@/lib/simulation/adapters/youtube/buildContentPerformance";
 import buildSimulationSnapshot from "@/lib/simulation/buildSimulationSnapshot";
 import buildYouTubePlatformData from "@/lib/simulation/adapters/youtube/buildPlatformData";
-
-function MiniTrendLine({ expanded = false }) {
-  return (
-    <svg
-      viewBox="0 0 120 32"
-      aria-hidden="true"
-      className={`w-full text-violet-400 transition-all duration-300 ${
-        expanded ? "h-12" : "h-8"
-      }`}
-    >
-      <path
-        d="M2 24 C14 23, 17 17, 28 19 S45 27, 56 18 S72 8, 84 15 S100 23, 118 8"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={expanded ? "2.5" : "2"}
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function TopContentCard({ item, analyticsMode = false }) {
-  return (
-    <div
-      className={`transition-all duration-300 ${
-        analyticsMode ? "xl:max-w-none" : ""
-      }`}
-    >
-      <p className="text-xs font-semibold uppercase tracking-wide text-violet-300">
-        {item.label}
-      </p>
-
-      <div className="mt-3 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
-        <div
-          className={`flex items-center justify-center bg-gradient-to-br from-violet-500/20 via-zinc-900 to-red-500/10 transition-all duration-300 ${
-            analyticsMode ? "h-40" : "aspect-video"
-          }`}
-        >
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-violet-500/30 bg-violet-500/15 text-2xl text-violet-200">
-            ▶
-          </div>
-        </div>
-
-        <div className="p-4">
-          <p className="font-semibold leading-6 text-white">{item.title}</p>
-
-          {item.metric && (
-            <p className="mt-1 text-sm text-zinc-500">{item.metric}</p>
-          )}
-        </div>
-      </div>
-
-      <div className="mt-3 inline-flex rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1 text-xs font-semibold text-violet-200">
-        +38% vs channel average
-      </div>
-    </div>
-  );
-}
+import PlatformTrendChart from "./design-system/visualization/PlatformTrendChart";
 
 function InsightsContentLayout({
   topContent,
   performanceMetrics,
   insight,
+  recentUploads,
 }) {
   return (
-    <div className="grid gap-6 xl:grid-cols-[220px_minmax(0,1fr)_240px]">
-      <TopContentCard item={topContent} />
+    <div className="space-y-6">
+      <div className="grid gap-6 xl:grid-cols-[300px_minmax(0,1fr)_240px]">
+        <FeaturedContentHero
+          content={topContent}
+          compact
+        />
 
-      <div>
-        {performanceMetrics.map((metric) => (
-          <PlatformMetricTile
-            key={metric.label}
-            label={metric.label}
-            value={metric.value}
-            trend={metric.trend}
-            layout="row"
-            visualization={<MiniTrendLine />}
-          />
-        ))}
+        <div>
+          {performanceMetrics.map((metric) => (
+            <PlatformMetricTile
+              key={metric.label}
+              label={metric.label}
+              value={metric.value}
+              trend={metric.trend}
+              layout="row"
+              visualization={
+                metric.history?.length ? (
+                  <PlatformTrendChart
+                    values={metric.history}
+                    accent="violet"
+                    height="h-8"
+                    strokeWidth={2}
+                    showArea={false}
+                  />
+                ) : null
+              }
+            />
+          ))}
+        </div>
+
+        <PlatformInsightCard
+          accent={insight.accent}
+          insight={insight.text}
+          actionLabel={insight.actionLabel}
+        />
       </div>
 
-      <PlatformInsightCard
-        accent={insight.accent}
-        insight={insight.text}
-        actionLabel={insight.actionLabel}
+      <RecentUploadsStrip
+        uploads={recentUploads}
       />
     </div>
   );
@@ -102,6 +69,8 @@ function AnalyticsContentLayout({
   topContent,
   performanceMetrics,
   summary,
+  recentUploads,
+  rankedContent,
 }) {
   return (
     <div className="space-y-5">
@@ -129,11 +98,8 @@ function AnalyticsContentLayout({
         </div>
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[260px_minmax(0,1fr)]">
-        <TopContentCard
-          item={topContent}
-          analyticsMode
-        />
+      <div className="grid gap-5 xl:grid-cols-[340px_minmax(0,1fr)]">
+        <FeaturedContentHero content={topContent} />
 
         <div className="grid gap-3 sm:grid-cols-2">
           {performanceMetrics.map((metric) => (
@@ -145,11 +111,29 @@ function AnalyticsContentLayout({
               detail="Compared with the previous reporting period."
               layout="card"
               size="large"
-              visualization={<MiniTrendLine expanded />}
+              visualization={
+                metric.history?.length ? (
+                  <PlatformTrendChart
+                    values={metric.history}
+                    accent="violet"
+                    height="h-12"
+                    strokeWidth={2.5}
+                    showArea={false}
+                  />
+                ) : null
+              }
             />
           ))}
         </div>
       </div>
+
+      <RecentUploadsStrip
+        uploads={recentUploads}
+      />
+
+      <PerformanceLeaders
+        rankedContent={rankedContent}
+      />
     </div>
   );
 }
@@ -157,7 +141,6 @@ function AnalyticsContentLayout({
 export default function PlatformContentPerformanceChapter({
   section,
 }) {
-  const topContent = section.items[0];
 
   const simulation =
     buildSimulationSnapshot(gamingStreamer);
@@ -194,6 +177,15 @@ export default function PlatformContentPerformanceChapter({
     return null;
   }
 
+  const topContent =
+    contentPerformance.featuredContent ||
+    section.items?.[0] || {
+      label: "Top Content",
+      title: "No recent content available",
+      metric: "",
+      comparison: "",
+    };
+
   return (
     <PlatformChapterLayout
       id="content-performance"
@@ -211,6 +203,10 @@ export default function PlatformContentPerformanceChapter({
             contentPerformance.metrics
           }
           insight={contentPerformance.insight}
+          recentUploads={
+            contentPerformance.rankedContent
+              ?.recentUploads || []
+          }
         />
       }
       analyticsContent={
@@ -220,6 +216,13 @@ export default function PlatformContentPerformanceChapter({
             contentPerformance.metrics
           }
           summary={contentPerformance.summary}
+          recentUploads={
+            contentPerformance.rankedContent
+              ?.recentUploads || []
+          }
+          rankedContent={
+            contentPerformance.rankedContent
+          }
         />
       }
     />

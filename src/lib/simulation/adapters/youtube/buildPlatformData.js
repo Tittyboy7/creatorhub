@@ -1,3 +1,219 @@
+import gamingStreamerContent from "@/lib/simulation/content/youtube/gamingStreamerContent";
+import buildContentSimulation from "@/lib/simulation/content/engine/buildContentSimulation";
+
+function formatCompactNumber(value) {
+  return new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value || 0);
+}
+
+function formatCurrency(value) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value || 0);
+}
+
+function formatPercentChange(value) {
+  const roundedValue = Math.round(value || 0);
+
+  if (roundedValue > 0) {
+    return `+${roundedValue}%`;
+  }
+
+  return `${roundedValue}%`;
+}
+
+function buildSnapshotMetrics({
+  simulation,
+}) {
+  const weeks =
+    simulation?.weeks || [];
+
+  const currentPeriodWeeks =
+    simulation?.reporting
+      ?.currentPeriodWeeks || 4;
+
+  const currentWeeks =
+    weeks.slice(-currentPeriodWeeks);
+
+  const previousWeeks =
+    weeks.slice(
+      -currentPeriodWeeks * 2,
+      -currentPeriodWeeks
+    );
+
+  const latestWeek =
+    currentWeeks[
+      currentWeeks.length - 1
+    ] || null;
+
+  if (!latestWeek) {
+    return [];
+  }
+
+  function sumMetric(periodWeeks, getter) {
+    return periodWeeks.reduce(
+      (total, week) =>
+        total + (getter(week) || 0),
+      0
+    );
+  }
+
+  function percentChange(
+    currentValue,
+    previousValue
+  ) {
+    if (!previousValue) {
+      return 0;
+    }
+
+    return (
+      ((currentValue - previousValue) /
+        previousValue) *
+      100
+    );
+  }
+
+  const currentViews =
+    sumMetric(
+      currentWeeks,
+      (week) => week.views
+    );
+
+  const previousViews =
+    sumMetric(
+      previousWeeks,
+      (week) => week.views
+    );
+
+  const currentWatchTime =
+    sumMetric(
+      currentWeeks,
+      (week) => week.watchTimeHours
+    );
+
+  const previousWatchTime =
+    sumMetric(
+      previousWeeks,
+      (week) => week.watchTimeHours
+    );
+
+  const currentSubscribers =
+    sumMetric(
+      currentWeeks,
+      (week) => week.netSubscriberGrowth
+    );
+
+  const previousSubscribers =
+    sumMetric(
+      previousWeeks,
+      (week) => week.netSubscriberGrowth
+    );
+
+  const currentRevenue =
+    sumMetric(
+      currentWeeks,
+      (week) =>
+        week.revenueBreakdown?.youtube ??
+        week.revenue
+    );
+
+  const previousRevenue =
+    sumMetric(
+      previousWeeks,
+      (week) =>
+        week.revenueBreakdown?.youtube ??
+        week.revenue
+    );
+
+  return [
+    {
+      id: "revenue-today",
+      label: "Revenue Today",
+      value: formatCurrency(
+        (latestWeek.revenueBreakdown
+          ?.youtube ??
+          latestWeek.revenue ??
+          0) / 7
+      ),
+      trend: formatPercentChange(
+        percentChange(
+          currentRevenue,
+          previousRevenue
+        )
+      ),
+      history: currentWeeks.map(
+        (week) =>
+          week.revenueBreakdown
+            ?.youtube ??
+          week.revenue ??
+          0
+      ),
+    },
+
+    {
+      id: "views-today",
+      label: "Views Today",
+      value: formatCompactNumber(
+        (latestWeek.views || 0) / 7
+      ),
+      trend: formatPercentChange(
+        percentChange(
+          currentViews,
+          previousViews
+        )
+      ),
+      history: currentWeeks.map(
+        (week) => week.views || 0
+      ),
+    },
+
+    {
+      id: "subscribers-today",
+      label: "Subscribers Today",
+      value: `+${formatCompactNumber(
+        Math.max(
+          0,
+          (latestWeek.netSubscriberGrowth ||
+            0) / 7
+        )
+      )}`,
+      trend: formatPercentChange(
+        percentChange(
+          currentSubscribers,
+          previousSubscribers
+        )
+      ),
+      history: currentWeeks.map(
+        (week) =>
+          week.netSubscriberGrowth || 0
+      ),
+    },
+
+    {
+      id: "watch-time-today",
+      label: "Watch Time Today",
+      value: `${formatCompactNumber(
+        (latestWeek.watchTimeHours || 0) /
+          7
+      )}h`,
+      trend: formatPercentChange(
+        percentChange(
+          currentWatchTime,
+          previousWatchTime
+        )
+      ),
+      history: currentWeeks.map(
+        (week) =>
+          week.watchTimeHours || 0
+      ),
+    },
+  ];
+}
+
 function calculateAverageViewDuration({
   watchTimeHours,
   views,
@@ -43,7 +259,10 @@ function buildReportingPeriod({
       generatedPeriod.netSubscriberGrowth || 0,
 
     estimatedRevenue:
-      generatedPeriod.revenue || 0,
+      generatedPeriod.revenueBreakdown
+        ?.youtube ??
+      generatedPeriod.revenue ??
+      0,
 
     averageViewDurationSeconds:
       calculateAverageViewDuration({
@@ -78,10 +297,27 @@ export default function buildYouTubePlatformData({
     return null;
   }
 
+  const snapshotMetrics =
+    buildSnapshotMetrics({
+      simulation,
+    });
+
+  const simulatedContent =
+    buildContentSimulation({
+      creator,
+      simulation,
+      content: gamingStreamerContent,
+    });
+
   return {
     ...youtube,
 
-    dataSource: "simulation",
+    dataSource:
+      simulation.today
+        ? "daily-simulation"
+        : "simulation",
+
+    snapshotMetrics,
 
     accountId:
       youtube.accountId ||
@@ -117,8 +353,24 @@ export default function buildYouTubePlatformData({
       periodLabel: "Previous 28 days",
     }),
 
+    content: simulatedContent,
+
+    today:
+      simulation.today || null,
+
+    dailyHistory:
+      simulation.dailyHistory ||
+      simulation.days ||
+      [],
+
     generatedHistory:
       simulation.weeks || [],
+
+    monthlyHistory:
+      simulation.monthlyHistory || [],
+
+    reporting:
+      simulation.reporting || null,
 
     changes:
       simulation.changes || null,

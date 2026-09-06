@@ -43,12 +43,82 @@ function getMomentumLevel(changes) {
   return "stable";
 }
 
-function flattenEvents(weeks = []) {
-  return weeks.flatMap((week) =>
-    (week.events || []).map((event) => ({
-      ...event,
-      weekIndex: week.weekIndex,
-    }))
+function flattenReportingPeriodEvents(
+  history
+) {
+  const days =
+    history?.days ||
+    history?.dailyHistory ||
+    [];
+
+  if (days.length) {
+    const startDate =
+      history.currentPeriod
+        ?.startDate;
+
+    const endDate =
+      history.currentPeriod
+        ?.endDate;
+
+    const reportingDays =
+      startDate && endDate
+        ? days.filter(
+            (day) =>
+              day.date >= startDate &&
+              day.date <= endDate
+          )
+        : days.slice(-28);
+
+    return reportingDays.flatMap(
+      (day) =>
+        (day.events || []).map(
+          (event) => ({
+            ...event,
+
+            dayIndex:
+              day.dayIndex,
+
+            date:
+              day.date,
+
+            weekIndex:
+              day.weekIndex,
+          })
+        )
+    );
+  }
+
+  const weeks =
+    history?.weeks || [];
+
+  const startWeek =
+    history?.currentPeriod
+      ?.startWeek;
+
+  const endWeek =
+    history?.currentPeriod
+      ?.endWeek;
+
+  const reportingWeeks =
+    startWeek && endWeek
+      ? weeks.filter(
+          (week) =>
+            week.weekIndex >=
+              startWeek &&
+            week.weekIndex <=
+              endWeek
+        )
+      : weeks;
+
+  return reportingWeeks.flatMap(
+    (week) =>
+      (week.events || []).map(
+        (event) => ({
+          ...event,
+          weekIndex:
+            week.weekIndex,
+        })
+      )
   );
 }
 
@@ -256,13 +326,28 @@ export default function buildBusinessIntelligence({
     return null;
   }
 
-  const events = flattenEvents(history.weeks);
+  const events =
+    flattenReportingPeriodEvents(
+      history
+    );
+
+  const weeks =
+    history.weeks || [];
+
+  const days =
+    history.days ||
+    history.dailyHistory ||
+    [];
 
   const recentWeek =
-    history.weeks[
-      history.weeks.length - 1
+    weeks[
+      weeks.length - 1
     ] || null;
 
+  const recentDay =
+    days[
+      days.length - 1
+    ] || null;
   const changes = history.changes;
 
   return {
@@ -280,20 +365,43 @@ export default function buildBusinessIntelligence({
 
     reportingPeriod: {
       current: {
+        startDate:
+          history.currentPeriod
+            .startDate || null,
+
+        endDate:
+          history.currentPeriod
+            .endDate || null,
+
         startWeek:
-          history.currentPeriod.startWeek,
+          history.currentPeriod
+            .startWeek ?? null,
+
         endWeek:
-          history.currentPeriod.endWeek,
+          history.currentPeriod
+            .endWeek ?? null,
       },
 
-      previous: history.previousPeriod
-        ? {
-            startWeek:
-              history.previousPeriod.startWeek,
-            endWeek:
-              history.previousPeriod.endWeek,
-          }
-        : null,
+      previous:
+        history.previousPeriod
+          ? {
+              startDate:
+                history.previousPeriod
+                  .startDate || null,
+
+              endDate:
+                history.previousPeriod
+                  .endDate || null,
+
+              startWeek:
+                history.previousPeriod
+                  .startWeek ?? null,
+
+              endWeek:
+                history.previousPeriod
+                  .endWeek ?? null,
+            }
+          : null,
     },
 
     performance: {
@@ -361,6 +469,19 @@ export default function buildBusinessIntelligence({
           events,
           "merchandise_launch"
         ),
+
+      mostRecentDay: recentDay
+        ? {
+            dayIndex:
+              recentDay.dayIndex,
+
+            date:
+              recentDay.date,
+
+            events:
+              recentDay.events || [],
+          }
+        : null,
 
       mostRecentWeek: recentWeek
         ? {

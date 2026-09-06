@@ -12,7 +12,10 @@ function getGridClass(count) {
   return "grid gap-4 lg:grid-cols-3";
 }
 
-export default function PlatformGrid({ platforms }) {
+export default function PlatformGrid({
+  platforms,
+  metricPreferences = {},
+}) {
   const gridClass = getGridClass(platforms.length);
 
   return (
@@ -26,7 +29,15 @@ export default function PlatformGrid({ platforms }) {
 
       <div className={gridClass}>
         {platforms.map((platform) => (
-          <PlatformCard key={platform.key} platform={platform} />
+          <PlatformCard
+            key={platform.key}
+            platform={platform}
+            selectedMetricKeys={
+              metricPreferences[
+                platform.key
+              ] || null
+            }
+          />
         ))}
       </div>
     </section>

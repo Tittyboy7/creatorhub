@@ -55,6 +55,22 @@ const gamingStreamer = {
       weeklyYouTubeRevenue: 719,
     },
 
+    engagement: {
+      averageViewDurationSeconds: 421,
+
+      averageViewDurationVolatility: 0.045,
+
+      uploadDayMultiplier: 1.04,
+
+      streamDayMultiplier: 1.08,
+
+      viralDayMultiplier: 1.12,
+
+      minimumViewDurationSeconds: 300,
+
+      maximumViewDurationSeconds: 600,
+    },
+
     behavior: {
       uploadConsistency: 0.92,
       audienceLoyalty: 0.74,
@@ -230,7 +246,7 @@ const gamingStreamer = {
         orders: 126,
         unitsSold: 174,
         conversionRate: 2.9,
-        revenue: 785,
+        revenue: 6300,
       },
     },
 
