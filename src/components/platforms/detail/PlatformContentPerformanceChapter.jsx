@@ -6,12 +6,6 @@ import PlatformMetricTile from "./design-system/metric/PlatformMetricTile";
 import FeaturedContentHero from "./design-system/content/FeaturedContentHero";
 import RecentUploadsStrip from "./design-system/content/RecentUploadsStrip";
 import PerformanceLeaders from "./design-system/content/PerformanceLeaders";
-
-import gamingStreamer from "@/lib/simulation/creators/gamingStreamer";
-import buildBusinessSignals from "@/lib/simulation/engine/buildBusinessSignals";
-import buildYouTubeContentPerformance from "@/lib/simulation/adapters/youtube/buildContentPerformance";
-import buildSimulationSnapshot from "@/lib/simulation/buildSimulationSnapshot";
-import buildYouTubePlatformData from "@/lib/simulation/adapters/youtube/buildPlatformData";
 import PlatformTrendChart from "./design-system/visualization/PlatformTrendChart";
 
 function InsightsContentLayout({
@@ -140,39 +134,8 @@ function AnalyticsContentLayout({
 
 export default function PlatformContentPerformanceChapter({
   section,
+  contentPerformance,
 }) {
-
-  const simulation =
-    buildSimulationSnapshot(gamingStreamer);
-
-  const youtubePlatformData =
-    buildYouTubePlatformData({
-      creator: gamingStreamer,
-      simulation,
-    });
-
-  if (!simulation || !youtubePlatformData) {
-    return null;
-  }
-
-  const simulatedCreator = {
-    ...gamingStreamer,
-
-    platforms: {
-      ...gamingStreamer.platforms,
-      youtube: youtubePlatformData,
-    },
-  };
-
-  const signals =
-    buildBusinessSignals(simulatedCreator);
-
-  const contentPerformance =
-    buildYouTubeContentPerformance({
-      creator: simulatedCreator,
-      signals,
-    });
-
   if (!contentPerformance) {
     return null;
   }

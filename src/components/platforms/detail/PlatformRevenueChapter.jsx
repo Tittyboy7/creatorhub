@@ -3,11 +3,6 @@
 import PlatformChapterLayout from "./PlatformChapterLayout";
 import PlatformInsightCard from "./design-system/insight/PlatformInsightCard";
 import PlatformMetricTile from "./design-system/metric/PlatformMetricTile";
-import gamingStreamer from "@/lib/simulation/creators/gamingStreamer";
-import buildSimulationSnapshot from "@/lib/simulation/buildSimulationSnapshot";
-import buildYouTubePlatformData from "@/lib/simulation/adapters/youtube/buildPlatformData";
-import buildBusinessSignals from "@/lib/simulation/engine/buildBusinessSignals";
-import buildYouTubeRevenue from "@/lib/simulation/adapters/youtube/buildRevenue";
 import PlatformTrendChart from "./design-system/visualization/PlatformTrendChart";
 
 function RevenueTrendChart({
@@ -169,38 +164,8 @@ function RevenueAnalyticsLayout({
 
 export default function PlatformRevenueChapter({
   section,
+  revenue,
 }) {
-  const simulation =
-    buildSimulationSnapshot(gamingStreamer);
-
-  const youtubePlatformData =
-    buildYouTubePlatformData({
-      creator: gamingStreamer,
-      simulation,
-    });
-
-  if (!simulation || !youtubePlatformData) {
-    return null;
-  }
-
-  const simulatedCreator = {
-    ...gamingStreamer,
-
-    platforms: {
-      ...gamingStreamer.platforms,
-      youtube: youtubePlatformData,
-    },
-  };
-
-  const signals =
-    buildBusinessSignals(simulatedCreator);
-
-  const revenue =
-    buildYouTubeRevenue({
-      creator: simulatedCreator,
-      signals,
-    });
-
   if (!revenue) {
     return null;
   }

@@ -48,10 +48,18 @@ export default async function PlatformsPage() {
       {};
   }
 
+  const useSimulation =
+    process.env
+      .CREATORSHUB_USE_SIMULATION ===
+    "true";
+
   const platforms =
-    buildPlatformHubData({
-      platforms: platformHubMockData,
-    });
+    useSimulation
+      ? buildPlatformHubData({
+          platforms:
+            platformHubMockData,
+        })
+      : [];
 
   return (
     <div className="min-h-screen bg-zinc-950 px-4 py-6 text-white sm:px-6 lg:px-8 lg:py-8">

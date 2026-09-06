@@ -206,23 +206,50 @@ function StandardAnalyticsChapter({ section }) {
   );
 }
 
-function AnalyticsChapter({ section }) {
+function AnalyticsChapter({
+  section,
+  chapterData = {},
+}) {
   if (section.variant === "content") {
-    return <PlatformContentPerformanceChapter section={section} />;
+    return (
+      <PlatformContentPerformanceChapter
+        section={section}
+        contentPerformance={
+          chapterData.contentPerformance
+        }
+      />
+    );
   }
 
   if (section.variant === "audience") {
-    return <PlatformAudienceChapter section={section} />;
+    return (
+      <PlatformAudienceChapter
+        section={section}
+        audience={
+          chapterData.audience
+        }
+      />
+    );
   }
 
   if (section.variant === "revenue") {
-    return <PlatformRevenueChapter section={section} />;
+    return (
+      <PlatformRevenueChapter
+        section={section}
+        revenue={
+          chapterData.revenue
+        }
+      />
+    );
   }
 
   return <StandardAnalyticsChapter section={section} />;
 }
 
-export default function PlatformContentSection({ sections = [] }) {
+export default function PlatformContentSection({
+  sections = [],
+  chapterData = {},
+}) {
   const visibleSections = sections.filter(
     (section) => section?.items?.length > 0
   );
@@ -242,13 +269,25 @@ export default function PlatformContentSection({ sections = [] }) {
   return (
     <section aria-label="Platform analytics" className="space-y-5">
       {primarySections.map((section) => (
-        <AnalyticsChapter key={section.key} section={section} />
+        <AnalyticsChapter
+          key={section.key}
+          section={section}
+          chapterData={
+            chapterData
+          }
+        />
       ))}
 
       {remainingSections.length > 0 && (
         <div className="grid items-start gap-5 lg:grid-cols-2">
           {remainingSections.map((section) => (
-            <AnalyticsChapter key={section.key} section={section} />
+            <AnalyticsChapter
+          key={section.key}
+          section={section}
+          chapterData={
+            chapterData
+          }
+        />
           ))}
         </div>
       )}

@@ -6,12 +6,6 @@ import PlatformMetricTile from "./design-system/metric/PlatformMetricTile";
 import AudienceOverviewCard from "./design-system/audience/AudienceOverviewCard";
 import PlatformTrendChart from "./design-system/visualization/PlatformTrendChart";
 
-import gamingStreamer from "@/lib/simulation/creators/gamingStreamer";
-import buildBusinessSignals from "@/lib/simulation/engine/buildBusinessSignals";
-import buildYouTubeAudience from "@/lib/simulation/adapters/youtube/buildAudience";
-import buildSimulationSnapshot from "@/lib/simulation/buildSimulationSnapshot";
-import buildYouTubePlatformData from "@/lib/simulation/adapters/youtube/buildPlatformData";
-
 function InsightsAudienceLayout({
   audienceTotal,
   composition,
@@ -173,39 +167,8 @@ function AnalyticsAudienceLayout({
 
 export default function PlatformAudienceChapter({
   section,
+  audience,
 }) {
-
-  const simulation =
-    buildSimulationSnapshot(gamingStreamer);
-
-  const youtubePlatformData =
-    buildYouTubePlatformData({
-      creator: gamingStreamer,
-      simulation,
-    });
-
-  if (!simulation || !youtubePlatformData) {
-    return null;
-  }
-
-  const simulatedCreator = {
-    ...gamingStreamer,
-
-    platforms: {
-      ...gamingStreamer.platforms,
-      youtube: youtubePlatformData,
-    },
-  };
-
-  const signals =
-    buildBusinessSignals(simulatedCreator);
-
-  const audience =
-    buildYouTubeAudience({
-      creator: simulatedCreator,
-      signals,
-    });
-  
   if (!audience) {
     return null;
   }
