@@ -108,9 +108,92 @@ function getStatusDot(status) {
 }
 
 function getStatusLabel(status) {
-  if (status === "healthy") return "Healthy";
-  if (status === "attention") return "Attention";
+  if (status === "healthy") {
+    return "Healthy";
+  }
+
+  if (status === "attention") {
+    return "Attention";
+  }
+
   return "Unknown";
+}
+
+function getConnectionStatus(platform) {
+  return (
+    platform.connectionStatus ||
+    "connected"
+  );
+}
+
+function getConnectionDotClass(
+  connectionStatus
+) {
+  if (
+    connectionStatus ===
+    "reauth_required"
+  ) {
+    return "bg-red-400 shadow-[0_0_10px_rgba(248,113,113,0.8)]";
+  }
+
+  if (
+    connectionStatus ===
+    "sync_error"
+  ) {
+    return "bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.7)]";
+  }
+
+  if (
+    connectionStatus ===
+    "syncing"
+  ) {
+    return "bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.7)]";
+  }
+
+  return "bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]";
+}
+
+function getConnectionIssue(
+  platform
+) {
+  const connectionStatus =
+    getConnectionStatus(platform);
+
+  if (
+    connectionStatus ===
+    "reauth_required"
+  ) {
+    return {
+      title:
+        "Reconnect required",
+
+      description:
+        platform.connectionError ||
+        "Your connection has expired. Reconnect this platform to resume syncing.",
+
+      actionLabel:
+        `Reconnect ${platform.name}`,
+    };
+  }
+
+  if (
+    connectionStatus ===
+    "sync_error"
+  ) {
+    return {
+      title:
+        "Sync issue",
+
+      description:
+        platform.connectionError ||
+        "CreatorsHub could not refresh this platform. Your previously synced data is still available.",
+
+      actionLabel:
+        "Review connection",
+    };
+  }
+
+  return null;
 }
 
 function getTrendClass(trend) {
@@ -372,6 +455,28 @@ export default function PlatformCard({
   const visual =
     PLATFORM_VISUALS[platform.key] ||
     DEFAULT_VISUAL;
+
+  const connectionStatus =
+    getConnectionStatus(
+      platform
+    );
+
+  const connectionIssue =
+    getConnectionIssue(
+      platform
+    );
+
+  const hasFailedSyncAttempt =
+    connectionStatus ===
+      "sync_error" ||
+    connectionStatus ===
+      "reauth_required";
+
+  const failedAttemptLabel =
+    hasFailedSyncAttempt &&
+    platform.lastSyncAttempt
+      ? `Last attempt failed ${platform.lastSyncAttempt}`
+      : null;
 
   const availableMetricKeys =
     Array.from(
@@ -692,6 +797,58 @@ async function applyMetricCustomization() {
           {getStatusLabel(platform.status)}
         </span>
       </header>
+
+      {connectionIssue ? (
+        <div
+          className={`
+            mt-4
+            flex
+            flex-col
+            gap-3
+            rounded-xl
+            border
+            px-3.5
+            py-3
+            sm:flex-row
+            sm:items-center
+            sm:justify-between
+            ${
+              connectionStatus ===
+              "reauth_required"
+                ? "border-red-500/25 bg-red-500/[0.07]"
+                : "border-amber-500/25 bg-amber-500/[0.07]"
+            }
+          `}
+        >
+          <div className="min-w-0">
+            <p
+              className={`text-xs font-semibold ${
+                connectionStatus ===
+                "reauth_required"
+                  ? "text-red-300"
+                  : "text-amber-300"
+              }`}
+            >
+              {connectionIssue.title}
+            </p>
+
+            <p className="mt-1 text-xs leading-5 text-zinc-500">
+              {
+                connectionIssue.description
+              }
+            </p>
+          </div>
+
+          <Link
+            href={`/connected-accounts/${platform.key}`}
+            className="inline-flex shrink-0 items-center justify-center rounded-lg border border-zinc-700 bg-zinc-900/70 px-3 py-2 text-xs font-semibold text-zinc-300 transition hover:border-zinc-600 hover:bg-zinc-800 hover:text-white"
+          >
+            {
+              connectionIssue.actionLabel
+            }
+          </Link>
+        </div>
+      ) : null}
 
       <section className="mt-6">
         <div className="flex items-center justify-between gap-3">
@@ -1107,17 +1264,32 @@ async function applyMetricCustomization() {
       <footer className="mt-5 flex items-center justify-between gap-4 border-t border-zinc-800/80 pt-4">
         <div className="flex min-w-0 items-center gap-2">
           <span
-            className={`h-2 w-2 shrink-0 rounded-full ${getStatusDot(
-              platform.status
+            className={`h-2 w-2 shrink-0 rounded-full ${getConnectionDotClass(
+              connectionStatus
             )}`}
           />
 
-          <p className="truncate text-xs text-zinc-500">
-            Last synced{" "}
-            <span className="font-medium text-zinc-300">
-              {platform.lastSynced}
-            </span>
-          </p>
+          <div className="min-w-0">
+            <p className="truncate text-xs text-zinc-500">
+              Last successful sync{" "}
+              <span className="font-medium text-zinc-300">
+                {platform.lastSynced}
+              </span>
+            </p>
+
+            {failedAttemptLabel ? (
+              <p
+                className={`mt-0.5 truncate text-[11px] font-medium ${
+                  connectionStatus ===
+                  "reauth_required"
+                    ? "text-red-400"
+                    : "text-amber-400"
+                }`}
+              >
+                {failedAttemptLabel}
+              </p>
+            ) : null}
+          </div>
         </div>
 
         <Link

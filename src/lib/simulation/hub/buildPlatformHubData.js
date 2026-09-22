@@ -9,6 +9,8 @@ import buildPlatformHealth from "@/lib/simulation/hub/buildPlatformHealth";
 
 export default function buildPlatformHubData({
   platforms = [],
+  connectionScenario = null,
+  healthScenario = null,
 } = {}) {
   const dailySimulation =
     buildDailySimulationSnapshot(
@@ -62,10 +64,48 @@ export default function buildPlatformHubData({
     });
 
   return platforms.map((platform) => {
-    if (
-      platform.key === "youtube" &&
-      youtubeHubData
-    ) {
+    const diagnosticConnection =
+      connectionScenario?.[
+        platform.key
+      ] || null;
+
+    const diagnosticConnectionStatus =
+      typeof diagnosticConnection ===
+      "string"
+        ? diagnosticConnection
+        : diagnosticConnection?.status ||
+          null;
+
+    const diagnosticConnectionError =
+      typeof diagnosticConnection ===
+      "object"
+        ? diagnosticConnection?.error ||
+          null
+        : null;
+
+    const diagnosticHealth =
+      healthScenario?.[
+        platform.key
+      ] || null;
+
+    const diagnosticHealthStatus =
+      typeof diagnosticHealth ===
+      "string"
+        ? diagnosticHealth
+        : diagnosticHealth?.status ||
+          null;
+
+    const diagnosticAttentionReason =
+      typeof diagnosticHealth ===
+      "object"
+        ? diagnosticHealth?.attentionReason ||
+          null
+        : null;
+
+      if (
+        platform.key === "youtube" &&
+        youtubeHubData
+      ) {
       return {
         ...platform,
 
@@ -92,9 +132,18 @@ export default function buildPlatformHubData({
           youtubeHubData.summaryRevenue,
 
         status:
+          diagnosticHealthStatus ||
           youtubeHealth.status,
 
+        connectionStatus:
+          diagnosticConnectionStatus ||
+          "connected",
+
+        connectionError:
+          diagnosticConnectionError,
+
         attentionReason:
+          diagnosticAttentionReason ||
           youtubeHealth.attentionReason,
 
         healthSignals:
@@ -138,9 +187,18 @@ export default function buildPlatformHubData({
           twitchHubData.summaryRevenue,
 
         status:
+          diagnosticHealthStatus ||
           twitchHealth.status,
 
+        connectionStatus:
+          diagnosticConnectionStatus ||
+          "connected",
+
+        connectionError:
+          diagnosticConnectionError,
+
         attentionReason:
+          diagnosticAttentionReason ||
           twitchHealth.attentionReason,
 
         healthSignals:
@@ -181,9 +239,18 @@ export default function buildPlatformHubData({
           shopifyHubData.summaryRevenue,
 
         status:
+          diagnosticHealthStatus ||
           shopifyHealth.status,
 
+        connectionStatus:
+          diagnosticConnectionStatus ||
+          "connected",
+
+        connectionError:
+          diagnosticConnectionError,
+
         attentionReason:
+          diagnosticAttentionReason ||
           shopifyHealth.attentionReason,
 
         healthSignals:

@@ -58,10 +58,91 @@ const DEFAULT_VISUAL = {
     "border-zinc-700 text-zinc-300 hover:bg-zinc-800",
 };
 
+function getRecommendationLabel({
+  recommendationDomains = [],
+  category,
+  depthScore = 0,
+}) {
+  if (
+    recommendationDomains.includes(
+      "sponsorships"
+    )
+  ) {
+    return "Fills a sponsorship gap";
+  }
+
+  if (
+    recommendationDomains.includes(
+      "community"
+    )
+  ) {
+    return "Expands community visibility";
+  }
+
+  if (
+    recommendationDomains.includes(
+      "commerce"
+    )
+  ) {
+    return "Expands commerce visibility";
+  }
+
+  if (
+    recommendationDomains.includes(
+      "audience"
+    )
+  ) {
+    return "Expands audience visibility";
+  }
+
+  if (
+    recommendationDomains.includes(
+      "content"
+    )
+  ) {
+    return "Expands content visibility";
+  }
+
+  if (
+    depthScore > 0 &&
+    category === "Memberships"
+  ) {
+    return "Adds membership depth";
+  }
+
+  if (
+    depthScore > 0 &&
+    category === "Payments"
+  ) {
+    return "Strengthens payment coverage";
+  }
+
+  if (
+    depthScore > 0 &&
+    category === "Donations"
+  ) {
+    return "Adds supporter revenue depth";
+  }
+
+  return "Expands business visibility";
+}
+
 function ConnectionCard({ platform }) {
   const visual =
     CONNECTION_VISUALS[platform.key] ||
     DEFAULT_VISUAL;
+
+  const recommendationLabel =
+    getRecommendationLabel({
+      recommendationDomains:
+        platform.recommendationDomains,
+
+      category:
+        platform.category,
+
+      depthScore:
+        platform.recommendationDepthScore,
+    });
 
   return (
     <article
@@ -107,8 +188,13 @@ function ConnectionCard({ platform }) {
             {platform.name}
           </h3>
 
-          <p className="mt-1 line-clamp-2 text-xs leading-5 text-zinc-500">
-            {platform.description}
+          <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-600">
+            {recommendationLabel}
+          </p>
+
+          <p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-400">
+            {platform.recommendationReason ||
+              platform.description}
           </p>
         </div>
       </div>
@@ -158,7 +244,7 @@ export default function RecommendedConnections({
           </h2>
 
           <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-500">
-            Add platforms that give CreatorsHub a more complete view of your creator business.
+            Connect the platforms most likely to fill gaps in CreatorsHub&apos;s view of your business.
           </p>
         </div>
 

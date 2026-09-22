@@ -23,26 +23,3 @@ export const platformHubMockData = [
     lastSynced: "1 day ago",
   },
 ];
-
-export const recommendedConnections = [
-  {
-    name: "Patreon",
-    key: "patreon",
-    description:
-      "Sync memberships, patrons, and recurring income.",
-  },
-
-  {
-    name: "Stripe",
-    key: "stripe",
-    description:
-      "Track payments, subscriptions, payouts, and net revenue.",
-  },
-
-  {
-    name: "PayPal",
-    key: "paypal",
-    description:
-      "Sync payments, refunds, and creator income.",
-  },
-];

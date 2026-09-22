@@ -120,6 +120,26 @@ export default function PlatformSummaryBar({
       platform.status === "attention"
   ).length;
 
+  const connectionAttentionCount =
+    platforms.filter(
+      (platform) =>
+        platform.connectionStatus ===
+          "sync_error" ||
+        platform.connectionStatus ===
+          "reauth_required"
+    ).length;
+
+  const platformsNeedingAttention =
+    platforms.filter(
+      (platform) =>
+        platform.status ===
+          "attention" ||
+        platform.connectionStatus ===
+          "sync_error" ||
+        platform.connectionStatus ===
+          "reauth_required"
+    ).length;
+
   const trackedRevenue =
     platforms.reduce(
       (total, platform) =>
@@ -211,11 +231,26 @@ export default function PlatformSummaryBar({
 
       <SummaryCard
         label="Platforms Needing Attention"
-        value={attentionCount}
+        value={
+          platformsNeedingAttention
+        }
         helper={
-          attentionCount > 0
-            ? "Review recommended"
-            : "No issues detected"
+          platformsNeedingAttention === 0
+            ? "No issues detected"
+            : connectionAttentionCount > 0 &&
+                attentionCount > 0
+              ? `${attentionCount} performance · ${connectionAttentionCount} connection`
+              : connectionAttentionCount > 0
+                ? `${connectionAttentionCount} connection ${
+                    connectionAttentionCount === 1
+                      ? "issue"
+                      : "issues"
+                  }`
+                : `${attentionCount} performance ${
+                    attentionCount === 1
+                      ? "issue"
+                      : "issues"
+                  }`
         }
         tone="amber"
         icon={

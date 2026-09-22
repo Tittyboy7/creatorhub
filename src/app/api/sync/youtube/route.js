@@ -217,7 +217,7 @@ export async function POST(request) {
       userId: user.id,
       platform: "youtube",
       updates: {
-        sync_status: "error",
+        sync_status: "reauth_required",
         sync_error: "No refresh token found. Reconnect YouTube.",
       },
     });
@@ -241,8 +241,11 @@ export async function POST(request) {
       userId: user.id,
       platform: "youtube",
       updates: {
-        sync_status: "error",
-        sync_error: "Failed to refresh the Google access token.",
+        sync_status:
+          "reauth_required",
+
+        sync_error:
+          "YouTube authentication expired. Reconnect YouTube.",
       },
     });
 
